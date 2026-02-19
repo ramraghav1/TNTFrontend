@@ -28,6 +28,31 @@ export class AppMenu {
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
             {
+                label: 'Transaction',
+                items: [
+                    { label: 'Send Money', icon: 'pi pi-fw pi-money-bill', routerLink: ['/send-transaction'] },
+                    { label: 'Payout Money', icon: 'pi pi-fw pi-credit-card', routerLink: ['/transaction/payout'] },
+                    { label: 'Cancel Trannsaction', icon: 'pi pi-fw pi-minus', routerLink: ['/gettingstarted/features'] },
+                   
+                ]
+            },
+            {
+                label: 'Reports',
+                items: [
+                    { label: 'Transaction Report', icon: 'pi pi-fw pi-book', routerLink: ['/transaction-report'] }
+    
+                ]
+            },
+            {
+                label: 'Itinerary',
+                items: [
+                    { label: 'View Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/transaction/send'] },
+                    { label: 'Add Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/add-itinerary'] },
+                    { label: 'Manage Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/transaction/send'] },
+    
+                ]
+            },
+            {
                 label: 'UI Components',
                 items: [
                     { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },

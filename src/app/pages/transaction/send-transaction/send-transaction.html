@@ -1,0 +1,468 @@
+<p-fluid>
+  <div class="flex flex-col gap-8">
+    <div class="card flex flex-col gap-4">
+      <p-steps [model]="[
+          {label:'Transaction'},
+          {label:'Sender'}, 
+          {label:'Receiver'}, 
+          {label:'Confirm'}
+        ]" [activeIndex]="step-1"></p-steps>
+    </div>
+
+    <!-- Step 1: Transaction Details -->
+    <div *ngIf="step === 1" class="card flex flex-col gap-4">
+      <div class="font-semibold text-xl">Transaction Details</div>
+      <div class="flex flex-col md:flex-row gap-6">
+        <div class="flex flex-col gap-2 w-full"> <label>Payment Type</label> <p-select
+            [(ngModel)]="transaction.paymentType" [options]="paymentTypes" optionLabel="name" optionValue="value"
+            placeholder="Select Payment Type" class="w-full" (ngModelChange)="onPaymentTypeChange($event)"></p-select>
+        </div>
+        <div class="flex flex-col gap-2 w-full"> <label>Payout Location</label> <p-select
+            [(ngModel)]="transaction.payoutLocation"
+            [options]=" transaction.paymentType === 'bank' ? bankLocations : transaction.paymentType === 'wallet' ? walletLocations : cashLocations "
+            optionLabel="name" optionValue="value" placeholder="Select Payout Location"
+            [disabled]="transaction.paymentType === 'cash'"
+            [placeholder]="transaction.paymentType === 'cash' ? 'Anywhere In Nepal' : 'Select Payout Location'"
+            class="w-full"></p-select> </div>
+        <div class="flex flex-col gap-2 w-full"> <label>Transfer Amount</label> 
+          <input pInputText type="number" [(ngModel)]="transaction.transferAmount" (ngModelChange)="onAmountChange()" />
+        </div>
+        <div class="flex flex-col gap-2 w-full"> <label>Service Fee</label>
+           <input pInputText type="number" [(ngModel)]="transaction.serviceFee" (ngModelChange)="onAmountChange()" />
+        </div>
+        <div class="flex flex-col gap-2 w-full"> <label>Total Amount</label> <input pInputText type="number"
+          [ngModel]="transaction.collectedAmount"
+          readonly
+          placeholder="Collected from sender" />
+    </div>
+      </div>
+      <div class="flex justify-end mt-4"> <button pButton label="Next" (click)="next()"
+          [disabled]="!transaction.collectedAmount || !transaction.serviceFee || !transaction.transferAmount || !transaction.paymentType || !transaction.payoutLocation">
+        </button> </div>
+    </div>
+
+    <!-- Step 2: Sender Info -->
+    <div *ngIf="step === 2" class="card flex flex-col gap-4">
+      <div class="font-semibold text-xl">Sender Information</div>
+      <div class="flex flex-col md:flex-row gap-6">
+        <div class="flex-1 flex flex-col gap-4">
+          <div class="flex flex-col md:flex-row gap-6">
+            <div class="flex flex-col gap-2 w-full">
+              <label>Name</label>
+              <input pInputText [(ngModel)]="sender.name" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Address</label>
+              <input pInputText [(ngModel)]="sender.address" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Mobile Number</label>
+              <input pInputText [(ngModel)]="sender.mobile" />
+            </div>
+          </div>
+          <div>
+            <p-checkbox [(ngModel)]="sender.showOther" binary="true" label="Other Information"></p-checkbox>
+          </div>
+          <div *ngIf="sender.showOther" class="flex flex-col md:flex-row gap-6">
+            <div class="flex flex-col gap-2 w-full">
+              <label>State</label>
+              <input pInputText [(ngModel)]="sender.state" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>District</label>
+              <input pInputText [(ngModel)]="sender.district" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Local Level</label>
+              <input pInputText [(ngModel)]="sender.localLevel" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Ward No</label>
+              <input pInputText [(ngModel)]="sender.wardNo" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>ID Type</label>
+              <input pInputText [(ngModel)]="sender.idType" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>ID Number</label>
+              <input pInputText [(ngModel)]="sender.idNumber" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Issue Date</label>
+              <input pInputText type="date" [(ngModel)]="sender.issueDate" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Expiry Date</label>
+              <input pInputText type="date" [(ngModel)]="sender.expiryDate" />
+            </div>
+          </div>
+          <div class="flex justify-between mt-4">
+            <button pButton label="Back" class="p-button-secondary" (click)="prev()"></button>
+            <button pButton label="Next" (click)="next()"
+              [disabled]="!sender.name || !sender.address || !sender.mobile"></button>
+          </div>
+        </div>
+        <div class="w-full md:w-1/3 flex flex-col gap-4">
+          <div class="card bg-gradient-to-br from-blue-50 to-blue-100 shadow-md rounded-lg p-4 mb-2">
+            <div class="font-bold text-lg text-blue-800 mb-3 flex items-center gap-2">
+              <i class="pi pi-credit-card text-blue-500"></i>
+              Transaction Info
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 ">
+              <div>
+                <span class="font-semibold">Payment Type:</span>
+                <span class="ml-1">
+                  {{ getPaymentTypeName() }}
+                </span>
+              </div>
+              <div>
+                <span class="font-semibold">Payout Location:</span>
+                <span class="ml-1">{{ getPayoutLocationName() }}</span>
+              </div>
+              <div class="flex flex-col gap-2 w-full">
+                <label>Transfer Amount</label>
+                <input pInputText type="number" placeholder="Receiver will get" [(ngModel)]="transaction.transferAmount"
+                  (ngModelChange)="onAmountChange()" />
+              </div>
+              <div class="flex flex-col gap-2 w-full">
+                <label>Service Fee</label>
+                <input pInputText type="number" [(ngModel)]="transaction.serviceFee"
+                  (ngModelChange)="onAmountChange()" />
+              </div>
+              <div class="flex flex-col gap-2 w-full">
+                <label>Total Amount</label>
+                <input pInputText type="number" [value]="transaction.collectedAmount" readonly
+                  placeholder="Collected from sender" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Receiver Info -->
+    <div *ngIf="step === 3" class="card flex flex-col gap-4">
+      <div class="font-semibold text-xl">Receiver Information</div>
+      <div class="flex flex-col md:flex-row gap-6">
+        <div class="flex-1 flex flex-col gap-4">
+          <div class="flex flex-col md:flex-row gap-6">
+            <div class="flex flex-col gap-2 w-full">
+              <label>Name</label>
+              <input pInputText [(ngModel)]="receiver.name" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Address</label>
+              <input pInputText [(ngModel)]="receiver.address" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Mobile Number</label>
+              <input pInputText [(ngModel)]="receiver.mobile" />
+            </div>
+          </div>
+          <div>
+            <p-checkbox [(ngModel)]="receiver.showOther" binary="true" label="Other Information"></p-checkbox>
+          </div>
+          <div *ngIf="receiver.showOther" class="flex flex-col md:flex-row gap-6">
+            <div class="flex flex-col gap-2 w-full">
+              <label>State</label>
+              <input pInputText [(ngModel)]="receiver.state" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>District</label>
+              <input pInputText [(ngModel)]="receiver.district" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Local Level</label>
+              <input pInputText [(ngModel)]="receiver.localLevel" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Ward No</label>
+              <input pInputText [(ngModel)]="receiver.wardNo" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>ID Type</label>
+              <input pInputText [(ngModel)]="receiver.idType" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>ID Number</label>
+              <input pInputText [(ngModel)]="receiver.idNumber" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Issue Date</label>
+              <input pInputText type="date" [(ngModel)]="receiver.issueDate" />
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label>Expiry Date</label>
+              <input pInputText type="date" [(ngModel)]="receiver.expiryDate" />
+            </div>
+          </div>
+          <div class="flex justify-between mt-4">
+            <button pButton label="Back" class="p-button-secondary" (click)="prev()"></button>
+            <button pButton label="Next" (click)="next()"
+              [disabled]="!receiver.name || !receiver.address || !receiver.mobile"></button>
+          </div>
+        </div>
+        <div class="w-full md:w-1/3 flex flex-col gap-4">
+          <!-- Modern Transaction Info Card -->
+          <div class="card bg-gradient-to-br from-blue-50 to-blue-100 shadow-md rounded-lg p-4 mb-2">
+            <div class="font-bold text-lg text-blue-800 mb-3 flex items-center gap-2">
+              <i class="pi pi-credit-card text-blue-500"></i>
+              Transaction Info
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+              <div>
+                <span class="font-semibold">Payment Type:</span>
+                <span class="ml-1">
+                  {{ transaction.paymentType }}
+                </span>
+              </div>
+              <div>
+                <span class="font-semibold">Payout Location:</span>
+                <span class="ml-1">{{ transaction.payoutLocation }}</span>
+              </div>
+              <div>
+                <span class="font-semibold">Collected Amount:</span>
+                <span class="ml-1">{{ transaction.collectedAmount || '-' }}</span>
+              </div>
+              <div>
+                <span class="font-semibold">Service Fee:</span>
+                <span class="ml-1">{{ transaction.serviceFee || '-' }}</span>
+              </div>
+              <div>
+                <span class="font-semibold">Transfer Amount:</span>
+                <span class="ml-1">{{ transaction.transferAmount || '-' }}</span>
+              </div>
+            </div>
+          </div>
+          <!-- Modern Sender Info Card -->
+          <div class="card bg-gradient-to-br from-green-50 to-green-100 shadow-md rounded-lg p-4">
+            <div class="font-bold text-lg text-green-800 mb-3 flex items-center gap-2">
+              <i class="pi pi-user text-green-500"></i>
+              Sender Info
+            </div>
+            <div class="grid grid-cols-1 gap-y-2 ">
+              <div>
+                <span class="font-semibold">Name:</span>
+                <span class="ml-1">{{ sender.name || '-' }}</span>
+              </div>
+              <div>
+                <span class="font-semibold">Address:</span>
+                <span class="ml-1">{{ sender.address || '-' }}</span>
+              </div>
+              <div>
+                <span class="font-semibold">Mobile:</span>
+                <span class="ml-1">{{ sender.mobile || '-' }}</span>
+              </div>
+              <ng-container *ngIf="sender.showOther">
+                <div><span class="font-semibold">State:</span> <span class="ml-1">{{ sender.state || '-' }}</span></div>
+                <div><span class="font-semibold">District:</span> <span class="ml-1">{{ sender.district || '-' }}</span>
+                </div>
+                <div><span class="font-semibold">Local Level:</span> <span class="ml-1">{{ sender.localLevel || '-'
+                    }}</span></div>
+                <div><span class="font-semibold">Ward No:</span> <span class="ml-1">{{ sender.wardNo || '-' }}</span>
+                </div>
+                <div><span class="font-semibold">ID Type:</span> <span class="ml-1">{{ sender.idType || '-' }}</span>
+                </div>
+                <div><span class="font-semibold">ID Number:</span> <span class="ml-1">{{ sender.idNumber || '-'
+                    }}</span></div>
+                <div><span class="font-semibold">Issue Date:</span> <span class="ml-1">{{ sender.issueDate || '-'
+                    }}</span></div>
+                <div><span class="font-semibold">Expiry Date:</span> <span class="ml-1">{{ sender.expiryDate || '-'
+                    }}</span></div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Step 4: Confirmation -->
+    <div *ngIf="step === 4"
+      class="card flex flex-col gap-6 p-6 bg-gradient-to-br from-gray-50 to-blue-50 shadow-md rounded-lg">
+      <div class="font-semibold text-2xl text-blue-800 flex items-center gap-2 mb-2">
+        <i class="pi pi-check-circle text-green-500"></i>
+        Transaction Confirmation
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Transaction Info Card -->
+        <div class="card bg-gradient-to-br from-blue-50 to-blue-100 shadow rounded-lg p-4">
+          <div class="font-bold text-lg text-blue-800 mb-3 flex items-center gap-2">
+            <i class="pi pi-credit-card text-blue-500"></i>
+            Transaction Info
+          </div>
+          <div class="space-y-2 ">
+            <div>
+              <span class="font-semibold">Payment Type:</span>
+              <span class="ml-1">
+                {{ getPaymentTypeName() }}
+              </span>
+            </div>
+            <div>
+              <span class="font-semibold">Payout Location:</span>
+              <span class="ml-1">{{ getPayoutLocationName() }}</span>
+            </div>
+            <div>
+              <span class="font-semibold">Collected Amount:</span>
+              <span class="ml-1">{{ transaction.collectedAmount || '-' }}</span>
+            </div>
+            <div>
+              <span class="font-semibold">Service Fee:</span>
+              <span class="ml-1">{{ transaction.serviceFee || '-' }}</span>
+            </div>
+            <div>
+              <span class="font-semibold">Transfer Amount:</span>
+              <span class="ml-1">{{ transaction.transferAmount || '-' }}</span>
+            </div>
+          </div>
+        </div>
+        <!-- Sender Info Card -->
+        <div class="card bg-gradient-to-br from-green-50 to-green-100 shadow rounded-lg p-4">
+          <div class="font-bold text-lg text-green-800 mb-3 flex items-center gap-2">
+            <i class="pi pi-user text-green-500"></i>
+            Sender Info
+          </div>
+          <div class="space-y-2 ">
+            <div>
+              <span class="font-semibold">Name:</span>
+              <span class="ml-1">{{ sender.name || '-' }}</span>
+            </div>
+            <div>
+              <span class="font-semibold">Address:</span>
+              <span class="ml-1">{{ sender.address || '-' }}</span>
+            </div>
+            <div>
+              <span class="font-semibold">Mobile:</span>
+              <span class="ml-1">{{ sender.mobile || '-' }}</span>
+            </div>
+            <ng-container *ngIf="sender.showOther">
+              <div><span class="font-semibold">State:</span> <span class="ml-1">{{ sender.state || '-' }}</span></div>
+              <div><span class="font-semibold">District:</span> <span class="ml-1">{{ sender.district || '-' }}</span>
+              </div>
+              <div><span class="font-semibold">Local Level:</span> <span class="ml-1">{{ sender.localLevel || '-'
+                  }}</span></div>
+              <div><span class="font-semibold">Ward No:</span> <span class="ml-1">{{ sender.wardNo || '-' }}</span>
+              </div>
+              <div><span class="font-semibold">ID Type:</span> <span class="ml-1">{{ sender.idType || '-' }}</span>
+              </div>
+              <div><span class="font-semibold">ID Number:</span> <span class="ml-1">{{ sender.idNumber || '-' }}</span>
+              </div>
+              <div><span class="font-semibold">Issue Date:</span> <span class="ml-1">{{ sender.issueDate || '-'
+                  }}</span></div>
+              <div><span class="font-semibold">Expiry Date:</span> <span class="ml-1">{{ sender.expiryDate || '-'
+                  }}</span></div>
+            </ng-container>
+          </div>
+        </div>
+        <!-- Receiver Info Card -->
+        <div class="card bg-gradient-to-br from-yellow-50 to-yellow-100 shadow rounded-lg p-4 md:col-span-2">
+          <div class="font-bold text-lg text-yellow-800 mb-3 flex items-center gap-2">
+            <i class="pi pi-user-plus text-yellow-500"></i>
+            Receiver Info
+          </div>
+          <div class="space-y-2 ">
+            <div>
+              <span class="font-semibold">Name:</span>
+              <span class="ml-1">{{ receiver.name || '-' }}</span>
+            </div>
+            <div>
+              <span class="font-semibold">Address:</span>
+              <span class="ml-1">{{ receiver.address || '-' }}</span>
+            </div>
+            <div>
+              <span class="font-semibold">Mobile:</span>
+              <span class="ml-1">{{ receiver.mobile || '-' }}</span>
+            </div>
+            <ng-container *ngIf="receiver.showOther">
+              <div><span class="font-semibold">State:</span> <span class="ml-1">{{ receiver.state || '-' }}</span></div>
+              <div><span class="font-semibold">District:</span> <span class="ml-1">{{ receiver.district || '-' }}</span>
+              </div>
+              <div><span class="font-semibold">Local Level:</span> <span class="ml-1">{{ receiver.localLevel || '-'
+                  }}</span></div>
+              <div><span class="font-semibold">Ward No:</span> <span class="ml-1">{{ receiver.wardNo || '-' }}</span>
+              </div>
+              <div><span class="font-semibold">ID Type:</span> <span class="ml-1">{{ receiver.idType || '-' }}</span>
+              </div>
+              <div><span class="font-semibold">ID Number:</span> <span class="ml-1">{{ receiver.idNumber || '-'
+                  }}</span></div>
+              <div><span class="font-semibold">Issue Date:</span> <span class="ml-1">{{ receiver.issueDate || '-'
+                  }}</span></div>
+              <div><span class="font-semibold">Expiry Date:</span> <span class="ml-1">{{ receiver.expiryDate || '-'
+                  }}</span></div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-between mt-6">
+        <button pButton label="Back" class="p-button-secondary" (click)="prev()"></button>
+        <button pButton label="Confirm" (click)="confirm()"></button>
+      </div>
+    </div>
+
+    <!-- Confirmation Popup -->
+    <p-dialog header="Confirm Transaction" [(visible)]="showConfirm" [modal]="true" [closable]="false">
+      <div class="font-bold mb-2">Transaction Submitted!</div>
+      <div>Your transaction has been recorded.</div>
+      <div class="flex justify-end mt-4">
+        <button pButton label="Close" (click)="closeConfirm()"></button>
+      </div>
+    </p-dialog>
+    <p-dialog header="Transaction Receipt" [(visible)]="showReceipt" [modal]="true" [closable]="false"
+      [style]="{width: '700px'}" [contentStyle]="{padding: '0'}">
+      <div id="print-receipt" class="bg-white p-6">
+        <!-- First Copy (Office Copy) -->
+        <div class="mb-8 border-b pb-8">
+          <h2 class="text-xl font-bold mb-2 text-center">Transaction Receipt</h2>
+          <div class="text-center text-xs mb-4">Office Copy</div>
+          <div class="space-y-1">
+            <div><strong>Payment Type:</strong> {{ getPaymentTypeName() }}</div>
+            <div><strong>Payout Location:</strong> {{ getPayoutLocationName() }}</div>
+            <div><strong>Collected Amount:</strong> {{ transaction.collectedAmount }}</div>
+            <div><strong>Service Fee:</strong> {{ transaction.serviceFee }}</div>
+            <div><strong>Transfer Amount:</strong> {{ transaction.transferAmount }}</div>
+          </div>
+          <hr class="my-2">
+          <div class="font-bold">Sender</div>
+          <div>Name: {{ sender.name }}</div>
+          <div>Address: {{ sender.address }}</div>
+          <div>Mobile: {{ sender.mobile }}</div>
+          <hr class="my-2">
+          <div class="font-bold">Receiver</div>
+          <div>Name: {{ receiver.name }}</div>
+          <div>Address: {{ receiver.address }}</div>
+          <div>Mobile: {{ receiver.mobile }}</div>
+        </div>
+        <!-- Second Copy (Customer Copy with Watermark) -->
+        <div class="relative border-t pt-8">
+          <div
+            class="absolute inset-0 flex items-center justify-center pointer-events-none print:opacity-100 opacity-20 z-0">
+            <span class="text-5xl font-extrabold text-blue-200 select-none" style="transform: rotate(-20deg);">Customer
+              Copy</span>
+          </div>
+          <h2 class="text-xl font-bold mb-2 text-center relative z-10">Transaction Receipt</h2>
+          <div class="text-center text-xs mb-4 relative z-10">Customer Copy</div>
+          <div class="space-y-1 relative z-10">
+            <div><strong>Payment Type:</strong> {{ getPaymentTypeName() }}</div>
+            <div><strong>Payout Location:</strong> {{ getPayoutLocationName() }}</div>
+            <div><strong>Collected Amount:</strong> {{ transaction.collectedAmount }}</div>
+            <div><strong>Service Fee:</strong> {{ transaction.serviceFee }}</div>
+            <div><strong>Transfer Amount:</strong> {{ transaction.transferAmount }}</div>
+          </div>
+          <hr class="my-2 relative z-10">
+          <div class="font-bold relative z-10">Sender</div>
+          <div class="relative z-10">Name: {{ sender.name }}</div>
+          <div class="relative z-10">Address: {{ sender.address }}</div>
+          <div class="relative z-10">Mobile: {{ sender.mobile }}</div>
+          <hr class="my-2 relative z-10">
+          <div class="font-bold relative z-10">Receiver</div>
+          <div class="relative z-10">Name: {{ receiver.name }}</div>
+          <div class="relative z-10">Address: {{ receiver.address }}</div>
+          <div class="relative z-10">Mobile: {{ receiver.mobile }}</div>
+        </div>
+        <div class="flex justify-end gap-2 mt-6 print:hidden">
+          <button pButton label="Print" (click)="printReceipt()"></button>
+          <button pButton label="Close" class="p-button-secondary" (click)="closeReceipt()"></button>
+        </div>
+      </div>
+    </p-dialog>

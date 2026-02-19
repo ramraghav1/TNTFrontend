@@ -1,0 +1,180 @@
+<p-fluid>
+    <div class="card mb-4">
+      <div class="font-semibold text-xl mb-4">Traveler Information</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label>Full Name</label>
+          <input pInputText [(ngModel)]="form.travelerInfo.fullName" />
+        </div>
+        <div>
+          <label>Contact Number</label>
+          <input pInputText [(ngModel)]="form.travelerInfo.contactNumber" />
+        </div>
+        <div>
+          <label>Email</label>
+          <input pInputText [(ngModel)]="form.travelerInfo.email" />
+        </div>
+        <div>
+          <label>Nationality</label>
+          <input pInputText [(ngModel)]="form.travelerInfo.nationality" />
+        </div>
+        <div>
+          <label>Adults</label>
+          <input pInputText type="number" [(ngModel)]="form.travelerInfo.groupSize.adults" />
+        </div>
+        <div>
+          <label>Children</label>
+          <input pInputText type="number" [(ngModel)]="form.travelerInfo.groupSize.children" />
+        </div>
+        <div>
+          <label>Seniors</label>
+          <input pInputText type="number" [(ngModel)]="form.travelerInfo.groupSize.seniors" />
+        </div>
+      </div>
+    </div>
+  
+    <div class="card mb-4">
+      <div class="font-semibold text-xl mb-4">Trip Details</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label>Start Date</label>
+          <input pInputText type="date" [(ngModel)]="form.tripDetails.startDate" />
+        </div>
+        <div>
+          <label>End Date</label>
+          <input pInputText type="date" [(ngModel)]="form.tripDetails.endDate" />
+        </div>
+        <div>
+          <label>Purpose</label>
+          <p-multiselect [options]="purposeOptions" [(ngModel)]="form.tripDetails.purpose" placeholder="Select Purpose"></p-multiselect>
+        </div>
+        <div>
+          <label>Entry Point</label>
+          <input pInputText [(ngModel)]="form.tripDetails.entryPoint" />
+        </div>
+        <div>
+          <label>Exit Point</label>
+          <input pInputText [(ngModel)]="form.tripDetails.exitPoint" />
+        </div>
+        <div>
+          <label>Budget Per Person</label>
+          <input pInputText type="number" [(ngModel)]="form.tripDetails.budgetPerPerson" />
+        </div>
+        <div>
+          <label>Currency</label>
+          <input pInputText [(ngModel)]="form.tripDetails.currency" />
+        </div>
+      </div>
+    </div>
+  
+    <div class="card mb-4">
+      <div class="font-semibold text-xl mb-4">Preferences</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label>Accommodation</label>
+          <input pInputText [(ngModel)]="form.preferences.accommodation" />
+        </div>
+        <div>
+          <label>Transport Mode</label>
+          <input pInputText [(ngModel)]="form.preferences.transportMode" />
+        </div>
+        <div>
+          <label>Meal Preferences</label>
+          <p-multiselect [options]="mealOptions" [(ngModel)]="form.preferences.mealPreferences" placeholder="Select Meals"></p-multiselect>
+        </div>
+        <div>
+          <label>Language Guide</label>
+          <input pInputText [(ngModel)]="form.preferences.languageGuide" />
+        </div>
+        <div>
+          <label>Requires Porter</label>
+          <p-checkbox [(ngModel)]="form.preferences.requiresPorter"></p-checkbox>
+        </div>
+        <div>
+          <label>Permit Required</label>
+          <p-checkbox [(ngModel)]="form.preferences.permitRequired"></p-checkbox>
+        </div>
+      </div>
+    </div>
+  
+    <div class="card mb-4">
+      <div class="font-semibold text-xl mb-4">Permits</div>
+      <div *ngFor="let permit of form.permits; let i = index" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
+        <div>
+          <label>Type</label>
+          <input pInputText [(ngModel)]="permit.type" />
+        </div>
+        <div>
+          <label>Area</label>
+          <input pInputText [(ngModel)]="permit.area" />
+        </div>
+        <div>
+          <label>Valid From</label>
+          <input pInputText type="date" [(ngModel)]="permit.validFrom" />
+        </div>
+        <div>
+          <label>Valid To</label>
+          <input pInputText type="date" [(ngModel)]="permit.validTo" />
+        </div>
+      </div>
+      <button pButton type="button" icon="pi pi-plus" label="Add Permit" (click)="addPermit()"></button>
+    </div>
+  
+    <div class="card mb-4">
+        <div class="font-semibold text-xl mb-4">Daily Itinerary</div>
+        <p-accordion [multiple]="true">
+          <p-accordionTab *ngFor="let day of form.itinerary; let i = index" [header]="'Day ' + day.day + ': ' + day.title">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label>Date</label>
+                <input pInputText type="date" [(ngModel)]="day.date" />
+              </div>
+              <div>
+                <label>Location</label>
+                <input pInputText [(ngModel)]="day.location" />
+              </div>
+              <div>
+                <label>Title</label>
+                <input pInputText [(ngModel)]="day.title" />
+              </div>
+              <div>
+                <label>Activities</label>
+                <p-chips [(ngModel)]="day.activities"></p-chips>
+              </div>
+              <div>
+                <label>Accommodation</label>
+                <input pInputText [(ngModel)]="day.accommodation" />
+              </div>
+              <div>
+                <label>Meals</label>
+                <div class="flex gap-2">
+                  <p-checkbox [(ngModel)]="day.meals.breakfast" binary="true" label="Breakfast"></p-checkbox>
+                  <p-checkbox [(ngModel)]="day.meals.lunch" binary="true" label="Lunch"></p-checkbox>
+                  <p-checkbox [(ngModel)]="day.meals.dinner" binary="true" label="Dinner"></p-checkbox>
+                </div>
+              </div>
+              <div>
+                <label>Transport</label>
+                <input pInputText [(ngModel)]="day.transport" />
+              </div>
+              <div>
+                <label>Guide</label>
+                <input pInputText [(ngModel)]="day.guide" />
+              </div>
+              <div>
+                <label>Permit Used</label>
+                <input pInputText [(ngModel)]="day.permitUsed" />
+              </div>
+            </div>
+            <div class="flex justify-end mt-2">
+              <button pButton type="button" icon="pi pi-trash" class="p-button-danger" label="Remove Day" (click)="removeDay(i)"></button>
+            </div>
+          </p-accordionTab>
+        </p-accordion>
+        <button pButton type="button" icon="pi pi-plus" label="Add Day" (click)="addDay()"></button>
+      </div>
+  
+    <div class="flex justify-end mt-4">
+      <button pButton type="button" label="Submit Itinerary" (click)="submitItinerary()"></button>
+    </div>
+  </p-fluid>
