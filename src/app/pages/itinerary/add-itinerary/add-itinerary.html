@@ -1,180 +1,123 @@
 <p-fluid>
-    <div class="card mb-4">
-      <div class="font-semibold text-xl mb-4">Traveler Information</div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label>Full Name</label>
-          <input pInputText [(ngModel)]="form.travelerInfo.fullName" />
+  <div class="flex flex-col gap-8">
+    <!-- Toast Notification -->
+    <div>
+      <p-toast></p-toast>
+    </div>
+
+    <!-- Single Card with All Content -->
+    <div class="card flex flex-col gap-6">
+      <!-- Title -->
+      <h2 class="text-2xl font-bold">Create Itinerary</h2>
+
+      <!-- Basic Information Section -->
+      <div>
+        <div class="font-semibold text-xl mb-4">Basic Information</div>
+        <div class="flex flex-col md:flex-row gap-6">
+          <div class="flex flex-col gap-2 w-full">
+            <label>Title *</label>
+            <input pInputText [(ngModel)]="form.title" placeholder="Enter itinerary title" class="w-full" />
+          </div>
+          
+          <div class="flex flex-col gap-2 w-full">
+            <label>Duration (Days) *</label>
+            <input pInputText type="number" [(ngModel)]="form.durationDays" placeholder="Number of days" class="w-full" />
+          </div>
+
+          <div class="flex flex-col gap-2 w-full">
+            <label>Difficulty Level</label>
+            <p-select [(ngModel)]="form.difficultyLevel" [options]="difficultyLevelOptions" optionLabel="label" optionValue="value" placeholder="Select difficulty" class="w-full"></p-select>
+          </div>
         </div>
-        <div>
-          <label>Contact Number</label>
-          <input pInputText [(ngModel)]="form.travelerInfo.contactNumber" />
-        </div>
-        <div>
-          <label>Email</label>
-          <input pInputText [(ngModel)]="form.travelerInfo.email" />
-        </div>
-        <div>
-          <label>Nationality</label>
-          <input pInputText [(ngModel)]="form.travelerInfo.nationality" />
-        </div>
-        <div>
-          <label>Adults</label>
-          <input pInputText type="number" [(ngModel)]="form.travelerInfo.groupSize.adults" />
-        </div>
-        <div>
-          <label>Children</label>
-          <input pInputText type="number" [(ngModel)]="form.travelerInfo.groupSize.children" />
-        </div>
-        <div>
-          <label>Seniors</label>
-          <input pInputText type="number" [(ngModel)]="form.travelerInfo.groupSize.seniors" />
+
+        <div class="flex flex-col gap-2 w-full mt-6">
+          <label>Description</label>
+          <textarea pInputTextarea [(ngModel)]="form.description" placeholder="Enter description" rows="4" class="w-full"></textarea>
         </div>
       </div>
-    </div>
-  
-    <div class="card mb-4">
-      <div class="font-semibold text-xl mb-4">Trip Details</div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label>Start Date</label>
-          <input pInputText type="date" [(ngModel)]="form.tripDetails.startDate" />
+
+      <!-- Divider -->
+      <hr class="my-2">
+
+      <!-- Daily Itinerary Section -->
+      <div>
+        <div class="flex justify-between items-center mb-4">
+          <div class="font-semibold text-xl">Daily Itinerary</div>
+          <p-button label="Add Day" (click)="addDay()" icon="pi pi-plus" severity="success"></p-button>
         </div>
-        <div>
-          <label>End Date</label>
-          <input pInputText type="date" [(ngModel)]="form.tripDetails.endDate" />
-        </div>
-        <div>
-          <label>Purpose</label>
-          <p-multiselect [options]="purposeOptions" [(ngModel)]="form.tripDetails.purpose" placeholder="Select Purpose"></p-multiselect>
-        </div>
-        <div>
-          <label>Entry Point</label>
-          <input pInputText [(ngModel)]="form.tripDetails.entryPoint" />
-        </div>
-        <div>
-          <label>Exit Point</label>
-          <input pInputText [(ngModel)]="form.tripDetails.exitPoint" />
-        </div>
-        <div>
-          <label>Budget Per Person</label>
-          <input pInputText type="number" [(ngModel)]="form.tripDetails.budgetPerPerson" />
-        </div>
-        <div>
-          <label>Currency</label>
-          <input pInputText [(ngModel)]="form.tripDetails.currency" />
-        </div>
-      </div>
-    </div>
-  
-    <div class="card mb-4">
-      <div class="font-semibold text-xl mb-4">Preferences</div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label>Accommodation</label>
-          <input pInputText [(ngModel)]="form.preferences.accommodation" />
-        </div>
-        <div>
-          <label>Transport Mode</label>
-          <input pInputText [(ngModel)]="form.preferences.transportMode" />
-        </div>
-        <div>
-          <label>Meal Preferences</label>
-          <p-multiselect [options]="mealOptions" [(ngModel)]="form.preferences.mealPreferences" placeholder="Select Meals"></p-multiselect>
-        </div>
-        <div>
-          <label>Language Guide</label>
-          <input pInputText [(ngModel)]="form.preferences.languageGuide" />
-        </div>
-        <div>
-          <label>Requires Porter</label>
-          <p-checkbox [(ngModel)]="form.preferences.requiresPorter"></p-checkbox>
-        </div>
-        <div>
-          <label>Permit Required</label>
-          <p-checkbox [(ngModel)]="form.preferences.permitRequired"></p-checkbox>
-        </div>
-      </div>
-    </div>
-  
-    <div class="card mb-4">
-      <div class="font-semibold text-xl mb-4">Permits</div>
-      <div *ngFor="let permit of form.permits; let i = index" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
-        <div>
-          <label>Type</label>
-          <input pInputText [(ngModel)]="permit.type" />
-        </div>
-        <div>
-          <label>Area</label>
-          <input pInputText [(ngModel)]="permit.area" />
-        </div>
-        <div>
-          <label>Valid From</label>
-          <input pInputText type="date" [(ngModel)]="permit.validFrom" />
-        </div>
-        <div>
-          <label>Valid To</label>
-          <input pInputText type="date" [(ngModel)]="permit.validTo" />
-        </div>
-      </div>
-      <button pButton type="button" icon="pi pi-plus" label="Add Permit" (click)="addPermit()"></button>
-    </div>
-  
-    <div class="card mb-4">
-        <div class="font-semibold text-xl mb-4">Daily Itinerary</div>
-        <p-accordion [multiple]="true">
-          <p-accordionTab *ngFor="let day of form.itinerary; let i = index" [header]="'Day ' + day.day + ': ' + day.title">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label>Date</label>
-                <input pInputText type="date" [(ngModel)]="day.date" />
-              </div>
-              <div>
-                <label>Location</label>
-                <input pInputText [(ngModel)]="day.location" />
-              </div>
-              <div>
-                <label>Title</label>
-                <input pInputText [(ngModel)]="day.title" />
-              </div>
-              <div>
-                <label>Activities</label>
-                <p-chips [(ngModel)]="day.activities"></p-chips>
-              </div>
-              <div>
-                <label>Accommodation</label>
-                <input pInputText [(ngModel)]="day.accommodation" />
-              </div>
-              <div>
-                <label>Meals</label>
-                <div class="flex gap-2">
-                  <p-checkbox [(ngModel)]="day.meals.breakfast" binary="true" label="Breakfast"></p-checkbox>
-                  <p-checkbox [(ngModel)]="day.meals.lunch" binary="true" label="Lunch"></p-checkbox>
-                  <p-checkbox [(ngModel)]="day.meals.dinner" binary="true" label="Dinner"></p-checkbox>
+
+        <p-accordion>
+          @for (day of form.days; track day.dayNumber; let i = $index) {
+            <p-accordionTab [header]="'Day ' + day.dayNumber + ': ' + day.title">
+              <div class="flex flex-col gap-6">
+                <!-- First Row -->
+                <div class="flex flex-col md:flex-row gap-6">
+                  <div class="flex flex-col gap-2 w-full">
+                    <label>Title</label>
+                    <input pInputText [(ngModel)]="day.title" placeholder="Day title" class="w-full" />
+                  </div>
+                  
+                  <div class="flex flex-col gap-2 w-full">
+                    <label>Location</label>
+                    <input pInputText [(ngModel)]="day.location" placeholder="Location" class="w-full" />
+                  </div>
+                  
+                  <div class="flex flex-col gap-2 w-full">
+                    <label>Accommodation</label>
+                    <input pInputText [(ngModel)]="day.accommodation" placeholder="Hotel/Resort name" class="w-full" />
+                  </div>
+                </div>
+
+                <!-- Second Row -->
+                <div class="flex flex-col md:flex-row gap-6">
+                  <div class="flex flex-col gap-2 w-full">
+                    <label>Transport</label>
+                    <input pInputText [(ngModel)]="day.transport" placeholder="Transport mode" class="w-full" />
+                  </div>
+
+                  <div class="flex flex-col gap-2 w-full">
+                    <label>Activities</label>
+                    <p-multiSelect [(ngModel)]="day.activities" [options]="activityOptions" optionLabel="label" optionValue="value" placeholder="Select activities" class="w-full"></p-multiSelect>
+                  </div>
+                </div>
+
+                <!-- Meals Section -->
+                <div>
+                  <label class="block mb-3 font-semibold">Meals Included</label>
+                  <div class="flex gap-6">
+                    <div class="flex items-center">
+                      <p-checkbox [(ngModel)]="day.breakfastIncluded" binary class="mr-2"></p-checkbox>
+                      <label>Breakfast</label>
+                    </div>
+                    <div class="flex items-center">
+                      <p-checkbox [(ngModel)]="day.lunchIncluded" binary class="mr-2"></p-checkbox>
+                      <label>Lunch</label>
+                    </div>
+                    <div class="flex items-center">
+                      <p-checkbox [(ngModel)]="day.dinnerIncluded" binary class="mr-2"></p-checkbox>
+                      <label>Dinner</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Remove Button -->
+                <div>
+                  <p-button label="Remove Day" severity="danger" (click)="removeDay(i)" icon="pi pi-trash"></p-button>
                 </div>
               </div>
-              <div>
-                <label>Transport</label>
-                <input pInputText [(ngModel)]="day.transport" />
-              </div>
-              <div>
-                <label>Guide</label>
-                <input pInputText [(ngModel)]="day.guide" />
-              </div>
-              <div>
-                <label>Permit Used</label>
-                <input pInputText [(ngModel)]="day.permitUsed" />
-              </div>
-            </div>
-            <div class="flex justify-end mt-2">
-              <button pButton type="button" icon="pi pi-trash" class="p-button-danger" label="Remove Day" (click)="removeDay(i)"></button>
-            </div>
-          </p-accordionTab>
+            </p-accordionTab>
+          }
         </p-accordion>
-        <button pButton type="button" icon="pi pi-plus" label="Add Day" (click)="addDay()"></button>
       </div>
-  
-    <div class="flex justify-end mt-4">
-      <button pButton type="button" label="Submit Itinerary" (click)="submitItinerary()"></button>
+
+      <!-- Divider -->
+      <hr class="my-2">
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end gap-3 mt-4">
+        <p-button label="Save Itinerary" (click)="submitItinerary()" icon="pi pi-check"></p-button>
+        <p-button label="Cancel" severity="secondary" (click)="resetForm()" icon="pi pi-times"></p-button>
+      </div>
     </div>
-  </p-fluid>
+  </div>
+</p-fluid>

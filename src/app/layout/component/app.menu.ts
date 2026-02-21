@@ -46,7 +46,7 @@ export class AppMenu {
             {
                 label: 'Itinerary',
                 items: [
-                    { label: 'View Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/transaction/send'] },
+                    { label: 'View Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/itinerary-list'] },
                     { label: 'Add Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/add-itinerary'] },
                     { label: 'Manage Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/transaction/send'] },
     
