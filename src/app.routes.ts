@@ -9,6 +9,7 @@ import { AddItinerary } from './app/pages/itinerary/add-itinerary/add-itinerary'
 import { SendTransaction } from './app/pages/transaction/send-transaction/send-transaction';
 import { Login } from './app/pages/auth/login';
 import { ItineraryList } from './app/pages/itinerary/itinerary-list/itinerary-list';
+import { ItineraryDetailsComponent } from './app/pages/itinerary/itinerary-details/itinerary-details';
 
 export const appRoutes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -25,7 +26,8 @@ export const appRoutes: Routes = [
             { path: 'add-itinerary', component: AddItinerary },
             { path: 'itinerary-list', component: ItineraryList },
             { path: 'send-transaction', component: SendTransaction },
-            { path: 'transaction-report', loadComponent: () => import('./app/pages/transaction/transaction-report/transaction-report').then(m => m.TransactionReport) }
+            { path: 'transaction-report', loadComponent: () => import('./app/pages/transaction/transaction-report/transaction-report').then(m => m.TransactionReport) },
+            { path: 'itinerary-details/:id', component: ItineraryDetailsComponent }
         ]
     },
     { path: 'landing', component: Landing },

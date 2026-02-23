@@ -1,161 +1,45 @@
-<p-fluid>
-  <div class="flex flex-col gap-8">
-    <!-- Toast Notification -->
-    <div>
-      <p-toast></p-toast>
-    </div>
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
-    <!-- Confirmation Dialog -->
-    <p-confirmDialog></p-confirmDialog>
-
-    <!-- Header Card -->
-    <div class="card flex flex-col gap-4">
-      <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold">Itineraries</h2>
-        <p-button label="Add New" icon="pi pi-plus" routerLink="/add-itinerary"></p-button>
-      </div>
-    </div>
-
-    <!-- Table Card -->
-    <div class="card flex flex-col gap-4">
-      <p-table
-        [value]="itineraries"
-        [loading]="loading"
-        [paginator]="true"
-        [rows]="10"
-        [globalFilterFields]="['title', 'description', 'difficultyLevel']"
-        responsiveLayout="scroll"
-      >
-        <!-- Loading Template -->
-        <ng-template pTemplate="loadingbody">
-          <tr>
-            <td colspan="6" class="text-center p-4">
-              <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-            </td>
-          </tr>
-        </ng-template>
-
-        <!-- Empty Template -->
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="6" class="text-center p-4">
-              <span class="text-gray-500">No itineraries found</span>
-            </td>
-          </tr>
-        </ng-template>
-
-        <!-- Header -->
-        <ng-template pTemplate="header">
-          <tr>
-            <th pSortableColumn="id" style="width: 8%">
-              ID <p-sortIcon field="id"></p-sortIcon>
-            </th>
-            <th pSortableColumn="title" style="width: 25%">
-              Title <p-sortIcon field="title"></p-sortIcon>
-            </th>
-            <th pSortableColumn="description" style="width: 30%">
-              Description <p-sortIcon field="description"></p-sortIcon>
-            </th>
-            <th pSortableColumn="durationDays" style="width: 12%">
-              Duration (Days) <p-sortIcon field="durationDays"></p-sortIcon>
-            </th>
-            <th pSortableColumn="difficultyLevel" style="width: 15%">
-              Difficulty Level <p-sortIcon field="difficultyLevel"></p-sortIcon>
-            </th>
-            <th style="width: 10%">Actions</th>
-          </tr>
-        </ng-template>
-
-        <!-- Body -->
-        <ng-template pTemplate="body" let-itinerary>
-          <tr>
-            <td>
-              <span class="font-semibold">{{ itinerary.id }}</span>
-            </td>
-            <td>
-              <span class="font-medium">{{ itinerary.title }}</span>
-            </td>
-            <td>
-              <span class="text-gray-600">{{ itinerary.description | slice:0:50 }}{{ itinerary.description?.length > 50 ? '...' : '' }}</span>
-            </td>
-            <td>
-              <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">{{ itinerary.durationDays }} days</span>
-            </td>
-            <td>
-              <span class="font-medium">{{ itinerary.difficultyLevel }}</span>
-            </td>
-            <td>
-              <div class="flex gap-2">
-                <p-button
-                  icon="pi pi-eye"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="info"
-                  (click)="viewDetails(itinerary)"
-                  pTooltip="View Details"
-                  tooltipPosition="top"
-                ></p-button>
-                <p-button
-                  icon="pi pi-pencil"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="secondary"
-                  (click)="editItinerary(itinerary)"
-                  pTooltip="Edit"
-                  tooltipPosition="top"
-                ></p-button>
-                <p-button
-                  icon="pi pi-trash"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="danger"
-                  (click)="deleteItinerary(itinerary)"
-                  pTooltip="Delete"
-                  tooltipPosition="top"
-                ></p-button>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
+<div class="card">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-2xl font-bold">Itineraries</h2>
+    <button pButton type="button" label="Add New" icon="pi pi-plus" routerLink="/add-itinerary"></button>
   </div>
-</p-fluid>
 
-<!-- Details Dialog -->
-<p-dialog
-  header="Itinerary Details"
-  [(visible)]="showDetailsDialog"
-  [modal]="true"
-  [style]="{width: '50vw'}"
-  [closable]="true"
-  (onHide)="closeDetailsDialog()"
->
-  <div *ngIf="selectedItinerary" class="flex flex-col gap-4">
-    <div>
-      <label class="block text-sm font-semibold text-gray-700 mb-2">ID</label>
-      <p>{{ selectedItinerary.id }}</p>
-    </div>
-    <div>
-      <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
-      <p class="text-lg font-bold">{{ selectedItinerary.title }}</p>
-    </div>
-    <div>
-      <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-      <p class="text-gray-600">{{ selectedItinerary.description }}</p>
-    </div>
-    <div class="grid grid-cols-2 gap-4">
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Duration (Days)</label>
-        <p class="text-lg font-semibold text-blue-600">{{ selectedItinerary.durationDays }}</p>
-      </div>
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Difficulty Level</label>
-        <p class="text-lg font-semibold text-orange-600">{{ selectedItinerary.difficultyLevel }}</p>
-      </div>
-    </div>
-  </div>
-  <ng-template pTemplate="footer">
-    <p-button label="Close" (click)="closeDetailsDialog()" severity="secondary"></p-button>
-  </ng-template>
-</p-dialog>
+  <p-table [value]="itineraries" [paginator]="true" [rows]="10" [loading]="loading" [globalFilterFields]="['title','description','difficultyLevel']" responsiveLayout="scroll">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+        <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
+        <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
+        <th pSortableColumn="durationDays">Duration <p-sortIcon field="durationDays"></p-sortIcon></th>
+        <th pSortableColumn="difficultyLevel">Difficulty <p-sortIcon field="difficultyLevel"></p-sortIcon></th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-itinerary>
+      <tr>
+        <td>{{ itinerary.id }}</td>
+        <td>{{ itinerary.title }}</td>
+        <td>{{ itinerary.description }}</td>
+        <td>{{ itinerary.durationDays }} days</td>
+        <td>{{ itinerary.difficultyLevel }}</td>
+        <td class="flex gap-2">
+          <button pButton icon="pi pi-eye" class="p-button-text p-button-rounded p-button-info" (click)="viewDetails(itinerary)" pTooltip="View Details"></button>
+          <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-secondary" (click)="editItinerary(itinerary)" pTooltip="Edit"></button>
+          <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger" (click)="deleteItinerary(itinerary)" pTooltip="Delete"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center">No itineraries found</td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+</div>

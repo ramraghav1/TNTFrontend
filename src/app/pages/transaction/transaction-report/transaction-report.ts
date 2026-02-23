@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, CommonModule } from '@angular/common';
@@ -29,7 +29,7 @@ export class TransactionReport {
   loading = false;
   filterInput!: { nativeElement: { value: string } };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cd: ChangeDetectorRef) {}
 
   fetchTransactions() {
     this.loading = true;
@@ -42,10 +42,12 @@ export class TransactionReport {
         next: (res) => {
           this.transactions = res;
           this.loading = false;
+          this.cd.detectChanges(); 
         },
         error: () => {
           this.transactions = [];
           this.loading = false;
+          this.cd.detectChanges(); 
         }
       });
   }

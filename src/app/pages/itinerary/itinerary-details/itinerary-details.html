@@ -1,0 +1,70 @@
+<!-- Loading Spinner -->
+<div *ngIf="loading" class="flex justify-content-center align-items-center py-8">
+    <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading && itinerary as itineraryData" class="surface-ground p-4 w-full">
+
+  <!-- Header Card -->
+  <div class="card w-full border-round-xl shadow-2 p-5 mb-4">
+    <h2 class="text-4xl font-bold mb-3">{{ itineraryData.title }}</h2>
+    <p class="text-600 text-lg mb-3">{{ itineraryData.description }}</p>
+
+    <div class="flex gap-3 flex-wrap">
+      <p-tag icon="pi pi-calendar" [value]="itineraryData.durationDays + ' Days'" severity="info"></p-tag>
+      <p-tag icon="pi pi-chart-line" [value]="itineraryData.difficultyLevel"
+             [severity]="getDifficultySeverity(itineraryData.difficultyLevel)">
+      </p-tag>
+    </div>
+  </div>
+
+  <!-- Days Accordion -->
+  <div class="card w-full border-round-xl shadow-1 p-4">
+    <h4 class="mb-4 text-xl font-semibold">Daily Plan</h4>
+
+    <p-accordion [multiple]="true">
+      <p-accordion-panel *ngFor="let day of itineraryData.days" [value]="day.id">
+
+        <!-- Accordion Header -->
+        <p-accordion-header>
+          <div class="flex justify-content-between align-items-center w-full">
+            <div class="flex align-items-center gap-3">
+              <span class="text-primary font-bold">Day {{ day.dayNumber }}</span>
+              <span>{{ day.title }}</span>
+            </div>
+            <span class="text-sm text-500"> {{ day.location }}</span>
+          </div>
+        </p-accordion-header>
+
+        <p-accordion-content>
+            <div class="w-full overflow-x-auto">
+              <table class="w-full border-collapse">
+                <thead>
+                  <tr class="text-left text-lg font-bold text-700 border-b-1 border-gray-300">
+                    <th class="p-2">Accommodation</th>
+                    <th class="p-2">Transport</th>
+                    <th class="p-2">Meals</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="text-600">
+                    <td class="p-2">{{ day.accommodation }}</td>
+                    <td class="p-2">{{ day.transport }}</td>
+                    <td class="p-2">
+                      <span *ngIf="day.breakfastIncluded">🍳 Breakfast </span>
+                      <span *ngIf="day.lunchIncluded">🍽 Lunch </span>
+                      <span *ngIf="day.dinnerIncluded">🍲 Dinner</span>
+                      <span *ngIf="!day.breakfastIncluded && !day.lunchIncluded && !day.dinnerIncluded">None</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </p-accordion-content>
+
+      </p-accordion-panel>
+    </p-accordion>
+
+  </div>
+</div>

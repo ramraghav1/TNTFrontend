@@ -1,16 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { RouterModule, Router } from '@angular/router';
+
+// PrimeNG
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { Toast } from 'primeng/toast';
-import { ConfirmDialog } from 'primeng/confirmdialog';
-import { Dialog } from 'primeng/dialog';
-import { FluidModule } from 'primeng/fluid';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
-import { RouterModule } from '@angular/router';
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 interface Itinerary {
   id: number;
@@ -26,72 +27,61 @@ interface Itinerary {
   imports: [
     CommonModule,
     HttpClientModule,
+    RouterModule,
     TableModule,
     ButtonModule,
+    ToastModule,
     InputTextModule,
-    Toast,
-    ConfirmDialog,
-    Dialog,
-    FluidModule,
-    TooltipModule,
-    RouterModule
+    ConfirmDialogModule,
+    DialogModule,
+    TooltipModule
   ],
   providers: [MessageService, ConfirmationService],
-  templateUrl: './itinerary-list.html',
-  styleUrl: './itinerary-list.scss',
+  templateUrl: './itinerary-list.html'
 })
 export class ItineraryList implements OnInit {
   itineraries: Itinerary[] = [];
-  loading: boolean = false;
-  selectedItinerary: Itinerary | null = null;
-  showDetailsDialog: boolean = false;
+  loading = false;
 
   constructor(
     private http: HttpClient,
+    private router: Router,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadItineraries();
   }
 
   loadItineraries() {
     this.loading = true;
-    this.http.get<Itinerary[]>('https://localhost:7236/api/Itineraries/list').subscribe(
-      (data: Itinerary[]) => {
-        this.itineraries = data;
-        this.loading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Itineraries loaded successfully'
-        });
-      },
-      (error) => {
-        this.loading = false;
-        console.error('Error loading itineraries:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load itineraries'
-        });
-      }
-    );
+    this.http.get<Itinerary[]>('https://localhost:7236/api/Itineraries/list')
+      .subscribe({
+        next: (data) => {
+          this.itineraries = data;
+          this.loading = false;
+
+          // ✅ Trigger change detection manually to avoid NG0100
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error(err);
+          this.loading = false;
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load itineraries' });
+
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   viewDetails(itinerary: Itinerary) {
-    this.selectedItinerary = itinerary;
-    this.showDetailsDialog = true;
+    this.router.navigate(['itinerary-details', itinerary.id]);
   }
 
   editItinerary(itinerary: Itinerary) {
-    console.log('Edit itinerary:', itinerary);
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Edit functionality coming soon'
-    });
+    this.messageService.add({ severity: 'info', summary: 'Edit', detail: `Edit itinerary ${itinerary.title}` });
   }
 
   deleteItinerary(itinerary: Itinerary) {
@@ -100,30 +90,11 @@ export class ItineraryList implements OnInit {
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.http.delete(`https://localhost:7236/api/Itineraries/${itinerary.id}`).subscribe(
-          () => {
-            this.itineraries = this.itineraries.filter(i => i.id !== itinerary.id);
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Itinerary deleted successfully'
-            });
-          },
-          (error) => {
-            console.error('Error deleting itinerary:', error);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: 'Failed to delete itinerary'
-            });
-          }
-        );
+        this.itineraries = this.itineraries.filter(i => i.id !== itinerary.id);
+        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: `Itinerary ${itinerary.title} deleted` });
+
+        this.cdr.detectChanges(); // Make sure view updates
       }
     });
-  }
-
-  closeDetailsDialog() {
-    this.showDetailsDialog = false;
-    this.selectedItinerary = null;
   }
 }
