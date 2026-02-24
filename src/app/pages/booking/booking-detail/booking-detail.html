@@ -1,0 +1,209 @@
+<p-toast></p-toast>
+
+<!-- Loading Spinner -->
+<div *ngIf="loading" class="flex justify-content-center align-items-center py-8">
+    <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading && itinerary" class="surface-ground p-4 w-full">
+
+    <!-- Back Button -->
+    <button pButton icon="pi pi-arrow-left" label="Back to List" class="p-button-text mb-3" (click)="goBack()"></button>
+
+    <!-- ============================= -->
+    <!-- SECTION 1: Itinerary Overview -->
+    <!-- ============================= -->
+    <div class="card w-full border-round-xl shadow-2 p-5 mb-4">
+        <h2 class="text-3xl font-bold mb-2">{{ itinerary.title }}</h2>
+        <p class="text-600 text-lg mb-3">{{ itinerary.description }}</p>
+        <div class="flex gap-3 flex-wrap">
+            <p-tag icon="pi pi-calendar" [value]="itinerary.durationDays + ' Days'" severity="info"></p-tag>
+            <p-tag icon="pi pi-chart-line" [value]="itinerary.difficultyLevel"
+                   [severity]="getDifficultySeverity(itinerary.difficultyLevel)"></p-tag>
+        </div>
+    </div>
+
+    <!-- ============================= -->
+    <!-- SECTION 2: Editable Day Plan  -->
+    <!-- ============================= -->
+    <div class="card w-full border-round-xl shadow-1 p-4 mb-4">
+        <h3 class="text-xl font-semibold mb-4">
+            <i class="pi pi-map mr-2"></i>Customize Daily Plan
+        </h3>
+
+        <p-accordion [multiple]="true">
+            <p-accordion-panel *ngFor="let day of editableDays; let i = index" [value]="day.id">
+
+                <p-accordion-header>
+                    <div class="flex justify-content-between align-items-center w-full">
+                        <div class="flex align-items-center gap-3">
+                            <span class="text-primary font-bold">Day {{ day.dayNumber }}</span>
+                            <span>{{ day.title }}</span>
+                        </div>
+                        <span class="text-sm text-500">{{ day.location }}</span>
+                    </div>
+                </p-accordion-header>
+
+                <p-accordion-content>
+                    <div class="grid p-fluid">
+                        <!-- Row 1: Title & Location -->
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="block font-semibold mb-2">Title</label>
+                            <input pInputText [(ngModel)]="day.title" placeholder="Day title" />
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="block font-semibold mb-2">Location</label>
+                            <input pInputText [(ngModel)]="day.location" placeholder="Location" />
+                        </div>
+
+                        <!-- Row 2: Accommodation & Transport -->
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="block font-semibold mb-2">Accommodation</label>
+                            <input pInputText [(ngModel)]="day.accommodation" placeholder="Accommodation" />
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="block font-semibold mb-2">Transport</label>
+                            <input pInputText [(ngModel)]="day.transport" placeholder="Transport" />
+                        </div>
+
+                        <!-- Row 3: Meals -->
+                        <div class="col-12 mb-3">
+                            <label class="block font-semibold mb-2">Meals Included</label>
+                            <div class="flex gap-4 flex-wrap">
+                                <p-checkbox [(ngModel)]="day.breakfastIncluded" [binary]="true" label="Breakfast"></p-checkbox>
+                                <p-checkbox [(ngModel)]="day.lunchIncluded" [binary]="true" label="Lunch"></p-checkbox>
+                                <p-checkbox [(ngModel)]="day.dinnerIncluded" [binary]="true" label="Dinner"></p-checkbox>
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Activities -->
+                        <div class="col-12 mb-3">
+                            <label class="block font-semibold mb-2">Activities</label>
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <p-chip *ngFor="let activity of day.activities; let ai = index"
+                                        [label]="activity"
+                                        [removable]="true"
+                                        (onRemove)="removeActivity(day, ai)">
+                                </p-chip>
+                            </div>
+                            <div class="flex gap-2">
+                                <input pInputText [(ngModel)]="day.newActivity" placeholder="Add activity"
+                                       (keyup.enter)="addActivity(day)" class="flex-1" />
+                                <button pButton icon="pi pi-plus" class="p-button-outlined" (click)="addActivity(day)"></button>
+                            </div>
+                        </div>
+                    </div>
+                </p-accordion-content>
+
+            </p-accordion-panel>
+        </p-accordion>
+    </div>
+
+    <!-- ============================= -->
+    <!-- SECTION 3: Booking Info       -->
+    <!-- ============================= -->
+    <div class="card w-full border-round-xl shadow-1 p-4 mb-4">
+        <h3 class="text-xl font-semibold mb-4">
+            <i class="pi pi-calendar-plus mr-2"></i>Booking Information
+        </h3>
+
+        <div class="grid p-fluid">
+            <!-- Dates -->
+            <div class="col-12 md:col-6 mb-3">
+                <label class="block font-semibold mb-2">Start Date *</label>
+                <p-datepicker [(ngModel)]="startDate" [showIcon]="true" dateFormat="yy-mm-dd" placeholder="Select start date"></p-datepicker>
+            </div>
+            <div class="col-12 md:col-6 mb-3">
+                <label class="block font-semibold mb-2">End Date *</label>
+                <p-datepicker [(ngModel)]="endDate" [showIcon]="true" dateFormat="yy-mm-dd" placeholder="Select end date"></p-datepicker>
+            </div>
+
+            <!-- Special Requests -->
+            <div class="col-12 mb-3">
+                <label class="block font-semibold mb-2">Special Requests</label>
+                <textarea pTextarea [(ngModel)]="specialRequests" rows="3" placeholder="Any special requests or notes..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================= -->
+    <!-- SECTION 4: Travelers          -->
+    <!-- ============================= -->
+    <div class="card w-full border-round-xl shadow-1 p-4 mb-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold m-0">
+                <i class="pi pi-users mr-2"></i>Travelers
+            </h3>
+            <button pButton icon="pi pi-plus" label="Add Traveler" class="p-button-outlined p-button-sm" (click)="addTraveler()"></button>
+        </div>
+
+        <div *ngFor="let traveler of travelers; let ti = index" class="border-1 surface-border border-round p-4 mb-3">
+            <div class="flex justify-between items-center mb-3">
+                <h4 class="m-0 text-lg font-semibold">Traveler {{ ti + 1 }}</h4>
+                <button *ngIf="travelers.length > 1"
+                        pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm"
+                        (click)="removeTraveler(ti)"></button>
+            </div>
+
+            <div class="grid p-fluid">
+                <!-- Full Name -->
+                <div class="col-12 md:col-6 mb-3">
+                    <label class="block font-semibold mb-2">Full Name *</label>
+                    <input pInputText [(ngModel)]="traveler.fullName" placeholder="Full name" />
+                </div>
+
+                <!-- Email -->
+                <div class="col-12 md:col-6 mb-3">
+                    <label class="block font-semibold mb-2">Email</label>
+                    <input pInputText [(ngModel)]="traveler.email" placeholder="Email address" />
+                </div>
+
+                <!-- Contact Number -->
+                <div class="col-12 md:col-6 mb-3">
+                    <label class="block font-semibold mb-2">Contact Number</label>
+                    <input pInputText [(ngModel)]="traveler.contactNumber" placeholder="Phone number" />
+                </div>
+
+                <!-- Nationality -->
+                <div class="col-12 md:col-6 mb-3">
+                    <label class="block font-semibold mb-2">Nationality</label>
+                    <input pInputText [(ngModel)]="traveler.nationality" placeholder="Nationality" />
+                </div>
+
+                <!-- Guest counts -->
+                <div class="col-12 md:col-4 mb-3">
+                    <label class="block font-semibold mb-2">Adults</label>
+                    <p-inputnumber [(ngModel)]="traveler.adults" [min]="1" [showButtons]="true"></p-inputnumber>
+                </div>
+                <div class="col-12 md:col-4 mb-3">
+                    <label class="block font-semibold mb-2">Children</label>
+                    <p-inputnumber [(ngModel)]="traveler.children" [min]="0" [showButtons]="true"></p-inputnumber>
+                </div>
+                <div class="col-12 md:col-4 mb-3">
+                    <label class="block font-semibold mb-2">Seniors</label>
+                    <p-inputnumber [(ngModel)]="traveler.seniors" [min]="0" [showButtons]="true"></p-inputnumber>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================= -->
+    <!-- SECTION 5: Submit Button      -->
+    <!-- ============================= -->
+    <div class="flex justify-content-end gap-3 mt-4">
+        <button pButton label="Cancel" icon="pi pi-times" class="p-button-outlined p-button-secondary" (click)="goBack()"></button>
+        <button pButton label="Continue Booking Process" icon="pi pi-check" class="p-button-success p-button-lg"
+                [loading]="submitting"
+                [disabled]="!isFormValid()"
+                (click)="continueBooking()">
+        </button>
+    </div>
+</div>
+
+<!-- Not Found -->
+<div *ngIf="!loading && !itinerary" class="card p-5 text-center">
+    <i class="pi pi-exclamation-triangle text-4xl text-yellow-500 mb-3"></i>
+    <h3>Itinerary not found</h3>
+    <button pButton label="Back to List" icon="pi pi-arrow-left" class="p-button-text" (click)="goBack()"></button>
+</div>

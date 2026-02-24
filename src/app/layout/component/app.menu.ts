@@ -49,7 +49,21 @@ export class AppMenu {
                     { label: 'View Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/itinerary-list'] },
                     { label: 'Add Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/add-itinerary'] },
                     { label: 'Manage Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/transaction/send'] },
-    
+                ]
+            },
+            {
+                label: 'Booking',
+                items: [
+                    { label: 'Book Itinerary', icon: 'pi pi-fw pi-bookmark', routerLink: ['/booking-list'] },
+                ]
+            },
+            {
+                label: 'Remittance',
+                items: [
+                    { label: 'Countries', icon: 'pi pi-fw pi-globe', routerLink: ['/remittance/countries'] },
+                    { label: 'Payment Types', icon: 'pi pi-fw pi-credit-card', routerLink: ['/remittance/payment-types'] },
+                    { label: 'Agents', icon: 'pi pi-fw pi-users', routerLink: ['/remittance/agents'] },
+                    { label: 'Service Charges', icon: 'pi pi-fw pi-money-bill', routerLink: ['/remittance/service-charges'] },
                 ]
             },
             // {

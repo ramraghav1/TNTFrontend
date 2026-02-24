@@ -10,6 +10,13 @@ import { SendTransaction } from './app/pages/transaction/send-transaction/send-t
 import { Login } from './app/pages/auth/login';
 import { ItineraryList } from './app/pages/itinerary/itinerary-list/itinerary-list';
 import { ItineraryDetailsComponent } from './app/pages/itinerary/itinerary-details/itinerary-details';
+import { BookingList } from './app/pages/booking/booking-list/booking-list';
+import { BookingDetail } from './app/pages/booking/booking-detail/booking-detail';
+import { CountryList } from './app/pages/remittance/country-list/country-list';
+import { PaymentTypeList } from './app/pages/remittance/payment-type-list/payment-type-list';
+import { AgentList } from './app/pages/remittance/agent-list/agent-list';
+import { ServiceChargeList } from './app/pages/remittance/service-charge-list/service-charge-list';
+import { ServiceChargeForm } from './app/pages/remittance/service-charge-form/service-charge-form';
 
 export const appRoutes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -27,7 +34,15 @@ export const appRoutes: Routes = [
             { path: 'itinerary-list', component: ItineraryList },
             { path: 'send-transaction', component: SendTransaction },
             { path: 'transaction-report', loadComponent: () => import('./app/pages/transaction/transaction-report/transaction-report').then(m => m.TransactionReport) },
-            { path: 'itinerary-details/:id', component: ItineraryDetailsComponent }
+            { path: 'itinerary-details/:id', component: ItineraryDetailsComponent },
+            { path: 'booking-list', component: BookingList },
+            { path: 'booking-detail/:id', component: BookingDetail },
+            { path: 'remittance/countries', component: CountryList },
+            { path: 'remittance/payment-types', component: PaymentTypeList },
+            { path: 'remittance/agents', component: AgentList },
+            { path: 'remittance/service-charges', component: ServiceChargeList },
+            { path: 'remittance/service-charge-form', component: ServiceChargeForm },
+            { path: 'remittance/service-charge-form/:id', component: ServiceChargeForm }
         ]
     },
     { path: 'landing', component: Landing },
