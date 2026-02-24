@@ -20,7 +20,7 @@
         [showGridlines]="true"
         [rowHover]="true"
         responsiveLayout="scroll"
-        [globalFilterFields]="['name', 'countryName', 'contactPerson', 'contactEmail', 'contactPhone']"
+        [globalFilterFields]="['name', 'countryName', 'agentType', 'contactPerson', 'contactEmail']"
     >
         <ng-template pTemplate="caption">
             <div class="flex justify-between items-center flex-wrap gap-2">
@@ -35,29 +35,29 @@
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="name">Agent Name <p-sortIcon field="name"></p-sortIcon></th>
+                <th pSortableColumn="agentType">Type <p-sortIcon field="agentType"></p-sortIcon></th>
                 <th pSortableColumn="countryName">Country <p-sortIcon field="countryName"></p-sortIcon></th>
                 <th pSortableColumn="contactPerson">Contact Person <p-sortIcon field="contactPerson"></p-sortIcon></th>
-                <th pSortableColumn="contactEmail">Email <p-sortIcon field="contactEmail"></p-sortIcon></th>
-                <th pSortableColumn="contactPhone">Phone <p-sortIcon field="contactPhone"></p-sortIcon></th>
                 <th>Status</th>
-                <th style="min-width: 8rem">Actions</th>
+                <th style="min-width: 14rem">Actions</th>
             </tr>
         </ng-template>
 
         <ng-template pTemplate="body" let-item>
             <tr>
                 <td class="font-semibold">{{ item.name }}</td>
+                <td>{{ item.agentType || '-' }}</td>
                 <td>{{ item.countryName }}</td>
                 <td>{{ item.contactPerson }}</td>
-                <td class="text-color-secondary">{{ item.contactEmail }}</td>
-                <td>{{ item.contactPhone }}</td>
                 <td>
                     <p-tag [value]="item.isActive ? 'Active' : 'Inactive'" [severity]="item.isActive ? 'success' : 'danger'"></p-tag>
                 </td>
                 <td>
                     <div class="flex gap-2">
-                        <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-sm" (click)="editItem(item)"></button>
-                        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-sm" (click)="deleteItem(item)"></button>
+                        <button pButton icon="pi pi-eye" class="p-button-rounded p-button-info p-button-sm" pTooltip="View Detail" (click)="viewDetail(item)"></button>
+                        <button pButton icon="pi pi-building" class="p-button-rounded p-button-warning p-button-sm" pTooltip="Branches" (click)="viewBranches(item)"></button>
+                        <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-success p-button-sm" pTooltip="Edit" (click)="editItem(item)"></button>
+                        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-sm" pTooltip="Delete" (click)="deleteItem(item)"></button>
                     </div>
                 </td>
             </tr>
@@ -65,7 +65,7 @@
 
         <ng-template pTemplate="emptymessage">
             <tr>
-                <td colspan="7" class="text-center py-6">
+                <td colspan="6" class="text-center py-6">
                     <div class="flex flex-col items-center gap-2 text-color-secondary">
                         <i class="pi pi-users text-4xl"></i>
                         <span>No agents found.</span>
@@ -76,19 +76,89 @@
     </p-table>
 </div>
 
+<!-- View Detail Dialog -->
+<p-dialog
+    [(visible)]="detailDialogVisible"
+    header="Agent Details"
+    [modal]="true"
+    [style]="{ width: '600px' }"
+    [closable]="true"
+>
+    @if (detailItem) {
+    <div class="flex flex-col gap-4 mt-2">
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="text-color-secondary text-sm">Agent Name</label>
+                <p class="font-semibold mt-1">{{ detailItem.name }}</p>
+            </div>
+            <div>
+                <label class="text-color-secondary text-sm">Agent Type</label>
+                <p class="font-semibold mt-1">{{ detailItem.agentType || '-' }}</p>
+            </div>
+            <div>
+                <label class="text-color-secondary text-sm">Country</label>
+                <p class="font-semibold mt-1">{{ detailItem.countryName }}</p>
+            </div>
+            <div>
+                <label class="text-color-secondary text-sm">Status</label>
+                <p class="mt-1"><p-tag [value]="detailItem.isActive ? 'Active' : 'Inactive'" [severity]="detailItem.isActive ? 'success' : 'danger'"></p-tag></p>
+            </div>
+            <div class="col-span-2">
+                <label class="text-color-secondary text-sm">Address</label>
+                <p class="font-semibold mt-1">{{ detailItem.address || '-' }}</p>
+            </div>
+            <div>
+                <label class="text-color-secondary text-sm">Contact Person</label>
+                <p class="font-semibold mt-1">{{ detailItem.contactPerson || '-' }}</p>
+            </div>
+            <div>
+                <label class="text-color-secondary text-sm">Email</label>
+                <p class="font-semibold mt-1">{{ detailItem.contactEmail || '-' }}</p>
+            </div>
+            <div>
+                <label class="text-color-secondary text-sm">Phone</label>
+                <p class="font-semibold mt-1">{{ detailItem.contactPhone || '-' }}</p>
+            </div>
+            <div>
+                <label class="text-color-secondary text-sm">Created</label>
+                <p class="font-semibold mt-1">{{ detailItem.createdAt | date: 'medium' }}</p>
+            </div>
+        </div>
+    </div>
+    }
+    <ng-template pTemplate="footer">
+        <button pButton label="Close" icon="pi pi-times" class="p-button-text" (click)="detailDialogVisible = false"></button>
+        <button pButton label="View Branches" icon="pi pi-building" severity="secondary" (click)="detailDialogVisible = false; viewBranches(detailItem!)"></button>
+    </ng-template>
+</p-dialog>
+
 <!-- Create / Edit Dialog -->
 <p-dialog
     [(visible)]="dialogVisible"
     [header]="editMode ? 'Edit Agent' : 'New Agent'"
     [modal]="true"
-    [style]="{ width: '550px' }"
+    [style]="{ width: '600px' }"
     [closable]="true"
 >
     <p-fluid>
         <div class="flex flex-col gap-4 mt-2">
-            <div class="flex flex-col gap-2">
-                <label for="agentName" class="font-semibold">Agent Name *</label>
-                <input pInputText id="agentName" [(ngModel)]="selectedItem.name" placeholder="Agent name" />
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex flex-col gap-2 w-full">
+                    <label for="agentName" class="font-semibold">Agent Name *</label>
+                    <input pInputText id="agentName" [(ngModel)]="selectedItem.name" placeholder="Agent name" />
+                </div>
+                <div class="flex flex-col gap-2 w-full">
+                    <label for="agentType" class="font-semibold">Agent Type</label>
+                    <p-select
+                        id="agentType"
+                        [options]="agentTypes"
+                        [(ngModel)]="selectedItem.agentType"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Select Type"
+                        [appendTo]="'body'"
+                    ></p-select>
+                </div>
             </div>
 
             <div class="flex flex-col gap-2">
@@ -102,7 +172,13 @@
                     placeholder="Select Country"
                     [filter]="true"
                     filterPlaceholder="Search country..."
+                    [appendTo]="'body'"
                 ></p-select>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="address" class="font-semibold">Address</label>
+                <input pInputText id="address" [(ngModel)]="selectedItem.address" placeholder="Agent address" />
             </div>
 
             <div class="flex flex-col gap-2">

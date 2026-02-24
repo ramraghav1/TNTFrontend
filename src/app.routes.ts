@@ -17,6 +17,10 @@ import { PaymentTypeList } from './app/pages/remittance/payment-type-list/paymen
 import { AgentList } from './app/pages/remittance/agent-list/agent-list';
 import { ServiceChargeList } from './app/pages/remittance/service-charge-list/service-charge-list';
 import { ServiceChargeForm } from './app/pages/remittance/service-charge-form/service-charge-form';
+import { FxRateList } from './app/pages/remittance/fx-rate-list/fx-rate-list';
+import { FxRateForm } from './app/pages/remittance/fx-rate-form/fx-rate-form';
+import { BranchList } from './app/pages/remittance/branch-list/branch-list';
+import { BranchUserList } from './app/pages/remittance/branch-user-list/branch-user-list';
 
 export const appRoutes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -42,7 +46,12 @@ export const appRoutes: Routes = [
             { path: 'remittance/agents', component: AgentList },
             { path: 'remittance/service-charges', component: ServiceChargeList },
             { path: 'remittance/service-charge-form', component: ServiceChargeForm },
-            { path: 'remittance/service-charge-form/:id', component: ServiceChargeForm }
+            { path: 'remittance/service-charge-form/:id', component: ServiceChargeForm },
+            { path: 'remittance/fx-rates', component: FxRateList },
+            { path: 'remittance/fx-rate-form', component: FxRateForm },
+            { path: 'remittance/fx-rate-form/:id', component: FxRateForm },
+            { path: 'remittance/branches/:agentId', component: BranchList },
+            { path: 'remittance/branch-users/:branchId', component: BranchUserList }
         ]
     },
     { path: 'landing', component: Landing },

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FluidModule } from 'primeng/fluid';
@@ -53,7 +53,8 @@ export class CountryList implements OnInit {
     constructor(
         private remittanceService: RemittanceService,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
+        private confirmationService: ConfirmationService,
+        private cdr: ChangeDetectorRef
     ) {}
 
     ngOnInit(): void {
@@ -66,10 +67,12 @@ export class CountryList implements OnInit {
             next: (data) => {
                 this.countries = data;
                 this.loading = false;
+                this.cdr.detectChanges();
             },
             error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load countries' });
                 this.loading = false;
+                this.cdr.detectChanges();
             }
         });
     }
@@ -102,8 +105,9 @@ export class CountryList implements OnInit {
                     this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Country updated' });
                     this.dialogVisible = false;
                     this.loadCountries();
+                    this.cdr.detectChanges();
                 },
-                error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update country' })
+                error: () => { this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update country' }); this.cdr.detectChanges(); }
             });
         } else {
             const req: CreateCountryRequest = {
@@ -120,8 +124,9 @@ export class CountryList implements OnInit {
                     this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Country created' });
                     this.dialogVisible = false;
                     this.loadCountries();
+                    this.cdr.detectChanges();
                 },
-                error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create country' })
+                error: () => { this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create country' }); this.cdr.detectChanges(); }
             });
         }
     }
@@ -136,8 +141,9 @@ export class CountryList implements OnInit {
                     next: () => {
                         this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Country deleted' });
                         this.loadCountries();
+                        this.cdr.detectChanges();
                     },
-                    error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete country' })
+                    error: () => { this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete country' }); this.cdr.detectChanges(); }
                 });
             }
         });

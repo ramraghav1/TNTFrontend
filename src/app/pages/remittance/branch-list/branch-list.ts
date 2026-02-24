@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FluidModule } from 'primeng/fluid';
 
 import { TableModule } from 'primeng/table';
@@ -15,13 +15,14 @@ import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToolbarModule } from 'primeng/toolbar';
-import { SelectModule } from 'primeng/select';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { InputNumberModule } from 'primeng/inputnumber';
 
-import { RemittanceService, Agent, Country, CreateAgentRequest, UpdateAgentRequest } from '../remittance.service';
+import { RemittanceService, Branch, CreateBranchRequest, UpdateBranchRequest } from '../remittance.service';
 
 @Component({
-    selector: 'app-agent-list',
+    selector: 'app-branch-list',
     standalone: true,
     imports: [
         CommonModule,
@@ -37,29 +38,24 @@ import { RemittanceService, Agent, Country, CreateAgentRequest, UpdateAgentReque
         IconFieldModule,
         InputIconModule,
         ToolbarModule,
-        SelectModule,
-        FluidModule
+        TooltipModule,
+        FluidModule,
+        InputNumberModule
     ],
     providers: [MessageService, ConfirmationService],
-    templateUrl: './agent-list.html',
-    styleUrls: ['./agent-list.scss']
+    templateUrl: './branch-list.html',
+    styleUrls: ['./branch-list.scss']
 })
-export class AgentList implements OnInit {
-    agents: Agent[] = [];
-    countries: Country[] = [];
+export class BranchList implements OnInit {
+    branches: Branch[] = [];
+    agentId!: number;
+    agentName = '';
     loading = false;
     dialogVisible = false;
     detailDialogVisible = false;
     editMode = false;
     selectedItem: any = {};
-    detailItem: Agent | null = null;
-
-    agentTypes = [
-        { label: 'Super Agent', value: 'Super Agent' },
-        { label: 'Sub Agent', value: 'Sub Agent' },
-        { label: 'Paying Agent', value: 'Paying Agent' },
-        { label: 'Sending Agent', value: 'Sending Agent' }
-    ];
+    detailItem: Branch | null = null;
 
     @ViewChild('filterInput') filterInput!: ElementRef;
 
@@ -68,67 +64,82 @@ export class AgentList implements OnInit {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private cdr: ChangeDetectorRef,
+        private route: ActivatedRoute,
         private router: Router
     ) {}
 
     ngOnInit(): void {
+        this.agentId = +this.route.snapshot.params['agentId'];
         this.loadData();
-        this.loadCountries();
     }
 
     loadData() {
         this.loading = true;
-        this.remittanceService.getAgents().subscribe({
-            next: (data) => { this.agents = data; this.loading = false; this.cdr.detectChanges(); },
+        this.remittanceService.getBranchesByAgent(this.agentId).subscribe({
+            next: (data) => {
+                this.branches = data;
+                if (data.length > 0) this.agentName = data[0].agentName;
+                this.loading = false;
+                this.cdr.detectChanges();
+            },
             error: () => {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load agents' });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load branches' });
                 this.loading = false;
                 this.cdr.detectChanges();
             }
         });
-    }
-
-    loadCountries() {
-        this.remittanceService.getCountries().subscribe({
-            next: (data) => { this.countries = data.filter(c => c.isActive); this.cdr.detectChanges(); }
-        });
+        // Also load agent name if no branches
+        if (!this.agentName) {
+            this.remittanceService.getAgent(this.agentId).subscribe({
+                next: (a) => { this.agentName = a.name; this.cdr.detectChanges(); }
+            });
+        }
     }
 
     openNew() {
-        this.selectedItem = { name: '', countryId: null, agentType: null, address: '', contactPerson: '', contactEmail: '', contactPhone: '', isActive: true };
+        this.selectedItem = {
+            agentId: this.agentId, branchName: '', branchCode: '', address: '',
+            state: '', district: '', locallevel: '', wardNumber: null, zipcode: '',
+            contactPerson: '', contactEmail: '', contactPhone: '', isActive: true
+        };
         this.editMode = false;
         this.dialogVisible = true;
     }
 
-    editItem(item: Agent) {
+    editItem(item: Branch) {
         this.selectedItem = { ...item };
         this.editMode = true;
         this.dialogVisible = true;
     }
 
-    viewDetail(item: Agent) {
+    viewDetail(item: Branch) {
         this.detailItem = item;
         this.detailDialogVisible = true;
     }
 
-    viewBranches(item: Agent) {
-        this.router.navigate(['/remittance/branches', item.id]);
+    viewUsers(item: Branch) {
+        this.router.navigate(['/remittance/branch-users', item.id]);
     }
 
     saveItem() {
         if (this.editMode) {
-            const req: UpdateAgentRequest = {
-                name: this.selectedItem.name,
-                agentType: this.selectedItem.agentType,
+            const req: UpdateBranchRequest = {
+                branchName: this.selectedItem.branchName,
+                branchCode: this.selectedItem.branchCode,
                 address: this.selectedItem.address,
+                state: this.selectedItem.state,
+                district: this.selectedItem.district,
+                locallevel: this.selectedItem.locallevel,
+                wardNumber: this.selectedItem.wardNumber,
+                zipcode: this.selectedItem.zipcode,
                 contactPerson: this.selectedItem.contactPerson,
                 contactEmail: this.selectedItem.contactEmail,
                 contactPhone: this.selectedItem.contactPhone,
                 isActive: this.selectedItem.isActive
             };
-            this.remittanceService.updateAgent(this.selectedItem.id, req).subscribe({
+            this.remittanceService.updateBranch(this.selectedItem.id, req).subscribe({
                 next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Agent updated' });
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Branch updated' });
                     this.dialogVisible = false;
                     this.loadData();
                     this.cdr.detectChanges();
@@ -136,19 +147,23 @@ export class AgentList implements OnInit {
                 error: () => { this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update' }); this.cdr.detectChanges(); }
             });
         } else {
-            const req: CreateAgentRequest = {
-                name: this.selectedItem.name,
-                countryId: this.selectedItem.countryId,
-                agentType: this.selectedItem.agentType,
+            const req: CreateBranchRequest = {
+                agentId: this.agentId,
+                branchName: this.selectedItem.branchName,
+                branchCode: this.selectedItem.branchCode,
                 address: this.selectedItem.address,
+                state: this.selectedItem.state,
+                district: this.selectedItem.district,
+                locallevel: this.selectedItem.locallevel,
+                wardNumber: this.selectedItem.wardNumber,
+                zipcode: this.selectedItem.zipcode,
                 contactPerson: this.selectedItem.contactPerson,
                 contactEmail: this.selectedItem.contactEmail,
-                contactPhone: this.selectedItem.contactPhone,
-                isActive: this.selectedItem.isActive
+                contactPhone: this.selectedItem.contactPhone
             };
-            this.remittanceService.createAgent(req).subscribe({
+            this.remittanceService.createBranch(req).subscribe({
                 next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Agent created' });
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Branch created' });
                     this.dialogVisible = false;
                     this.loadData();
                     this.cdr.detectChanges();
@@ -158,15 +173,15 @@ export class AgentList implements OnInit {
         }
     }
 
-    deleteItem(item: Agent) {
+    deleteItem(item: Branch) {
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete agent "${item.name}"?`,
+            message: `Are you sure you want to delete branch "${item.branchName}"?`,
             header: 'Confirm Delete',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.remittanceService.deleteAgent(item.id).subscribe({
+                this.remittanceService.deleteBranch(item.id).subscribe({
                     next: () => {
-                        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Agent deleted' });
+                        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Branch deleted' });
                         this.loadData();
                         this.cdr.detectChanges();
                     },
@@ -174,6 +189,10 @@ export class AgentList implements OnInit {
                 });
             }
         });
+    }
+
+    goBackToAgents() {
+        this.router.navigate(['/remittance/agents']);
     }
 
     onGlobalFilter(table: any, event: Event) {

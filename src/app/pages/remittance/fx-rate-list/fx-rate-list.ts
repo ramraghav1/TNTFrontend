@@ -15,10 +15,10 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
-import { RemittanceService, ServiceChargeSetup } from '../remittance.service';
+import { RemittanceService, FxRateSetup } from '../remittance.service';
 
 @Component({
-    selector: 'app-service-charge-list',
+    selector: 'app-fx-rate-list',
     standalone: true,
     imports: [
         CommonModule,
@@ -35,11 +35,11 @@ import { RemittanceService, ServiceChargeSetup } from '../remittance.service';
         TooltipModule
     ],
     providers: [MessageService, ConfirmationService],
-    templateUrl: './service-charge-list.html',
-    styleUrls: ['./service-charge-list.scss']
+    templateUrl: './fx-rate-list.html',
+    styleUrls: ['./fx-rate-list.scss']
 })
-export class ServiceChargeList implements OnInit {
-    setups: ServiceChargeSetup[] = [];
+export class FxRateList implements OnInit {
+    setups: FxRateSetup[] = [];
     loading = false;
 
     @ViewChild('filterInput') filterInput!: ElementRef;
@@ -58,10 +58,10 @@ export class ServiceChargeList implements OnInit {
 
     loadData() {
         this.loading = true;
-        this.remittanceService.getServiceCharges().subscribe({
+        this.remittanceService.getFxRates().subscribe({
             next: (data) => { this.setups = data; this.loading = false; this.cdr.detectChanges(); },
             error: () => {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load service charges' });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load FX rates' });
                 this.loading = false;
                 this.cdr.detectChanges();
             }
@@ -69,22 +69,22 @@ export class ServiceChargeList implements OnInit {
     }
 
     openNew() {
-        this.router.navigate(['/remittance/service-charge-form']);
+        this.router.navigate(['/remittance/fx-rate-form']);
     }
 
-    viewDetail(setup: ServiceChargeSetup) {
-        this.router.navigate(['/remittance/service-charge-form', setup.id]);
+    editSetup(setup: FxRateSetup) {
+        this.router.navigate(['/remittance/fx-rate-form', setup.id]);
     }
 
-    deleteSetup(setup: ServiceChargeSetup) {
+    deleteSetup(setup: FxRateSetup) {
         this.confirmationService.confirm({
-            message: `Delete service charge setup for ${setup.sendingCountryName} → ${setup.receivingCountryName}?`,
+            message: `Delete FX rate for ${setup.sendingCountryName} → ${setup.receivingCountryName} (${setup.sendingCurrency}/${setup.receivingCurrency})?`,
             header: 'Confirm Delete',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.remittanceService.deleteServiceCharge(setup.id).subscribe({
+                this.remittanceService.deleteFxRate(setup.id).subscribe({
                     next: () => {
-                        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Service charge deleted' });
+                        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'FX rate deleted' });
                         this.loadData();
                         this.cdr.detectChanges();
                     },
@@ -92,6 +92,11 @@ export class ServiceChargeList implements OnInit {
                 });
             }
         });
+    }
+
+    formatRate(rate: number | null): string {
+        if (rate == null) return '—';
+        return rate.toFixed(6);
     }
 
     onGlobalFilter(table: any, event: Event) {

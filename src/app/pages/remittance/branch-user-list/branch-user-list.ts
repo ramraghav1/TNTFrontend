@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FluidModule } from 'primeng/fluid';
 
 import { TableModule } from 'primeng/table';
@@ -15,13 +15,14 @@ import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
-import { RemittanceService, Agent, Country, CreateAgentRequest, UpdateAgentRequest } from '../remittance.service';
+import { RemittanceService, BranchUser, CreateBranchUserRequest, UpdateBranchUserRequest } from '../remittance.service';
 
 @Component({
-    selector: 'app-agent-list',
+    selector: 'app-branch-user-list',
     standalone: true,
     imports: [
         CommonModule,
@@ -37,28 +38,30 @@ import { RemittanceService, Agent, Country, CreateAgentRequest, UpdateAgentReque
         IconFieldModule,
         InputIconModule,
         ToolbarModule,
-        SelectModule,
-        FluidModule
+        TooltipModule,
+        FluidModule,
+        SelectModule
     ],
     providers: [MessageService, ConfirmationService],
-    templateUrl: './agent-list.html',
-    styleUrls: ['./agent-list.scss']
+    templateUrl: './branch-user-list.html',
+    styleUrls: ['./branch-user-list.scss']
 })
-export class AgentList implements OnInit {
-    agents: Agent[] = [];
-    countries: Country[] = [];
+export class BranchUserList implements OnInit {
+    users: BranchUser[] = [];
+    branchId!: number;
+    branchName = '';
     loading = false;
     dialogVisible = false;
     detailDialogVisible = false;
     editMode = false;
     selectedItem: any = {};
-    detailItem: Agent | null = null;
+    detailItem: BranchUser | null = null;
 
-    agentTypes = [
-        { label: 'Super Agent', value: 'Super Agent' },
-        { label: 'Sub Agent', value: 'Sub Agent' },
-        { label: 'Paying Agent', value: 'Paying Agent' },
-        { label: 'Sending Agent', value: 'Sending Agent' }
+    roles = [
+        { label: 'Admin', value: 'Admin' },
+        { label: 'Operator', value: 'Operator' },
+        { label: 'Viewer', value: 'Viewer' },
+        { label: 'Manager', value: 'Manager' }
     ];
 
     @ViewChild('filterInput') filterInput!: ElementRef;
@@ -68,67 +71,71 @@ export class AgentList implements OnInit {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private cdr: ChangeDetectorRef,
+        private route: ActivatedRoute,
         private router: Router
     ) {}
 
     ngOnInit(): void {
+        this.branchId = +this.route.snapshot.params['branchId'];
         this.loadData();
-        this.loadCountries();
     }
 
     loadData() {
         this.loading = true;
-        this.remittanceService.getAgents().subscribe({
-            next: (data) => { this.agents = data; this.loading = false; this.cdr.detectChanges(); },
+        this.remittanceService.getBranchUsers(this.branchId).subscribe({
+            next: (data) => {
+                this.users = data;
+                if (data.length > 0) this.branchName = data[0].branchName;
+                this.loading = false;
+                this.cdr.detectChanges();
+            },
             error: () => {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load agents' });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load users' });
                 this.loading = false;
                 this.cdr.detectChanges();
             }
         });
-    }
-
-    loadCountries() {
-        this.remittanceService.getCountries().subscribe({
-            next: (data) => { this.countries = data.filter(c => c.isActive); this.cdr.detectChanges(); }
-        });
+        // Load branch name if no users exist
+        if (!this.branchName) {
+            this.remittanceService.getBranch(this.branchId).subscribe({
+                next: (b) => { this.branchName = b.branchName; this.cdr.detectChanges(); }
+            });
+        }
     }
 
     openNew() {
-        this.selectedItem = { name: '', countryId: null, agentType: null, address: '', contactPerson: '', contactEmail: '', contactPhone: '', isActive: true };
+        this.selectedItem = {
+            branchId: this.branchId, fullName: '', email: '', phone: '',
+            role: '', username: '', isActive: true
+        };
         this.editMode = false;
         this.dialogVisible = true;
     }
 
-    editItem(item: Agent) {
+    editItem(item: BranchUser) {
         this.selectedItem = { ...item };
         this.editMode = true;
         this.dialogVisible = true;
     }
 
-    viewDetail(item: Agent) {
+    viewDetail(item: BranchUser) {
         this.detailItem = item;
         this.detailDialogVisible = true;
     }
 
-    viewBranches(item: Agent) {
-        this.router.navigate(['/remittance/branches', item.id]);
-    }
-
     saveItem() {
         if (this.editMode) {
-            const req: UpdateAgentRequest = {
-                name: this.selectedItem.name,
-                agentType: this.selectedItem.agentType,
-                address: this.selectedItem.address,
-                contactPerson: this.selectedItem.contactPerson,
-                contactEmail: this.selectedItem.contactEmail,
-                contactPhone: this.selectedItem.contactPhone,
+            const req: UpdateBranchUserRequest = {
+                fullName: this.selectedItem.fullName,
+                email: this.selectedItem.email,
+                phone: this.selectedItem.phone,
+                role: this.selectedItem.role,
+                username: this.selectedItem.username,
                 isActive: this.selectedItem.isActive
             };
-            this.remittanceService.updateAgent(this.selectedItem.id, req).subscribe({
+            this.remittanceService.updateBranchUser(this.selectedItem.id, req).subscribe({
                 next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Agent updated' });
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'User updated' });
                     this.dialogVisible = false;
                     this.loadData();
                     this.cdr.detectChanges();
@@ -136,19 +143,17 @@ export class AgentList implements OnInit {
                 error: () => { this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update' }); this.cdr.detectChanges(); }
             });
         } else {
-            const req: CreateAgentRequest = {
-                name: this.selectedItem.name,
-                countryId: this.selectedItem.countryId,
-                agentType: this.selectedItem.agentType,
-                address: this.selectedItem.address,
-                contactPerson: this.selectedItem.contactPerson,
-                contactEmail: this.selectedItem.contactEmail,
-                contactPhone: this.selectedItem.contactPhone,
-                isActive: this.selectedItem.isActive
+            const req: CreateBranchUserRequest = {
+                branchId: this.branchId,
+                fullName: this.selectedItem.fullName,
+                email: this.selectedItem.email,
+                phone: this.selectedItem.phone,
+                role: this.selectedItem.role,
+                username: this.selectedItem.username
             };
-            this.remittanceService.createAgent(req).subscribe({
+            this.remittanceService.createBranchUser(req).subscribe({
                 next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Agent created' });
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'User created' });
                     this.dialogVisible = false;
                     this.loadData();
                     this.cdr.detectChanges();
@@ -158,15 +163,15 @@ export class AgentList implements OnInit {
         }
     }
 
-    deleteItem(item: Agent) {
+    deleteItem(item: BranchUser) {
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete agent "${item.name}"?`,
+            message: `Are you sure you want to delete user "${item.fullName}"?`,
             header: 'Confirm Delete',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.remittanceService.deleteAgent(item.id).subscribe({
+                this.remittanceService.deleteBranchUser(item.id).subscribe({
                     next: () => {
-                        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Agent deleted' });
+                        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'User deleted' });
                         this.loadData();
                         this.cdr.detectChanges();
                     },
@@ -174,6 +179,20 @@ export class AgentList implements OnInit {
                 });
             }
         });
+    }
+
+    goBackToBranches() {
+        // Navigate back — we need to know the agentId. Get it from the branch.
+        if (this.users.length > 0) {
+            // We don't have agentId in BranchUser, fetch branch to get it
+            this.remittanceService.getBranch(this.branchId).subscribe({
+                next: (b) => { this.router.navigate(['/remittance/branches', b.agentId]); this.cdr.detectChanges(); }
+            });
+        } else {
+            this.remittanceService.getBranch(this.branchId).subscribe({
+                next: (b) => { this.router.navigate(['/remittance/branches', b.agentId]); this.cdr.detectChanges(); }
+            });
+        }
     }
 
     onGlobalFilter(table: any, event: Event) {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FluidModule } from 'primeng/fluid';
@@ -55,7 +55,8 @@ export class PaymentTypeList implements OnInit {
     constructor(
         private remittanceService: RemittanceService,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
+        private confirmationService: ConfirmationService,
+        private cdr: ChangeDetectorRef
     ) {}
 
     ngOnInit(): void {
@@ -65,10 +66,11 @@ export class PaymentTypeList implements OnInit {
     loadData() {
         this.loading = true;
         this.remittanceService.getPaymentTypes().subscribe({
-            next: (data) => { this.paymentTypes = data; this.loading = false; },
+            next: (data) => { this.paymentTypes = data; this.loading = false; this.cdr.detectChanges(); },
             error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load payment types' });
                 this.loading = false;
+                this.cdr.detectChanges();
             }
         });
     }
@@ -97,8 +99,9 @@ export class PaymentTypeList implements OnInit {
                     this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Payment type updated' });
                     this.dialogVisible = false;
                     this.loadData();
+                    this.cdr.detectChanges();
                 },
-                error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update' })
+                error: () => { this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update' }); this.cdr.detectChanges(); }
             });
         } else {
             const req: CreatePaymentTypeRequest = {
@@ -111,8 +114,9 @@ export class PaymentTypeList implements OnInit {
                     this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Payment type created' });
                     this.dialogVisible = false;
                     this.loadData();
+                    this.cdr.detectChanges();
                 },
-                error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create' })
+                error: () => { this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create' }); this.cdr.detectChanges(); }
             });
         }
     }
@@ -127,8 +131,9 @@ export class PaymentTypeList implements OnInit {
                     next: () => {
                         this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Payment type deleted' });
                         this.loadData();
+                        this.cdr.detectChanges();
                     },
-                    error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete' })
+                    error: () => { this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete' }); this.cdr.detectChanges(); }
                 });
             }
         });

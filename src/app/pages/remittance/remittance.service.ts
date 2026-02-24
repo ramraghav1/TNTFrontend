@@ -68,6 +68,8 @@ export interface Agent {
     name: string;
     countryId: number;
     countryName: string;
+    agentType: string;
+    address: string;
     contactPerson: string;
     contactEmail: string;
     contactPhone: string;
@@ -78,6 +80,8 @@ export interface Agent {
 export interface CreateAgentRequest {
     name: string;
     countryId: number;
+    agentType: string;
+    address: string;
     contactPerson: string;
     contactEmail: string;
     contactPhone: string;
@@ -86,10 +90,97 @@ export interface CreateAgentRequest {
 
 export interface UpdateAgentRequest {
     name?: string;
-    countryId?: number;
+    agentType?: string;
+    address?: string;
     contactPerson?: string;
     contactEmail?: string;
     contactPhone?: string;
+    isActive?: boolean;
+}
+
+// ===========================
+// Branch
+// ===========================
+export interface Branch {
+    id: number;
+    agentId: number;
+    agentName: string;
+    branchName: string;
+    branchCode: string;
+    address: string;
+    state: string;
+    district: string;
+    locallevel: string;
+    wardNumber: number | null;
+    zipcode: string;
+    contactPerson: string;
+    contactEmail: string;
+    contactPhone: string;
+    isActive: boolean;
+    createdAt: string;
+}
+
+export interface CreateBranchRequest {
+    agentId: number;
+    branchName: string;
+    branchCode: string;
+    address: string;
+    state: string;
+    district: string;
+    locallevel: string;
+    wardNumber: number | null;
+    zipcode: string;
+    contactPerson: string;
+    contactEmail: string;
+    contactPhone: string;
+}
+
+export interface UpdateBranchRequest {
+    branchName?: string;
+    branchCode?: string;
+    address?: string;
+    state?: string;
+    district?: string;
+    locallevel?: string;
+    wardNumber?: number | null;
+    zipcode?: string;
+    contactPerson?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+    isActive?: boolean;
+}
+
+// ===========================
+// Branch User
+// ===========================
+export interface BranchUser {
+    id: number;
+    branchId: number;
+    branchName: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    role: string;
+    username: string;
+    isActive: boolean;
+    createdAt: string;
+}
+
+export interface CreateBranchUserRequest {
+    branchId: number;
+    fullName: string;
+    email: string;
+    phone: string;
+    role: string;
+    username: string;
+}
+
+export interface UpdateBranchUserRequest {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    role?: string;
+    username?: string;
     isActive?: boolean;
 }
 
@@ -162,6 +253,102 @@ export interface CalculateChargeResponse {
 // ===========================
 // Service
 // ===========================
+
+// ===========================
+// FX Rate Setup
+// ===========================
+export interface FxRateSetup {
+    id: number;
+    sendingCountryId: number;
+    sendingCountryName: string;
+    receivingCountryId: number;
+    receivingCountryName: string;
+    paymentTypeId: number;
+    paymentTypeName: string;
+    agentId: number | null;
+    agentName: string | null;
+    sendingCurrency: string;
+    receivingCurrency: string;
+    settlementCurrency: string | null;
+    customerRate: number;
+    settlementRate: number | null;
+    crossRate: number | null;
+    marginType: string | null;
+    marginValue: number | null;
+    validFrom: string | null;
+    validTo: string | null;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string | null;
+    history?: FxRateHistoryItem[];
+}
+
+export interface FxRateHistoryItem {
+    id: number;
+    previousCustomerRate: number | null;
+    newCustomerRate: number;
+    previousSettlementRate: number | null;
+    newSettlementRate: number | null;
+    previousCrossRate: number | null;
+    newCrossRate: number | null;
+    changedBy: string | null;
+    changedAt: string;
+    reason: string | null;
+}
+
+export interface CreateFxRateRequest {
+    sendingCountryId: number;
+    receivingCountryId: number;
+    paymentTypeId: number;
+    agentId: number | null;
+    sendingCurrency: string;
+    receivingCurrency: string;
+    settlementCurrency: string | null;
+    customerRate: number;
+    settlementRate: number | null;
+    crossRate: number | null;
+    marginType: string | null;
+    marginValue: number | null;
+    validFrom: string | null;
+    validTo: string | null;
+    createdBy: string | null;
+}
+
+export interface UpdateFxRateRequest {
+    sendingCurrency?: string;
+    receivingCurrency?: string;
+    settlementCurrency?: string | null;
+    customerRate?: number;
+    settlementRate?: number | null;
+    crossRate?: number | null;
+    marginType?: string | null;
+    marginValue?: number | null;
+    validFrom?: string | null;
+    validTo?: string | null;
+    isActive?: boolean;
+    updatedBy?: string | null;
+}
+
+export interface ConvertRequest {
+    sendingCountryId: number;
+    receivingCountryId: number;
+    paymentTypeId: number;
+    agentId: number | null;
+    amount: number;
+}
+
+export interface ConvertResponse {
+    sendAmount: number;
+    sendingCurrency: string;
+    customerRate: number;
+    receiveAmount: number;
+    receivingCurrency: string;
+    settlementRate: number | null;
+    settlementAmount: number | null;
+    settlementCurrency: string | null;
+    crossRate: number | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class RemittanceService {
     private baseUrl = 'https://localhost:7236/api/remittance';
@@ -240,5 +427,62 @@ export class RemittanceService {
     }
     calculateCharge(req: CalculateChargeRequest): Observable<CalculateChargeResponse> {
         return this.http.post<CalculateChargeResponse>(`${this.baseUrl}/service-charges/calculate`, req);
+    }
+
+    // --- FX Rate Setup ---
+    getFxRates(): Observable<FxRateSetup[]> {
+        return this.http.get<FxRateSetup[]>(`${this.baseUrl}/fx-rates`);
+    }
+    getFxRate(id: number): Observable<FxRateSetup> {
+        return this.http.get<FxRateSetup>(`${this.baseUrl}/fx-rates/${id}`);
+    }
+    createFxRate(req: CreateFxRateRequest): Observable<FxRateSetup> {
+        return this.http.post<FxRateSetup>(`${this.baseUrl}/fx-rates`, req);
+    }
+    updateFxRate(id: number, req: UpdateFxRateRequest): Observable<FxRateSetup> {
+        return this.http.put<FxRateSetup>(`${this.baseUrl}/fx-rates/${id}`, req);
+    }
+    deleteFxRate(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/fx-rates/${id}`);
+    }
+    convertAmount(req: ConvertRequest): Observable<ConvertResponse> {
+        return this.http.post<ConvertResponse>(`${this.baseUrl}/fx-rates/convert`, req);
+    }
+
+    // --- Branch ---
+    getBranches(): Observable<Branch[]> {
+        return this.http.get<Branch[]>(`${this.baseUrl}/branches`);
+    }
+    getBranchesByAgent(agentId: number): Observable<Branch[]> {
+        return this.http.get<Branch[]>(`${this.baseUrl}/branches/by-agent/${agentId}`);
+    }
+    getBranch(id: number): Observable<Branch> {
+        return this.http.get<Branch>(`${this.baseUrl}/branches/${id}`);
+    }
+    createBranch(req: CreateBranchRequest): Observable<Branch> {
+        return this.http.post<Branch>(`${this.baseUrl}/branches`, req);
+    }
+    updateBranch(id: number, req: UpdateBranchRequest): Observable<Branch> {
+        return this.http.put<Branch>(`${this.baseUrl}/branches/${id}`, req);
+    }
+    deleteBranch(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/branches/${id}`);
+    }
+
+    // --- Branch User ---
+    getBranchUsers(branchId: number): Observable<BranchUser[]> {
+        return this.http.get<BranchUser[]>(`${this.baseUrl}/branch-users/by-branch/${branchId}`);
+    }
+    getBranchUser(id: number): Observable<BranchUser> {
+        return this.http.get<BranchUser>(`${this.baseUrl}/branch-users/${id}`);
+    }
+    createBranchUser(req: CreateBranchUserRequest): Observable<BranchUser> {
+        return this.http.post<BranchUser>(`${this.baseUrl}/branch-users`, req);
+    }
+    updateBranchUser(id: number, req: UpdateBranchUserRequest): Observable<BranchUser> {
+        return this.http.put<BranchUser>(`${this.baseUrl}/branch-users/${id}`, req);
+    }
+    deleteBranchUser(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/branch-users/${id}`);
     }
 }

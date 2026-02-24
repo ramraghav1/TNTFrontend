@@ -64,6 +64,7 @@ export class AppMenu {
                     { label: 'Payment Types', icon: 'pi pi-fw pi-credit-card', routerLink: ['/remittance/payment-types'] },
                     { label: 'Agents', icon: 'pi pi-fw pi-users', routerLink: ['/remittance/agents'] },
                     { label: 'Service Charges', icon: 'pi pi-fw pi-money-bill', routerLink: ['/remittance/service-charges'] },
+                    { label: 'FX Rates', icon: 'pi pi-fw pi-chart-line', routerLink: ['/remittance/fx-rates'] },
                 ]
             },
             // {
