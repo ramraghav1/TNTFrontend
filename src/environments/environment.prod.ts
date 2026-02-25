@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiBaseUrl: 'https://tnt-api.onrender.com/api',  // Update after Render deploy
-    serverBaseUrl: 'https://tnt-api.onrender.com'      // Update after Render deploy
+    apiBaseUrl: 'https://tnt-api-613j.onrender.com/api',
+    serverBaseUrl: 'https://tnt-api-613j.onrender.com'
 };
