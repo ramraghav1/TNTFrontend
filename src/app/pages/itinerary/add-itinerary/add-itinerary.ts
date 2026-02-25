@@ -13,6 +13,7 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
+import { environment } from '../../../../environments/environment';
 
 interface CreateItineraryDayRequest {
   dayNumber: number;
@@ -100,7 +101,7 @@ export class AddItinerary {
       return;
     }
 
-    this.http.post('https://localhost:7236/api/Itineraries/create', this.form).subscribe(
+    this.http.post(`${environment.apiBaseUrl}/Itineraries/create`, this.form).subscribe(
       (response: any) => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Itinerary created successfully' });
         this.resetForm();

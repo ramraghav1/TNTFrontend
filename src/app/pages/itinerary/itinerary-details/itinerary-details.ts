@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 import { AccordionModule } from 'primeng/accordion';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -49,7 +50,7 @@ export class ItineraryDetailsComponent implements OnInit {
       return;
     }
 
-    this.http.get<ItineraryDetail>(`https://localhost:7236/api/Itineraries/detail?id=${id}`)
+    this.http.get<ItineraryDetail>(`${environment.apiBaseUrl}/Itineraries/detail?id=${id}`)
       .subscribe({
         next: (res) => {
           this.itinerary = res;

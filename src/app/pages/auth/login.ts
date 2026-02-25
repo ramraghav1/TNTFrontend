@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { Toast } from "primeng/toast";
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-login',
@@ -106,7 +107,7 @@ export class Login {
         }
         this.cdr.detectChanges();
         if (this.email && !this.emailInvalid && this.password) {
-            this.http.post<any>('https://localhost:7236/login/', {
+            this.http.post<any>(`${environment.serverBaseUrl}/login/`, {
                 username: this.email,
                 password: this.password
             }).subscribe({

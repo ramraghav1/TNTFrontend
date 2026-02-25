@@ -2,6 +2,7 @@ import { Component,ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, CommonModule } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 import { TableModule } from 'primeng/table';
 import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -37,7 +38,7 @@ export class TransactionReport {
       fromDate: this.fromDate,
       toDate: this.toDate
     };
-    this.http.get<any[]>('https://localhost:7236/api/Transaction/list', { params })
+    this.http.get<any[]>(`${environment.apiBaseUrl}/Transaction/list`, { params })
       .subscribe({
         next: (res) => {
           this.transactions = res;

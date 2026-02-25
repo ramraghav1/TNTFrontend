@@ -349,9 +349,11 @@ export interface ConvertResponse {
     crossRate: number | null;
 }
 
+import { environment } from '../../../environments/environment';
+
 @Injectable({ providedIn: 'root' })
 export class RemittanceService {
-    private baseUrl = 'https://localhost:7236/api/remittance';
+    private baseUrl = `${environment.apiBaseUrl}/remittance`;
 
     constructor(private http: HttpClient) {}
 

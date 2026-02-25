@@ -17,6 +17,7 @@ import { RippleModule } from 'primeng/ripple';
 import { TagModule } from 'primeng/tag';
 import { HttpClient } from '@angular/common/http';
 import { OnInit } from '@angular/core';
+import { environment } from '../../../../environments/environment';
 export interface Organization {
   organizationId: number;
   organizationName: string;
@@ -61,7 +62,7 @@ export class OrganizationList implements OnInit {
 
   fetchOrganizations() {
     this.loading = true;
-    this.http.get<any[]>('https://localhost:7236/api/Organization/list', {
+    this.http.get<any[]>(`${environment.apiBaseUrl}/Organization/list`, {
       params: {
         fromDate: '2022-01-01',
         toDate: '2026-01-01'

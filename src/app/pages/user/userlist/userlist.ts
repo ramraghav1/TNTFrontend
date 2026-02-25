@@ -17,6 +17,7 @@ import { RippleModule } from 'primeng/ripple';
 import { TagModule } from 'primeng/tag';
 import { HttpClient } from '@angular/common/http';
 import { OnInit } from '@angular/core';
+import { environment } from '../../../../environments/environment';
 interface User {
   userFullName: string;
   address: string;
@@ -55,7 +56,7 @@ export class Userlist implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.http.get<User[]>('https://localhost:7236/api/User/GetAll').subscribe({
+    this.http.get<User[]>(`${environment.apiBaseUrl}/User/GetAll`).subscribe({
       next: (data) => {
         this.users = data;
       },

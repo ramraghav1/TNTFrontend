@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 // PrimeNG
 import { TableModule } from 'primeng/table';
@@ -57,7 +58,7 @@ export class ItineraryList implements OnInit {
 
   loadItineraries() {
     this.loading = true;
-    this.http.get<Itinerary[]>('https://localhost:7236/api/Itineraries/list')
+    this.http.get<Itinerary[]>(`${environment.apiBaseUrl}/Itineraries/list`)
       .subscribe({
         next: (data) => {
           this.itineraries = data;

@@ -10,6 +10,7 @@ import { Fluid } from "primeng/fluid";
 import { SelectModule } from 'primeng/select';  
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 interface PersonInfo {
   name: string;
   address: string;
@@ -120,7 +121,7 @@ export class SendTransaction {
       receiverMobile: this.receiver.mobile
     };
   
-    this.http.post('https://localhost:7236/api/Transaction/create', payload)
+    this.http.post(`${environment.apiBaseUrl}/Transaction/create`, payload)
       .subscribe({
         next: (res) => {
           console.log('Transaction created successfully:', res);
