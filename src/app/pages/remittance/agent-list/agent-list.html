@@ -135,9 +135,9 @@
 <!-- Create / Edit Dialog -->
 <p-dialog
     [(visible)]="dialogVisible"
-    [header]="editMode ? 'Edit Agent' : 'New Agent'"
+    [header]="editMode ? 'Edit Agent' : 'New Agent - Onboarding'"
     [modal]="true"
-    [style]="{ width: '600px' }"
+    [style]="{ width: '700px' }"
     [closable]="true"
 >
     <p-fluid>
@@ -201,6 +201,49 @@
                 <p-toggleswitch id="isActive" [(ngModel)]="selectedItem.isActive"></p-toggleswitch>
                 <label for="isActive" class="font-semibold">Active</label>
             </div>
+
+            @if (!editMode) {
+            <p-divider />
+            <div class="font-semibold text-lg mb-2"><i class="pi pi-wallet mr-2"></i>Account Setup <span class="text-sm font-normal text-color-secondary">(optional - can be added later)</span></div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex flex-col gap-2 w-full">
+                    <label for="currencyCode" class="font-semibold">Currency Code</label>
+                    <input pInputText id="currencyCode" [(ngModel)]="selectedItem.currencyCode" placeholder="e.g. USD, GBP, NPR" />
+                </div>
+                <div class="flex flex-col gap-2 w-full">
+                    <label for="openingBalance" class="font-semibold">Opening Balance</label>
+                    <p-inputNumber id="openingBalance" [(ngModel)]="selectedItem.openingBalance" [minFractionDigits]="2" [maxFractionDigits]="2" mode="decimal"></p-inputNumber>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex flex-col gap-2 w-full">
+                    <label for="accountName" class="font-semibold">Account Name</label>
+                    <input pInputText id="accountName" [(ngModel)]="selectedItem.accountName" placeholder="Account holder name" />
+                </div>
+                <div class="flex flex-col gap-2 w-full">
+                    <label for="accountNumber" class="font-semibold">Account Number</label>
+                    <input pInputText id="accountNumber" [(ngModel)]="selectedItem.accountNumber" placeholder="Account number" />
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex flex-col gap-2 w-full">
+                    <label for="bankName" class="font-semibold">Bank Name</label>
+                    <input pInputText id="bankName" [(ngModel)]="selectedItem.bankName" placeholder="Bank name" />
+                </div>
+                <div class="flex flex-col gap-2 w-full">
+                    <label for="bankBranch" class="font-semibold">Bank Branch</label>
+                    <input pInputText id="bankBranch" [(ngModel)]="selectedItem.bankBranch" placeholder="Branch name" />
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="bankDetails" class="font-semibold">Bank Details (SWIFT/IBAN)</label>
+                <input pInputText id="bankDetails" [(ngModel)]="selectedItem.bankDetails" placeholder="SWIFT, IBAN, routing info..." />
+            </div>
+            }
         </div>
     </p-fluid>
 

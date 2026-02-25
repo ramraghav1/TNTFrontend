@@ -16,9 +16,11 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToolbarModule } from 'primeng/toolbar';
 import { SelectModule } from 'primeng/select';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { DividerModule } from 'primeng/divider';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
-import { RemittanceService, Agent, Country, CreateAgentRequest, UpdateAgentRequest } from '../remittance.service';
+import { RemittanceService, Agent, Country, CreateAgentRequest, UpdateAgentRequest, CreateAgentAccountRequest } from '../remittance.service';
 
 @Component({
     selector: 'app-agent-list',
@@ -38,6 +40,8 @@ import { RemittanceService, Agent, Country, CreateAgentRequest, UpdateAgentReque
         InputIconModule,
         ToolbarModule,
         SelectModule,
+        InputNumberModule,
+        DividerModule,
         FluidModule
     ],
     providers: [MessageService, ConfirmationService],
@@ -95,7 +99,11 @@ export class AgentList implements OnInit {
     }
 
     openNew() {
-        this.selectedItem = { name: '', countryId: null, agentType: null, address: '', contactPerson: '', contactEmail: '', contactPhone: '', isActive: true };
+        this.selectedItem = {
+            name: '', countryId: null, agentType: null, address: '', contactPerson: '', contactEmail: '', contactPhone: '', isActive: true,
+            // Account setup fields
+            accountName: '', accountNumber: '', bankName: '', bankBranch: '', bankDetails: '', currencyCode: '', openingBalance: 0
+        };
         this.editMode = false;
         this.dialogVisible = true;
     }
@@ -147,8 +155,31 @@ export class AgentList implements OnInit {
                 isActive: this.selectedItem.isActive
             };
             this.remittanceService.createAgent(req).subscribe({
-                next: () => {
+                next: (agent) => {
                     this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Agent created' });
+                    // Auto-create agent account if currency code is provided
+                    if (this.selectedItem.currencyCode) {
+                        const acctReq: CreateAgentAccountRequest = {
+                            agentId: agent.id,
+                            accountName: this.selectedItem.accountName || undefined,
+                            accountNumber: this.selectedItem.accountNumber || undefined,
+                            bankName: this.selectedItem.bankName || undefined,
+                            bankBranch: this.selectedItem.bankBranch || undefined,
+                            bankDetails: this.selectedItem.bankDetails || undefined,
+                            currencyCode: this.selectedItem.currencyCode,
+                            balance: this.selectedItem.openingBalance || 0
+                        };
+                        this.remittanceService.createAgentAccount(acctReq).subscribe({
+                            next: () => {
+                                this.messageService.add({ severity: 'info', summary: 'Account', detail: 'Agent account created' });
+                                this.cdr.detectChanges();
+                            },
+                            error: () => {
+                                this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Agent created but account setup failed. You can add it later.' });
+                                this.cdr.detectChanges();
+                            }
+                        });
+                    }
                     this.dialogVisible = false;
                     this.loadData();
                     this.cdr.detectChanges();

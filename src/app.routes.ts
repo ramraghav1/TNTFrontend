@@ -6,7 +6,7 @@ import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 import { Userlist } from './app/pages/user/userlist/userlist';
 import { AddItinerary } from './app/pages/itinerary/add-itinerary/add-itinerary';
-import { SendTransaction } from './app/pages/transaction/send-transaction/send-transaction';
+import { SendTransaction } from './app/pages/remittance/send-transaction/send-transaction';
 import { Login } from './app/pages/auth/login';
 import { ItineraryList } from './app/pages/itinerary/itinerary-list/itinerary-list';
 import { ItineraryDetailsComponent } from './app/pages/itinerary/itinerary-details/itinerary-details';
@@ -21,6 +21,12 @@ import { FxRateList } from './app/pages/remittance/fx-rate-list/fx-rate-list';
 import { FxRateForm } from './app/pages/remittance/fx-rate-form/fx-rate-form';
 import { BranchList } from './app/pages/remittance/branch-list/branch-list';
 import { BranchUserList } from './app/pages/remittance/branch-user-list/branch-user-list';
+import { AgentAccountList } from './app/pages/remittance/agent-account-list/agent-account-list';
+import { AgentStatement } from './app/pages/remittance/agent-statement/agent-statement';
+import { ConfigurationTypeList } from './app/pages/remittance/configuration-type-list/configuration-type-list';
+import { ConfigurationList } from './app/pages/remittance/configuration-list/configuration-list';
+import { DomesticServiceChargeList } from './app/pages/remittance/domestic-service-charge-list/domestic-service-charge-list';
+import { DomesticServiceChargeForm } from './app/pages/remittance/domestic-service-charge-form/domestic-service-charge-form';
 
 export const appRoutes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -37,7 +43,7 @@ export const appRoutes: Routes = [
             { path: 'add-itinerary', component: AddItinerary },
             { path: 'itinerary-list', component: ItineraryList },
             { path: 'send-transaction', component: SendTransaction },
-            { path: 'transaction-report', loadComponent: () => import('./app/pages/transaction/transaction-report/transaction-report').then(m => m.TransactionReport) },
+            { path: 'transaction-report', loadComponent: () => import('./app/pages/remittance/transaction-report/transaction-report').then(m => m.TransactionReport) },
             { path: 'itinerary-details/:id', component: ItineraryDetailsComponent },
             { path: 'booking-list', component: BookingList },
             { path: 'booking-detail/:id', component: BookingDetail },
@@ -51,7 +57,14 @@ export const appRoutes: Routes = [
             { path: 'remittance/fx-rate-form', component: FxRateForm },
             { path: 'remittance/fx-rate-form/:id', component: FxRateForm },
             { path: 'remittance/branches/:agentId', component: BranchList },
-            { path: 'remittance/branch-users/:branchId', component: BranchUserList }
+            { path: 'remittance/branch-users/:branchId', component: BranchUserList },
+            { path: 'remittance/agent-accounts', component: AgentAccountList },
+            { path: 'remittance/agent-statement/:accountId', component: AgentStatement },
+            { path: 'remittance/configuration-types', component: ConfigurationTypeList },
+            { path: 'remittance/configurations', component: ConfigurationList },
+            { path: 'remittance/domestic-service-charges', component: DomesticServiceChargeList },
+            { path: 'remittance/domestic-service-charge-form', component: DomesticServiceChargeForm },
+            { path: 'remittance/domestic-service-charge-form/:id', component: DomesticServiceChargeForm }
         ]
     },
     { path: 'landing', component: Landing },

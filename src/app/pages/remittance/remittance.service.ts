@@ -349,6 +349,244 @@ export interface ConvertResponse {
     crossRate: number | null;
 }
 
+// ===========================
+// Administrative Division
+// ===========================
+export interface AdministrativeDivision {
+    id: number;
+    countryId: number;
+    name: string;
+    code: string | null;
+    divisionLevel: number;
+    parentId: number | null;
+    isActive: boolean;
+    createdAt: string;
+}
+
+// ===========================
+// Agent Account
+// ===========================
+export interface AgentAccount {
+    id: number;
+    agentId: number;
+    agentName: string | null;
+    accountName: string;
+    accountNumber: string;
+    bankName: string | null;
+    bankBranch: string | null;
+    bankDetails: string | null;
+    currencyCode: string;
+    balance: number;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string | null;
+}
+
+export interface CreateAgentAccountRequest {
+    agentId: number;
+    accountName?: string;
+    accountNumber?: string;
+    bankName?: string;
+    bankBranch?: string;
+    bankDetails?: string;
+    currencyCode: string;
+    balance: number;
+}
+
+export interface UpdateAgentAccountRequest {
+    accountName?: string;
+    accountNumber?: string;
+    bankName?: string;
+    bankBranch?: string;
+    bankDetails?: string;
+    isActive?: boolean;
+}
+
+// ===========================
+// Agent Ledger Entry
+// ===========================
+export interface AgentLedgerEntry {
+    id: number;
+    agentAccountId: number;
+    transactionType: string;
+    amount: number;
+    balanceBefore: number;
+    balanceAfter: number;
+    referenceType: string;
+    referenceId: string | null;
+    description: string | null;
+    createdAt: string;
+    createdBy: string | null;
+}
+
+export interface CreateLedgerEntryRequest {
+    agentAccountId: number;
+    transactionType: string;
+    amount: number;
+    referenceType: string;
+    referenceId?: string;
+    description?: string;
+    createdBy?: string;
+}
+
+export interface StatementResponse {
+    agentAccountId: number;
+    agentName: string | null;
+    accountName: string | null;
+    accountNumber: string | null;
+    currencyCode: string | null;
+    openingBalance: number;
+    closingBalance: number;
+    totalDebit: number;
+    totalCredit: number;
+    fromDate: string | null;
+    toDate: string | null;
+    entries: AgentLedgerEntry[];
+}
+
+// ===========================
+// Configuration Type
+// ===========================
+export interface ConfigurationType {
+    id: number;
+    name: string;
+    isActive: boolean;
+    createdAt: string;
+}
+
+export interface CreateConfigurationTypeRequest {
+    name: string;
+}
+
+export interface UpdateConfigurationTypeRequest {
+    name?: string;
+    isActive?: boolean;
+}
+
+// ===========================
+// Configuration
+// ===========================
+export interface Configuration {
+    id: number;
+    configurationTypeId: number;
+    configurationTypeName: string;
+    code: string;
+    displayName: string;
+    isActive: boolean;
+    createdAt: string;
+}
+
+export interface CreateConfigurationRequest {
+    configurationTypeId: number;
+    code: string;
+    displayName: string;
+}
+
+export interface UpdateConfigurationRequest {
+    code?: string;
+    displayName?: string;
+    isActive?: boolean;
+}
+
+// ===========================
+// Domestic Service Charge Setup
+// ===========================
+export interface DomesticServiceChargeSlab {
+    id?: number;
+    minAmount: number;
+    maxAmount: number;
+    chargeType: string;
+    chargeValue: number;
+    currency: string;
+}
+
+export interface DomesticServiceChargeSetup {
+    id: number;
+    fromCategoryId: number;
+    fromCategoryName: string;
+    toCategoryId: number;
+    toCategoryName: string;
+    paymentTypeId: number;
+    paymentTypeName: string;
+    agentId: number | null;
+    agentName: string | null;
+    chargeMode: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+    slabs: DomesticServiceChargeSlab[];
+}
+
+export interface CreateDomesticServiceChargeSetupRequest {
+    fromCategoryId: number;
+    toCategoryId: number;
+    paymentTypeId: number;
+    agentId: number | null;
+    chargeMode: string;
+    slabs: DomesticServiceChargeSlab[];
+}
+
+export interface UpdateDomesticServiceChargeSetupRequest {
+    chargeMode?: string;
+    isActive?: boolean;
+    slabs?: DomesticServiceChargeSlab[];
+}
+
+export interface DomesticCalculateChargeRequest {
+    fromCategoryId: number;
+    toCategoryId: number;
+    paymentTypeId: number;
+    agentId: number | null;
+    amount: number;
+}
+
+export interface DomesticCalculateChargeResponse {
+    sendAmount: number;
+    serviceCharge: number;
+    chargeType: string;
+    chargeValue: number;
+    totalDeducted: number;
+    currency: string;
+}
+
+// ===========================
+// Transaction
+// ===========================
+export interface CreateTransactionRequest {
+    paymentType: string;
+    payoutLocation: string;
+    collectedAmount: number;
+    serviceFee: number;
+    transferAmount: number;
+    senderName: string;
+    senderAddress: string;
+    senderMobile: string;
+    receiverName: string;
+    receiverAddress: string;
+    receiverMobile: string;
+}
+
+export interface CreateTransactionResponse {
+    transactionId: number;
+    referenceNumber: string;
+}
+
+export interface TransactionDetail {
+    transactionId: number;
+    referenceNumber: string;
+    paymentType: string;
+    payoutLocation: string;
+    collectedAmount: number;
+    serviceFee: number;
+    transferAmount: number;
+    senderName: string;
+    senderAddress: string;
+    senderMobile: string;
+    receiverName: string;
+    receiverAddress: string;
+    receiverMobile: string;
+}
+
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -486,5 +724,135 @@ export class RemittanceService {
     }
     deleteBranchUser(id: number): Observable<void> {
         return this.http.delete<void>(`${this.baseUrl}/branch-users/${id}`);
+    }
+
+    // --- Transaction ---
+    private txBaseUrl = `${environment.apiBaseUrl}/Transaction`;
+
+    createTransaction(req: CreateTransactionRequest): Observable<CreateTransactionResponse> {
+        return this.http.post<CreateTransactionResponse>(`${this.txBaseUrl}/create`, req);
+    }
+
+    getTransactions(fromDate?: string, toDate?: string): Observable<TransactionDetail[]> {
+        let params: any = {};
+        if (fromDate) params.fromDate = fromDate;
+        if (toDate) params.toDate = toDate;
+        return this.http.get<TransactionDetail[]>(`${this.txBaseUrl}/list`, { params });
+    }
+
+    // --- Administrative Divisions ---
+    getAdminDivisionsByCountry(countryId: number): Observable<AdministrativeDivision[]> {
+        countryId=121;
+        return this.http.get<AdministrativeDivision[]>(`${this.baseUrl}/administrative-divisions/by-country/${countryId}`);
+    }
+
+    getAdminDivisionsByCountryAndLevel(countryId: number, level: number): Observable<AdministrativeDivision[]> {
+        return this.http.get<AdministrativeDivision[]>(`${this.baseUrl}/administrative-divisions/by-country/${countryId}/level/${level}`);
+    }
+
+    getAdminDivisionChildren(parentId: number): Observable<AdministrativeDivision[]> {
+        return this.http.get<AdministrativeDivision[]>(`${this.baseUrl}/administrative-divisions/children/${parentId}`);
+    }
+
+    // --- Agent Accounts ---
+    createAgentAccount(req: CreateAgentAccountRequest): Observable<AgentAccount> {
+        return this.http.post<AgentAccount>(`${this.baseUrl}/agent-accounts`, req);
+    }
+
+    getAgentAccounts(): Observable<AgentAccount[]> {
+        return this.http.get<AgentAccount[]>(`${this.baseUrl}/agent-accounts`);
+    }
+
+    getAgentAccountsByAgent(agentId: number): Observable<AgentAccount[]> {
+        return this.http.get<AgentAccount[]>(`${this.baseUrl}/agent-accounts/by-agent/${agentId}`);
+    }
+
+    getAgentAccountById(id: number): Observable<AgentAccount> {
+        return this.http.get<AgentAccount>(`${this.baseUrl}/agent-accounts/${id}`);
+    }
+
+    getAgentAccountByAgentAndCurrency(agentId: number, currencyCode: string): Observable<AgentAccount> {
+        return this.http.get<AgentAccount>(`${this.baseUrl}/agent-accounts/by-agent/${agentId}/currency/${currencyCode}`);
+    }
+
+    updateAgentAccount(id: number, req: UpdateAgentAccountRequest): Observable<AgentAccount> {
+        return this.http.put<AgentAccount>(`${this.baseUrl}/agent-accounts/${id}`, req);
+    }
+
+    deleteAgentAccount(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/agent-accounts/${id}`);
+    }
+
+    // --- Agent Ledger ---
+    postLedgerEntry(req: CreateLedgerEntryRequest): Observable<AgentLedgerEntry> {
+        return this.http.post<AgentLedgerEntry>(`${this.baseUrl}/agent-ledger`, req);
+    }
+
+    getLedgerByAccount(agentAccountId: number): Observable<AgentLedgerEntry[]> {
+        return this.http.get<AgentLedgerEntry[]>(`${this.baseUrl}/agent-ledger/by-account/${agentAccountId}`);
+    }
+
+    getStatement(agentAccountId: number, fromDate?: string, toDate?: string): Observable<StatementResponse> {
+        let params: any = {};
+        if (fromDate) params.fromDate = fromDate;
+        if (toDate) params.toDate = toDate;
+        return this.http.get<StatementResponse>(`${this.baseUrl}/agent-ledger/statement/${agentAccountId}`, { params });
+    }
+
+    // --- Configuration Types ---
+    getConfigurationTypes(): Observable<ConfigurationType[]> {
+        return this.http.get<ConfigurationType[]>(`${this.baseUrl}/configuration-types`);
+    }
+    getConfigurationType(id: number): Observable<ConfigurationType> {
+        return this.http.get<ConfigurationType>(`${this.baseUrl}/configuration-types/${id}`);
+    }
+    createConfigurationType(req: CreateConfigurationTypeRequest): Observable<ConfigurationType> {
+        return this.http.post<ConfigurationType>(`${this.baseUrl}/configuration-types`, req);
+    }
+    updateConfigurationType(id: number, req: UpdateConfigurationTypeRequest): Observable<ConfigurationType> {
+        return this.http.put<ConfigurationType>(`${this.baseUrl}/configuration-types/${id}`, req);
+    }
+    deleteConfigurationType(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/configuration-types/${id}`);
+    }
+
+    // --- Configurations ---
+    getConfigurations(): Observable<Configuration[]> {
+        return this.http.get<Configuration[]>(`${this.baseUrl}/configurations`);
+    }
+    getConfigurationsByType(configurationTypeId: number): Observable<Configuration[]> {
+        return this.http.get<Configuration[]>(`${this.baseUrl}/configurations/by-type/${configurationTypeId}`);
+    }
+    getConfiguration(id: number): Observable<Configuration> {
+        return this.http.get<Configuration>(`${this.baseUrl}/configurations/${id}`);
+    }
+    createConfiguration(req: CreateConfigurationRequest): Observable<Configuration> {
+        return this.http.post<Configuration>(`${this.baseUrl}/configurations`, req);
+    }
+    updateConfiguration(id: number, req: UpdateConfigurationRequest): Observable<Configuration> {
+        return this.http.put<Configuration>(`${this.baseUrl}/configurations/${id}`, req);
+    }
+    deleteConfiguration(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/configurations/${id}`);
+    }
+
+    // --- Domestic Service Charge Setup ---
+    getDomesticServiceCharges(): Observable<DomesticServiceChargeSetup[]> {
+        return this.http.get<DomesticServiceChargeSetup[]>(`${this.baseUrl}/domestic-service-charges`);
+    }
+    getDomesticServiceCharge(id: number): Observable<DomesticServiceChargeSetup> {
+        return this.http.get<DomesticServiceChargeSetup>(`${this.baseUrl}/domestic-service-charges/${id}`);
+    }
+    createDomesticServiceCharge(req: CreateDomesticServiceChargeSetupRequest): Observable<DomesticServiceChargeSetup> {
+        return this.http.post<DomesticServiceChargeSetup>(`${this.baseUrl}/domestic-service-charges`, req);
+    }
+    updateDomesticServiceCharge(id: number, req: UpdateDomesticServiceChargeSetupRequest): Observable<DomesticServiceChargeSetup> {
+        return this.http.put<DomesticServiceChargeSetup>(`${this.baseUrl}/domestic-service-charges/${id}`, req);
+    }
+    deleteDomesticServiceCharge(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/domestic-service-charges/${id}`);
+    }
+    calculateDomesticCharge(req: DomesticCalculateChargeRequest): Observable<DomesticCalculateChargeResponse> {
+        return this.http.post<DomesticCalculateChargeResponse>(`${this.baseUrl}/domestic-service-charges/calculate`, req);
     }
 }

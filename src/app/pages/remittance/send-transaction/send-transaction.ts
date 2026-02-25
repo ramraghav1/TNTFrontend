@@ -1,0 +1,425 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+import { DialogModule } from 'primeng/dialog';
+import { StepsModule } from 'primeng/steps';
+import { FluidModule } from 'primeng/fluid';
+import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { TagModule } from 'primeng/tag';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+
+import {
+    RemittanceService,
+    PaymentType,
+    Country,
+    CalculateChargeRequest,
+    CalculateChargeResponse,
+    ConvertRequest,
+    ConvertResponse,
+    Agent,
+    CreateTransactionRequest,
+    CreateTransactionResponse,
+    AdministrativeDivision
+} from '../remittance.service';
+
+interface PersonInfo {
+    name: string;
+    address: string;
+    mobile: string;
+    showOther: boolean;
+    selectedProvince?: AdministrativeDivision | null;
+    selectedDistrict?: AdministrativeDivision | null;
+    selectedLocalLevel?: AdministrativeDivision | null;
+    wardNo?: string;
+    idType?: string;
+    idNumber?: string;
+    issueDate?: string;
+    expiryDate?: string;
+}
+
+@Component({
+    selector: 'app-send-transaction',
+    standalone: true,
+    imports: [
+        CommonModule,
+        FormsModule,
+        InputTextModule,
+        ButtonModule,
+        CheckboxModule,
+        DialogModule,
+        StepsModule,
+        FluidModule,
+        SelectModule,
+        ToastModule,
+        TagModule,
+        ProgressSpinnerModule
+    ],
+    providers: [MessageService],
+    templateUrl: './send-transaction.html',
+    styleUrls: ['./send-transaction.scss']
+})
+export class SendTransaction implements OnInit {
+    step = 1;
+    steps = [
+        { label: 'Transaction' },
+        { label: 'Sender' },
+        { label: 'Receiver' },
+        { label: 'Confirm' }
+    ];
+
+    // Dropdowns from API
+    countries: Country[] = [];
+    paymentTypes: PaymentType[] = [];
+    agents: Agent[] = [];
+
+    // Selected values
+    sendingCountry: Country | null = null;
+    receivingCountry: Country | null = null;
+    selectedPaymentType: PaymentType | null = null;
+    selectedAgent: Agent | null = null;
+
+    // Transaction amounts
+    transaction = {
+        transferAmount: null as number | null,
+        serviceFee: null as number | null,
+        collectedAmount: null as number | null
+    };
+
+    // FX rate info
+    fxInfo: ConvertResponse | null = null;
+
+    // Loading states
+    loadingFee = false;
+    loadingFx = false;
+    submitting = false;
+
+    // Sender / Receiver
+    sender: PersonInfo = { name: '', address: '', mobile: '', showOther: false, selectedProvince: null, selectedDistrict: null, selectedLocalLevel: null };
+    receiver: PersonInfo = { name: '', address: '', mobile: '', showOther: false, selectedProvince: null, selectedDistrict: null, selectedLocalLevel: null };
+
+    // Administrative divisions for sender
+    senderProvinces: AdministrativeDivision[] = [];
+    senderDistricts: AdministrativeDivision[] = [];
+    senderLocalLevels: AdministrativeDivision[] = [];
+
+    // Administrative divisions for receiver
+    receiverProvinces: AdministrativeDivision[] = [];
+    receiverDistricts: AdministrativeDivision[] = [];
+    receiverLocalLevels: AdministrativeDivision[] = [];
+
+    // Receipt
+    showReceipt = false;
+    receiptData: CreateTransactionResponse | null = null;
+
+    constructor(
+        private remittanceService: RemittanceService,
+        private messageService: MessageService,
+        private cdr: ChangeDetectorRef
+    ) {}
+
+    ngOnInit(): void {
+        this.loadDropdowns();
+    }
+
+    loadDropdowns() {
+        this.remittanceService.getCountries().subscribe({
+            next: (data) => {
+                this.countries = data.filter(c => c.isActive);
+                this.cdr.detectChanges();
+            }
+        });
+        this.remittanceService.getPaymentTypes().subscribe({
+            next: (data) => {
+                this.paymentTypes = data.filter(pt => pt.isActive);
+                this.cdr.detectChanges();
+            }
+        });
+        this.remittanceService.getAgents().subscribe({
+            next: (data) => {
+                this.agents = data.filter(a => a.isActive);
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    // When user changes transfer amount -> auto-calculate service fee
+    onAmountChange() {
+        const amount = Number(this.transaction.transferAmount) || 0;
+        if (amount <= 0) {
+            this.transaction.serviceFee = null;
+            this.transaction.collectedAmount = null;
+            this.fxInfo = null;
+            return;
+        }
+        this.calculateServiceFee(amount);
+        this.calculateFxRate(amount);
+    }
+
+    calculateServiceFee(amount: number) {
+        if (!this.sendingCountry || !this.receivingCountry || !this.selectedPaymentType) {
+            return;
+        }
+        this.loadingFee = true;
+        const req: CalculateChargeRequest = {
+            sendingCountryId: this.sendingCountry.id,
+            receivingCountryId: this.receivingCountry.id,
+            paymentTypeId: this.selectedPaymentType.id,
+            agentId: this.selectedAgent?.id ?? null,
+            amount
+        };
+        this.remittanceService.calculateCharge(req).subscribe({
+            next: (res: CalculateChargeResponse) => {
+                this.transaction.serviceFee = res.calculatedCharge;
+                this.transaction.collectedAmount = amount + res.calculatedCharge;
+                this.loadingFee = false;
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.transaction.serviceFee = 0;
+                this.transaction.collectedAmount = amount;
+                this.loadingFee = false;
+                this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Could not calculate service fee. It may not be configured for this corridor.' });
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    calculateFxRate(amount: number) {
+        if (!this.sendingCountry || !this.receivingCountry || !this.selectedPaymentType) {
+            return;
+        }
+        this.loadingFx = true;
+        const req: ConvertRequest = {
+            sendingCountryId: this.sendingCountry.id,
+            receivingCountryId: this.receivingCountry.id,
+            paymentTypeId: this.selectedPaymentType.id,
+            agentId: this.selectedAgent?.id ?? null,
+            amount
+        };
+        this.remittanceService.convertAmount(req).subscribe({
+            next: (res: ConvertResponse) => {
+                this.fxInfo = res;
+                this.loadingFx = false;
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.fxInfo = null;
+                this.loadingFx = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    onCorridorChange() {
+        // Reset amounts when corridor changes
+        this.transaction.serviceFee = null;
+        this.transaction.collectedAmount = null;
+        this.fxInfo = null;
+        if (this.transaction.transferAmount && this.transaction.transferAmount > 0) {
+            this.onAmountChange();
+        }
+    }
+
+    // --- Administrative Division cascading ---
+    loadProvinces(countryId: number, target: 'sender' | 'receiver') {
+        this.remittanceService.getAdminDivisionsByCountryAndLevel(countryId, 1).subscribe({
+            next: (data) => {
+                if (target === 'sender') {
+                    this.senderProvinces = data;
+                    this.senderDistricts = [];
+                    this.senderLocalLevels = [];
+                    this.sender.selectedProvince = null;
+                    this.sender.selectedDistrict = null;
+                    this.sender.selectedLocalLevel = null;
+                } else {
+                    this.receiverProvinces = data;
+                    this.receiverDistricts = [];
+                    this.receiverLocalLevels = [];
+                    this.receiver.selectedProvince = null;
+                    this.receiver.selectedDistrict = null;
+                    this.receiver.selectedLocalLevel = null;
+                }
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    onProvinceChange(target: 'sender' | 'receiver') {
+        const person = target === 'sender' ? this.sender : this.receiver;
+        if (target === 'sender') {
+            this.senderDistricts = [];
+            this.senderLocalLevels = [];
+        } else {
+            this.receiverDistricts = [];
+            this.receiverLocalLevels = [];
+        }
+        person.selectedDistrict = null;
+        person.selectedLocalLevel = null;
+
+        if (person.selectedProvince) {
+            this.remittanceService.getAdminDivisionChildren(person.selectedProvince.id).subscribe({
+                next: (data) => {
+                    if (target === 'sender') {
+                        this.senderDistricts = data;
+                    } else {
+                        this.receiverDistricts = data;
+                    }
+                    this.cdr.detectChanges();
+                }
+            });
+        }
+        this.updateAddress(target);
+    }
+
+    onDistrictChange(target: 'sender' | 'receiver') {
+        const person = target === 'sender' ? this.sender : this.receiver;
+        if (target === 'sender') {
+            this.senderLocalLevels = [];
+        } else {
+            this.receiverLocalLevels = [];
+        }
+        person.selectedLocalLevel = null;
+
+        if (person.selectedDistrict) {
+            this.remittanceService.getAdminDivisionChildren(person.selectedDistrict.id).subscribe({
+                next: (data) => {
+                    if (target === 'sender') {
+                        this.senderLocalLevels = data;
+                    } else {
+                        this.receiverLocalLevels = data;
+                    }
+                    this.cdr.detectChanges();
+                }
+            });
+        }
+        this.updateAddress(target);
+    }
+
+    onLocalLevelChange(target: 'sender' | 'receiver') {
+        this.updateAddress(target);
+    }
+
+    updateAddress(target: 'sender' | 'receiver') {
+        const person = target === 'sender' ? this.sender : this.receiver;
+        const parts: string[] = [];
+        if (person.selectedLocalLevel) parts.push(person.selectedLocalLevel.name);
+        if (person.wardNo) parts.push(`Ward ${person.wardNo}`);
+        if (person.selectedDistrict) parts.push(person.selectedDistrict.name);
+        if (person.selectedProvince) parts.push(person.selectedProvince.name);
+        person.address = parts.join(', ');
+    }
+
+    onWardChange(target: 'sender' | 'receiver') {
+        this.updateAddress(target);
+    }
+
+    get paymentTypeName(): string {
+        return this.selectedPaymentType?.name ?? '-';
+    }
+
+    get sendingCountryName(): string {
+        return this.sendingCountry?.name ?? '-';
+    }
+
+    get receivingCountryName(): string {
+        return this.receivingCountry?.name ?? '-';
+    }
+
+    get agentName(): string {
+        return this.selectedAgent?.name ?? '-';
+    }
+
+    next() {
+        if (this.step < 4) {
+            const nextStep = this.step + 1;
+            // Load provinces when entering Sender page (step 2)
+            if (nextStep === 2 && this.sendingCountry && this.senderProvinces.length === 0) {
+                this.loadProvinces(this.sendingCountry.id, 'sender');
+            }
+            // Load provinces when entering Receiver page (step 3)
+            if (nextStep === 3 && this.receivingCountry && this.receiverProvinces.length === 0) {
+                this.loadProvinces(this.receivingCountry.id, 'receiver');
+            }
+            this.step = nextStep;
+        }
+    }
+
+    prev() {
+        if (this.step > 1) this.step--;
+    }
+
+    get canProceedStep1(): boolean {
+        return !!(
+            this.sendingCountry &&
+            this.receivingCountry &&
+            this.selectedPaymentType &&
+            this.transaction.transferAmount &&
+            this.transaction.transferAmount > 0 &&
+            this.transaction.serviceFee !== null &&
+            this.transaction.collectedAmount
+        );
+    }
+
+    confirm() {
+        if (this.submitting) return;
+        this.submitting = true;
+
+        const payload: CreateTransactionRequest = {
+            paymentType: this.paymentTypeName,
+            payoutLocation: `${this.sendingCountryName} → ${this.receivingCountryName}`,
+            collectedAmount: this.transaction.collectedAmount!,
+            serviceFee: this.transaction.serviceFee!,
+            transferAmount: this.transaction.transferAmount!,
+            senderName: this.sender.name,
+            senderAddress: this.sender.address,
+            senderMobile: this.sender.mobile,
+            receiverName: this.receiver.name,
+            receiverAddress: this.receiver.address,
+            receiverMobile: this.receiver.mobile
+        };
+
+        this.remittanceService.createTransaction(payload).subscribe({
+            next: (res) => {
+                this.receiptData = res;
+                this.showReceipt = true;
+                this.submitting = false;
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: `Transaction #${res.transactionId} created` });
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                this.submitting = false;
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create transaction' });
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    printReceipt() {
+        setTimeout(() => window.print(), 100);
+    }
+
+    closeReceipt() {
+        this.showReceipt = false;
+        this.resetForm();
+    }
+
+    resetForm() {
+        this.step = 1;
+        this.sendingCountry = null;
+        this.receivingCountry = null;
+        this.selectedPaymentType = null;
+        this.selectedAgent = null;
+        this.transaction = { transferAmount: null, serviceFee: null, collectedAmount: null };
+        this.fxInfo = null;
+        this.sender = { name: '', address: '', mobile: '', showOther: false, selectedProvince: null, selectedDistrict: null, selectedLocalLevel: null };
+        this.receiver = { name: '', address: '', mobile: '', showOther: false, selectedProvince: null, selectedDistrict: null, selectedLocalLevel: null };
+        this.senderProvinces = []; this.senderDistricts = []; this.senderLocalLevels = [];
+        this.receiverProvinces = []; this.receiverDistricts = []; this.receiverLocalLevels = [];
+        this.receiptData = null;
+    }
+}

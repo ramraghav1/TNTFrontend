@@ -65,6 +65,10 @@ export class AppMenu {
                     { label: 'Agents', icon: 'pi pi-fw pi-users', routerLink: ['/remittance/agents'] },
                     { label: 'Service Charges', icon: 'pi pi-fw pi-money-bill', routerLink: ['/remittance/service-charges'] },
                     { label: 'FX Rates', icon: 'pi pi-fw pi-chart-line', routerLink: ['/remittance/fx-rates'] },
+                    { label: 'Agent Accounts', icon: 'pi pi-fw pi-wallet', routerLink: ['/remittance/agent-accounts'] },
+                    { label: 'Configuration Types', icon: 'pi pi-fw pi-cog', routerLink: ['/remittance/configuration-types'] },
+                    { label: 'Configurations', icon: 'pi pi-fw pi-list', routerLink: ['/remittance/configurations'] },
+                    { label: 'Domestic Service Charges', icon: 'pi pi-fw pi-building', routerLink: ['/remittance/domestic-service-charges'] },
                 ]
             },
             // {
