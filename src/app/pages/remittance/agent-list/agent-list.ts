@@ -20,7 +20,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DividerModule } from 'primeng/divider';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
-import { RemittanceService, Agent, Country, CreateAgentRequest, UpdateAgentRequest, CreateAgentAccountRequest } from '../remittance.service';
+import { RemittanceService, Agent, Country, CreateAgentRequest, UpdateAgentRequest, CreateAgentAccountRequest, Configuration } from '../remittance.service';
 
 @Component({
     selector: 'app-agent-list',
@@ -51,6 +51,7 @@ import { RemittanceService, Agent, Country, CreateAgentRequest, UpdateAgentReque
 export class AgentList implements OnInit {
     agents: Agent[] = [];
     countries: Country[] = [];
+    locationCategories: Configuration[] = [];
     loading = false;
     dialogVisible = false;
     detailDialogVisible = false;
@@ -78,6 +79,7 @@ export class AgentList implements OnInit {
     ngOnInit(): void {
         this.loadData();
         this.loadCountries();
+        this.loadLocationCategories();
     }
 
     loadData() {
@@ -98,9 +100,16 @@ export class AgentList implements OnInit {
         });
     }
 
+    loadLocationCategories() {
+        this.remittanceService.getConfigurationsByType(1).subscribe({
+            next: (data) => { this.locationCategories = data.filter(c => c.isActive); this.cdr.detectChanges(); },
+            error: () => { this.locationCategories = []; }
+        });
+    }
+
     openNew() {
         this.selectedItem = {
-            name: '', countryId: null, agentType: null, address: '', contactPerson: '', contactEmail: '', contactPhone: '', isActive: true,
+            name: '', countryId: null, categoryId: null, agentType: null, address: '', contactPerson: '', contactEmail: '', contactPhone: '', isActive: true,
             // Account setup fields
             accountName: '', accountNumber: '', bankName: '', bankBranch: '', bankDetails: '', currencyCode: '', openingBalance: 0
         };
@@ -127,6 +136,7 @@ export class AgentList implements OnInit {
         if (this.editMode) {
             const req: UpdateAgentRequest = {
                 name: this.selectedItem.name,
+                categoryId: this.selectedItem.categoryId || null,
                 agentType: this.selectedItem.agentType,
                 address: this.selectedItem.address,
                 contactPerson: this.selectedItem.contactPerson,
@@ -147,6 +157,7 @@ export class AgentList implements OnInit {
             const req: CreateAgentRequest = {
                 name: this.selectedItem.name,
                 countryId: this.selectedItem.countryId,
+                categoryId: this.selectedItem.categoryId || null,
                 agentType: this.selectedItem.agentType,
                 address: this.selectedItem.address,
                 contactPerson: this.selectedItem.contactPerson,

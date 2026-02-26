@@ -68,6 +68,8 @@ export interface Agent {
     name: string;
     countryId: number;
     countryName: string;
+    categoryId: number | null;
+    categoryName: string | null;
     agentType: string;
     address: string;
     contactPerson: string;
@@ -80,6 +82,7 @@ export interface Agent {
 export interface CreateAgentRequest {
     name: string;
     countryId: number;
+    categoryId?: number | null;
     agentType: string;
     address: string;
     contactPerson: string;
@@ -90,6 +93,7 @@ export interface CreateAgentRequest {
 
 export interface UpdateAgentRequest {
     name?: string;
+    categoryId?: number | null;
     agentType?: string;
     address?: string;
     contactPerson?: string;

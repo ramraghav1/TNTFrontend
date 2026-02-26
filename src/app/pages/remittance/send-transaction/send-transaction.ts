@@ -24,7 +24,10 @@ import {
     Agent,
     CreateTransactionRequest,
     CreateTransactionResponse,
-    AdministrativeDivision
+    AdministrativeDivision,
+    DomesticCalculateChargeRequest,
+    DomesticCalculateChargeResponse,
+    Configuration
 } from '../remittance.service';
 
 interface PersonInfo {
@@ -76,12 +79,15 @@ export class SendTransaction implements OnInit {
     countries: Country[] = [];
     paymentTypes: PaymentType[] = [];
     agents: Agent[] = [];
+    locationCategories: Configuration[] = [];
 
     // Selected values
     sendingCountry: Country | null = null;
     receivingCountry: Country | null = null;
     selectedPaymentType: PaymentType | null = null;
     selectedAgent: Agent | null = null;
+    selectedFromCategory: Configuration | null = null;
+    selectedToCategory: Configuration | null = null;
 
     // Transaction amounts
     transaction = {
@@ -92,6 +98,10 @@ export class SendTransaction implements OnInit {
 
     // FX rate info
     fxInfo: ConvertResponse | null = null;
+
+    // Domestic fee info
+    domesticFeeInfo: DomesticCalculateChargeResponse | null = null;
+    loadingDomesticFee = false;
 
     // Loading states
     loadingFee = false;
@@ -130,6 +140,11 @@ export class SendTransaction implements OnInit {
         this.remittanceService.getCountries().subscribe({
             next: (data) => {
                 this.countries = data.filter(c => c.isActive);
+                // Auto-select first country for FX rate calculation
+                if (this.countries.length > 0) {
+                    this.sendingCountry = this.countries[0];
+                    this.receivingCountry = this.countries[0];
+                }
                 this.cdr.detectChanges();
             }
         });
@@ -145,6 +160,13 @@ export class SendTransaction implements OnInit {
                 this.cdr.detectChanges();
             }
         });
+        this.remittanceService.getConfigurationsByType(1).subscribe({
+            next: (data) => {
+                this.locationCategories = data.filter(c => c.isActive);
+                this.cdr.detectChanges();
+            },
+            error: () => { this.locationCategories = []; }
+        });
     }
 
     // When user changes transfer amount -> auto-calculate service fee
@@ -154,9 +176,10 @@ export class SendTransaction implements OnInit {
             this.transaction.serviceFee = null;
             this.transaction.collectedAmount = null;
             this.fxInfo = null;
+            this.domesticFeeInfo = null;
             return;
         }
-        this.calculateServiceFee(amount);
+        this.calculateDomesticServiceFee(amount);
         this.calculateFxRate(amount);
     }
 
@@ -215,11 +238,49 @@ export class SendTransaction implements OnInit {
         });
     }
 
+    calculateDomesticServiceFee(amount: number) {
+        if (!this.selectedFromCategory || !this.selectedToCategory || !this.selectedPaymentType) {
+            this.domesticFeeInfo = null;
+            this.transaction.serviceFee = 0;
+            this.transaction.collectedAmount = amount;
+            return;
+        }
+        this.loadingFee = true;
+        this.loadingDomesticFee = true;
+        const req: DomesticCalculateChargeRequest = {
+            fromCategoryId: this.selectedFromCategory.id,
+            toCategoryId: this.selectedToCategory.id,
+            paymentTypeId: this.selectedPaymentType.id,
+            agentId: this.selectedAgent?.id ?? null,
+            amount
+        };
+        this.remittanceService.calculateDomesticCharge(req).subscribe({
+            next: (res: DomesticCalculateChargeResponse) => {
+                this.domesticFeeInfo = res;
+                this.transaction.serviceFee = res.serviceCharge;
+                this.transaction.collectedAmount = amount + res.serviceCharge;
+                this.loadingFee = false;
+                this.loadingDomesticFee = false;
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.domesticFeeInfo = null;
+                this.transaction.serviceFee = 0;
+                this.transaction.collectedAmount = amount;
+                this.loadingFee = false;
+                this.loadingDomesticFee = false;
+                this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Could not calculate domestic service charge.' });
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
     onCorridorChange() {
         // Reset amounts when corridor changes
         this.transaction.serviceFee = null;
         this.transaction.collectedAmount = null;
         this.fxInfo = null;
+        this.domesticFeeInfo = null;
         if (this.transaction.transferAmount && this.transaction.transferAmount > 0) {
             this.onAmountChange();
         }
@@ -227,6 +288,7 @@ export class SendTransaction implements OnInit {
 
     // --- Administrative Division cascading ---
     loadProvinces(countryId: number, target: 'sender' | 'receiver') {
+        countryId=121;
         this.remittanceService.getAdminDivisionsByCountryAndLevel(countryId, 1).subscribe({
             next: (data) => {
                 if (target === 'sender') {
@@ -322,12 +384,12 @@ export class SendTransaction implements OnInit {
         return this.selectedPaymentType?.name ?? '-';
     }
 
-    get sendingCountryName(): string {
-        return this.sendingCountry?.name ?? '-';
+    get fromCategoryName(): string {
+        return this.selectedFromCategory?.displayName ?? '-';
     }
 
-    get receivingCountryName(): string {
-        return this.receivingCountry?.name ?? '-';
+    get toCategoryName(): string {
+        return this.selectedToCategory?.displayName ?? '-';
     }
 
     get agentName(): string {
@@ -337,13 +399,13 @@ export class SendTransaction implements OnInit {
     next() {
         if (this.step < 4) {
             const nextStep = this.step + 1;
-            // Load provinces when entering Sender page (step 2)
-            if (nextStep === 2 && this.sendingCountry && this.senderProvinces.length === 0) {
-                this.loadProvinces(this.sendingCountry.id, 'sender');
+            // Load provinces when entering Sender page (step 2) - default to first country (Nepal)
+            if (nextStep === 2 && this.countries.length > 0 && this.senderProvinces.length === 0) {
+                this.loadProvinces(this.countries[0].id, 'sender');
             }
             // Load provinces when entering Receiver page (step 3)
-            if (nextStep === 3 && this.receivingCountry && this.receiverProvinces.length === 0) {
-                this.loadProvinces(this.receivingCountry.id, 'receiver');
+            if (nextStep === 3 && this.countries.length > 0 && this.receiverProvinces.length === 0) {
+                this.loadProvinces(this.countries[0].id, 'receiver');
             }
             this.step = nextStep;
         }
@@ -355,13 +417,11 @@ export class SendTransaction implements OnInit {
 
     get canProceedStep1(): boolean {
         return !!(
-            this.sendingCountry &&
-            this.receivingCountry &&
+            this.selectedFromCategory &&
+            this.selectedToCategory &&
             this.selectedPaymentType &&
             this.transaction.transferAmount &&
-            this.transaction.transferAmount > 0 &&
-            this.transaction.serviceFee !== null &&
-            this.transaction.collectedAmount
+            this.transaction.transferAmount > 0
         );
     }
 
@@ -371,7 +431,7 @@ export class SendTransaction implements OnInit {
 
         const payload: CreateTransactionRequest = {
             paymentType: this.paymentTypeName,
-            payoutLocation: `${this.sendingCountryName} → ${this.receivingCountryName}`,
+            payoutLocation: `${this.fromCategoryName} → ${this.toCategoryName}`,
             collectedAmount: this.transaction.collectedAmount!,
             serviceFee: this.transaction.serviceFee!,
             transferAmount: this.transaction.transferAmount!,
@@ -410,12 +470,18 @@ export class SendTransaction implements OnInit {
 
     resetForm() {
         this.step = 1;
-        this.sendingCountry = null;
-        this.receivingCountry = null;
         this.selectedPaymentType = null;
         this.selectedAgent = null;
+        this.selectedFromCategory = null;
+        this.selectedToCategory = null;
+        // Re-select first country for FX rate
+        if (this.countries.length > 0) {
+            this.sendingCountry = this.countries[0];
+            this.receivingCountry = this.countries[0];
+        }
         this.transaction = { transferAmount: null, serviceFee: null, collectedAmount: null };
         this.fxInfo = null;
+        this.domesticFeeInfo = null;
         this.sender = { name: '', address: '', mobile: '', showOther: false, selectedProvince: null, selectedDistrict: null, selectedLocalLevel: null };
         this.receiver = { name: '', address: '', mobile: '', showOther: false, selectedProvince: null, selectedDistrict: null, selectedLocalLevel: null };
         this.senderProvinces = []; this.senderDistricts = []; this.senderLocalLevels = [];
