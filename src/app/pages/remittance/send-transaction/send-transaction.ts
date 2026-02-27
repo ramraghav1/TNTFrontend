@@ -12,6 +12,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { forkJoin } from 'rxjs';
 
 import {
     RemittanceService,
@@ -22,6 +23,7 @@ import {
     ConvertRequest,
     ConvertResponse,
     Agent,
+    Branch,
     CreateTransactionRequest,
     CreateTransactionResponse,
     AdministrativeDivision,
@@ -89,6 +91,22 @@ export class SendTransaction implements OnInit {
     selectedFromCategory: Configuration | null = null;
     selectedToCategory: Configuration | null = null;
 
+    // Sender Agent & Branch
+    selectedSenderAgent: Agent | null = null;
+    senderBranches: Branch[] = [];
+    selectedSenderBranch: Branch | null = null;
+
+    // Payout Agent & Branch
+    selectedPayoutAgent: Agent | null = null;
+    payoutBranches: Branch[] = [];
+    selectedPayoutBranch: Branch | null = null;
+
+    // Payment-type-driven payout mode
+    payoutMode: 'none' | 'cash' | 'bank' | 'wallet' | 'agent' = 'none';
+    cashPayoutLabel = '';  // e.g. "Anywhere in Nepal"
+    payoutAgentOptions: Agent[] = [];  // filtered agents for bank/wallet
+    payoutBranchOptions: Branch[] = [];
+
     // Transaction amounts
     transaction = {
         transferAmount: null as number | null,
@@ -106,6 +124,7 @@ export class SendTransaction implements OnInit {
     // Loading states
     loadingFee = false;
     loadingFx = false;
+    loadingPayout = false;
     submitting = false;
 
     // Sender / Receiver
@@ -286,6 +305,130 @@ export class SendTransaction implements OnInit {
         }
     }
 
+    // ===== Payment Type Change: drives payout section =====
+    onPaymentTypeChange() {
+        // Reset payout selections
+        this.payoutMode = 'none';
+        this.cashPayoutLabel = '';
+        this.selectedPayoutAgent = null;
+        this.selectedPayoutBranch = null;
+        this.payoutAgentOptions = [];
+        this.payoutBranchOptions = [];
+        this.payoutBranches = [];
+
+        if (!this.selectedPaymentType) {
+            this.onCorridorChange();
+            return;
+        }
+
+        const name = this.selectedPaymentType.name.toLowerCase();
+
+        if (name.includes('cash')) {
+            this.payoutMode = 'cash';
+            this.loadingPayout = true;
+            // Fetch configured cash payout agent & branch from Configuration
+            forkJoin({
+                agentConfigs: this.remittanceService.getConfigurationsByTypeName('AnywhereNepalCashPayoutAgent'),
+                branchConfigs: this.remittanceService.getConfigurationsByTypeName('AnywhereNepalCashPayoutBranch')
+            }).subscribe({
+                next: ({ agentConfigs, branchConfigs }) => {
+                    const agentCode = agentConfigs.length > 0 ? agentConfigs[0].code : null;
+                    const branchCode = branchConfigs.length > 0 ? branchConfigs[0].code : null;
+
+                    if (agentCode) {
+                        const agentId = Number(agentCode);
+                        this.selectedPayoutAgent = this.agents.find(a => a.id === agentId) ?? null;
+                    }
+                    if (branchCode && this.selectedPayoutAgent) {
+                        const branchId = Number(branchCode);
+                        // Load branches for this agent to find the matching one
+                        this.remittanceService.getBranchesByAgent(this.selectedPayoutAgent.id).subscribe({
+                            next: (branches) => {
+                                this.payoutBranches = branches;
+                                this.selectedPayoutBranch = branches.find(b => b.id === branchId) ?? null;
+                                this.cashPayoutLabel = agentConfigs[0]?.displayName || 'Anywhere in Nepal';
+                                this.loadingPayout = false;
+                                this.cdr.detectChanges();
+                            },
+                            error: () => {
+                                this.cashPayoutLabel = agentConfigs[0]?.displayName || 'Anywhere in Nepal';
+                                this.loadingPayout = false;
+                                this.cdr.detectChanges();
+                            }
+                        });
+                    } else {
+                        this.cashPayoutLabel = agentConfigs.length > 0 ? (agentConfigs[0].displayName || 'Anywhere in Nepal') : 'Anywhere in Nepal';
+                        this.loadingPayout = false;
+                        this.cdr.detectChanges();
+                    }
+                },
+                error: () => {
+                    this.cashPayoutLabel = 'Anywhere in Nepal';
+                    this.loadingPayout = false;
+                    this.cdr.detectChanges();
+                }
+            });
+        } else if (name.includes('bank')) {
+            this.payoutMode = 'bank';
+            // Filter agents that are banks (agentType contains 'bank')
+            this.payoutAgentOptions = this.agents.filter(a => a.agentType?.toLowerCase().includes('bank'));
+        } else if (name.includes('wallet')) {
+            this.payoutMode = 'wallet';
+            // Filter agents that are wallets
+            this.payoutAgentOptions = this.agents.filter(a => a.agentType?.toLowerCase().includes('wallet'));
+        } else {
+            // Generic: show all agents as payout
+            this.payoutMode = 'agent';
+            this.payoutAgentOptions = this.agents;
+        }
+
+        this.onCorridorChange();
+    }
+
+    onSenderAgentChange() {
+        this.senderBranches = [];
+        this.selectedSenderBranch = null;
+        if (this.selectedSenderAgent) {
+            this.remittanceService.getBranchesByAgent(this.selectedSenderAgent.id).subscribe({
+                next: (data) => {
+                    this.senderBranches = data.filter(b => b.isActive);
+                    this.cdr.detectChanges();
+                }
+            });
+        }
+    }
+
+    onPayoutAgentChange() {
+        this.payoutBranches = [];
+        this.selectedPayoutBranch = null;
+        if (this.selectedPayoutAgent) {
+            this.remittanceService.getBranchesByAgent(this.selectedPayoutAgent.id).subscribe({
+                next: (data) => {
+                    this.payoutBranches = data.filter(b => b.isActive);
+                    this.payoutBranchOptions = this.payoutBranches;
+                    this.cdr.detectChanges();
+                }
+            });
+        }
+    }
+
+    get payoutModeLabel(): string {
+        switch (this.payoutMode) {
+            case 'cash': return this.cashPayoutLabel;
+            case 'bank': return this.selectedPayoutAgent?.name ?? 'Select Bank';
+            case 'wallet': return this.selectedPayoutAgent?.name ?? 'Select Wallet';
+            default: return this.selectedPayoutAgent?.name ?? '-';
+        }
+    }
+
+    get payoutSummaryLabel(): string {
+        if (this.payoutMode === 'cash') return this.cashPayoutLabel;
+        const parts: string[] = [];
+        if (this.selectedPayoutAgent) parts.push(this.selectedPayoutAgent.name);
+        if (this.selectedPayoutBranch) parts.push(this.selectedPayoutBranch.branchName);
+        return parts.length > 0 ? parts.join(' / ') : '-';
+    }
+
     // --- Administrative Division cascading ---
     loadProvinces(countryId: number, target: 'sender' | 'receiver') {
         countryId=121;
@@ -416,13 +559,20 @@ export class SendTransaction implements OnInit {
     }
 
     get canProceedStep1(): boolean {
-        return !!(
-            this.selectedFromCategory &&
-            this.selectedToCategory &&
-            this.selectedPaymentType &&
-            this.transaction.transferAmount &&
-            this.transaction.transferAmount > 0
-        );
+        const hasPaymentType = !!this.selectedPaymentType;
+        const hasCategories = !!(this.selectedFromCategory && this.selectedToCategory);
+        const hasAmount = !!(this.transaction.transferAmount && this.transaction.transferAmount > 0);
+        const hasSender = !!(this.selectedSenderAgent && this.selectedSenderBranch);
+
+        // For cash pay, payout is auto-assigned, no need for user selection
+        let hasPayout = false;
+        if (this.payoutMode === 'cash') {
+            hasPayout = true; // auto-assigned from config
+        } else if (this.payoutMode === 'bank' || this.payoutMode === 'wallet' || this.payoutMode === 'agent') {
+            hasPayout = !!this.selectedPayoutAgent;
+        }
+
+        return hasPaymentType && hasCategories && hasAmount && hasSender && hasPayout;
     }
 
     confirm() {
@@ -440,7 +590,11 @@ export class SendTransaction implements OnInit {
             senderMobile: this.sender.mobile,
             receiverName: this.receiver.name,
             receiverAddress: this.receiver.address,
-            receiverMobile: this.receiver.mobile
+            receiverMobile: this.receiver.mobile,
+            senderAgentId: this.selectedSenderAgent?.id ?? null,
+            senderBranchId: this.selectedSenderBranch?.id ?? null,
+            payoutAgentId: this.selectedPayoutAgent?.id ?? null,
+            payoutBranchId: this.selectedPayoutBranch?.id ?? null
         };
 
         this.remittanceService.createTransaction(payload).subscribe({
@@ -486,6 +640,16 @@ export class SendTransaction implements OnInit {
         this.receiver = { name: '', address: '', mobile: '', showOther: false, selectedProvince: null, selectedDistrict: null, selectedLocalLevel: null };
         this.senderProvinces = []; this.senderDistricts = []; this.senderLocalLevels = [];
         this.receiverProvinces = []; this.receiverDistricts = []; this.receiverLocalLevels = [];
+        this.selectedSenderAgent = null;
+        this.senderBranches = [];
+        this.selectedSenderBranch = null;
+        this.selectedPayoutAgent = null;
+        this.payoutBranches = [];
+        this.selectedPayoutBranch = null;
+        this.payoutMode = 'none';
+        this.cashPayoutLabel = '';
+        this.payoutAgentOptions = [];
+        this.payoutBranchOptions = [];
         this.receiptData = null;
     }
 }

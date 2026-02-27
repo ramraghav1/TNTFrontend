@@ -568,6 +568,10 @@ export interface CreateTransactionRequest {
     receiverName: string;
     receiverAddress: string;
     receiverMobile: string;
+    senderAgentId?: number | null;
+    senderBranchId?: number | null;
+    payoutAgentId?: number | null;
+    payoutBranchId?: number | null;
 }
 
 export interface CreateTransactionResponse {
@@ -589,6 +593,80 @@ export interface TransactionDetail {
     receiverName: string;
     receiverAddress: string;
     receiverMobile: string;
+    senderAgentId: number | null;
+    senderAgentName: string | null;
+    senderBranchId: number | null;
+    senderBranchName: string | null;
+    payoutAgentId: number | null;
+    payoutAgentName: string | null;
+    payoutBranchId: number | null;
+    payoutBranchName: string | null;
+    status: string | null;
+    createdAt: string | null;
+}
+
+// ===========================
+// Voucher
+// ===========================
+export interface Voucher {
+    id: number;
+    voucherNumber: string;
+    voucherDate: string;
+    entityType: string; // AGENT or BRANCH
+    agentId: number | null;
+    agentName: string | null;
+    branchId: number | null;
+    branchName: string | null;
+    agentAccountId: number | null;
+    amount: number;
+    mode: string; // CR or DR
+    balanceBefore: number;
+    balanceAfter: number;
+    referenceType: string;
+    referenceId: string | null;
+    description: string | null;
+    createdAt: string;
+    createdBy: string | null;
+}
+
+export interface CreateVoucherRequest {
+    entityType: string;
+    agentId?: number | null;
+    branchId?: number | null;
+    agentAccountId?: number | null;
+    amount: number;
+    mode: string;
+    referenceType: string;
+    referenceId?: string;
+    description?: string;
+    createdBy?: string;
+}
+
+export interface DailySummary {
+    date: string;
+    openingBalance: number;
+    totalCredit: number;
+    totalDebit: number;
+    closingBalance: number;
+    transactionCount: number;
+}
+
+export interface AccountStatementResponse {
+    entityType: string;
+    agentId: number | null;
+    agentName: string | null;
+    branchId: number | null;
+    branchName: string | null;
+    agentAccountId: number | null;
+    currencyCode: string | null;
+    openingBalance: number;
+    closingBalance: number;
+    totalCredit: number;
+    totalDebit: number;
+    fromDate: string | null;
+    toDate: string | null;
+    entries: Voucher[];
+    dailySummaries: DailySummary[];
 }
 
 import { environment } from '../../../environments/environment';
@@ -827,6 +905,9 @@ export class RemittanceService {
     getConfigurationsByType(configurationTypeId: number): Observable<Configuration[]> {
         return this.http.get<Configuration[]>(`${this.baseUrl}/configurations/by-type/${configurationTypeId}`);
     }
+    getConfigurationsByTypeName(typeName: string): Observable<Configuration[]> {
+        return this.http.get<Configuration[]>(`${this.baseUrl}/configurations/by-type-name/${encodeURIComponent(typeName)}`);
+    }
     getConfiguration(id: number): Observable<Configuration> {
         return this.http.get<Configuration>(`${this.baseUrl}/configurations/${id}`);
     }
@@ -858,5 +939,36 @@ export class RemittanceService {
     }
     calculateDomesticCharge(req: DomesticCalculateChargeRequest): Observable<DomesticCalculateChargeResponse> {
         return this.http.post<DomesticCalculateChargeResponse>(`${this.baseUrl}/domestic-service-charges/calculate`, req);
+    }
+
+    // --- Vouchers ---
+    postVoucher(req: CreateVoucherRequest): Observable<Voucher> {
+        return this.http.post<Voucher>(`${this.baseUrl}/vouchers`, req);
+    }
+
+    getVouchers(): Observable<Voucher[]> {
+        return this.http.get<Voucher[]>(`${this.baseUrl}/vouchers`);
+    }
+
+    getVoucherById(id: number): Observable<Voucher> {
+        return this.http.get<Voucher>(`${this.baseUrl}/vouchers/${id}`);
+    }
+
+    getVouchersByAgent(agentId: number): Observable<Voucher[]> {
+        return this.http.get<Voucher[]>(`${this.baseUrl}/vouchers/by-agent/${agentId}`);
+    }
+
+    getVouchersByBranch(branchId: number): Observable<Voucher[]> {
+        return this.http.get<Voucher[]>(`${this.baseUrl}/vouchers/by-branch/${branchId}`);
+    }
+
+    getAccountStatement(entityType: string, agentId?: number, branchId?: number, agentAccountId?: number, fromDate?: string, toDate?: string): Observable<AccountStatementResponse> {
+        let params: any = { entityType };
+        if (agentId) params.agentId = agentId;
+        if (branchId) params.branchId = branchId;
+        if (agentAccountId) params.agentAccountId = agentAccountId;
+        if (fromDate) params.fromDate = fromDate;
+        if (toDate) params.toDate = toDate;
+        return this.http.get<AccountStatementResponse>(`${this.baseUrl}/vouchers/statement`, { params });
     }
 }

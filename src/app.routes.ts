@@ -27,6 +27,8 @@ import { ConfigurationTypeList } from './app/pages/remittance/configuration-type
 import { ConfigurationList } from './app/pages/remittance/configuration-list/configuration-list';
 import { DomesticServiceChargeList } from './app/pages/remittance/domestic-service-charge-list/domestic-service-charge-list';
 import { DomesticServiceChargeForm } from './app/pages/remittance/domestic-service-charge-form/domestic-service-charge-form';
+import { VoucherList } from './app/pages/remittance/voucher-list/voucher-list';
+import { StatementOfAccount } from './app/pages/remittance/statement-of-account/statement-of-account';
 
 export const appRoutes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -64,7 +66,9 @@ export const appRoutes: Routes = [
             { path: 'remittance/configurations', component: ConfigurationList },
             { path: 'remittance/domestic-service-charges', component: DomesticServiceChargeList },
             { path: 'remittance/domestic-service-charge-form', component: DomesticServiceChargeForm },
-            { path: 'remittance/domestic-service-charge-form/:id', component: DomesticServiceChargeForm }
+            { path: 'remittance/domestic-service-charge-form/:id', component: DomesticServiceChargeForm },
+            { path: 'remittance/vouchers', component: VoucherList },
+            { path: 'remittance/statement-of-account', component: StatementOfAccount }
         ]
     },
     { path: 'landing', component: Landing },

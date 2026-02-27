@@ -69,6 +69,8 @@ export class AppMenu {
                     { label: 'Configuration Types', icon: 'pi pi-fw pi-cog', routerLink: ['/remittance/configuration-types'] },
                     { label: 'Configurations', icon: 'pi pi-fw pi-list', routerLink: ['/remittance/configurations'] },
                     { label: 'Domestic Service Charges', icon: 'pi pi-fw pi-building', routerLink: ['/remittance/domestic-service-charges'] },
+                    { label: 'Vouchers', icon: 'pi pi-fw pi-file-edit', routerLink: ['/remittance/vouchers'] },
+                    { label: 'Statement of Account', icon: 'pi pi-fw pi-book', routerLink: ['/remittance/statement-of-account'] },
                 ]
             },
             // {
