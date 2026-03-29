@@ -39,6 +39,7 @@ import { PatientList } from './app/pages/clinic/patient-list/patient-list';
 import { ClinicServiceList } from './app/pages/clinic/clinic-service-list/clinic-service-list';
 import { AppointmentList } from './app/pages/clinic/appointment-list/appointment-list';
 import { InvoiceList } from './app/pages/clinic/invoice-list/invoice-list';
+import { OrganizationSetup } from './app/pages/organization/organization-setup/organization-setup';
 
 export const appRoutes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -89,7 +90,8 @@ export const appRoutes: Routes = [
             { path: 'clinic/patients', component: PatientList },
             { path: 'clinic/services', component: ClinicServiceList },
             { path: 'clinic/appointments', component: AppointmentList },
-            { path: 'clinic/invoices', component: InvoiceList }
+            { path: 'clinic/invoices', component: InvoiceList },
+            { path: 'organization-setup', component: OrganizationSetup }
         ]
     },
     { path: 'landing', component: Landing },

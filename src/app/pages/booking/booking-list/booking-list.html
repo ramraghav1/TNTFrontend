@@ -34,14 +34,14 @@
                     <p-tag [value]="itinerary.difficultyLevel" [severity]="getDifficultySeverity(itinerary.difficultyLevel)"></p-tag>
                 </td>
                 <td>
-                    <button
-                        pButton
+                    <p-button
                         icon="pi pi-eye"
                         label="View Detail"
-                        class="p-button-rounded p-button-info p-button-sm"
+                        [rounded]="true"
+                        size="small"
                         (click)="viewDetail(itinerary)"
                         pTooltip="View details and book"
-                    ></button>
+                    />
                 </td>
             </tr>
         </ng-template>

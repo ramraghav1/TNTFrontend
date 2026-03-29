@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
@@ -13,6 +13,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 
 import { BookingService, DashboardStats } from '../booking.service';
+import { LayoutService } from '../../../layout/service/layout.service';
 
 @Component({
     selector: 'app-tnt-dashboard',
@@ -50,8 +51,20 @@ export class TntDashboard implements OnInit {
     constructor(
         private bookingService: BookingService,
         private messageService: MessageService,
-        private cdr: ChangeDetectorRef
-    ) {}
+        private cdr: ChangeDetectorRef,
+        private layoutService: LayoutService
+    ) {
+        // React to theme/primary/dark mode changes
+        effect(() => {
+            this.layoutService.layoutConfig();
+            if (this.stats) {
+                setTimeout(() => {
+                    this.buildCharts();
+                    this.cdr.detectChanges();
+                });
+            }
+        });
+    }
 
     ngOnInit(): void {
         this.loadStats();
@@ -82,14 +95,40 @@ export class TntDashboard implements OnInit {
         const textColor = docStyle.getPropertyValue('--p-text-color') || '#495057';
         const surfaceBorder = docStyle.getPropertyValue('--p-content-border-color') || '#dee2e6';
 
-        // Booking trend (bar chart)
+        // Read the primary color from theme CSS variables
+        const primaryColor = docStyle.getPropertyValue('--p-primary-color')?.trim() || '#6366f1';
+
+        // Helper to create alpha variants from a CSS color
+        const withAlpha = (color: string, alpha: number) => {
+            // Handle rgb(...) format
+            const rgbMatch = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+            if (rgbMatch) {
+                return `rgba(${rgbMatch[1]}, ${rgbMatch[2]}, ${rgbMatch[3]}, ${alpha})`;
+            }
+            // Handle hex format
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        };
+
+        // Derive color family from primary
+        const primary100 = withAlpha(primaryColor, 1);
+        const primary80 = withAlpha(primaryColor, 0.8);
+        const primary60 = withAlpha(primaryColor, 0.6);
+        const primary40 = withAlpha(primaryColor, 0.4);
+        const primary20 = withAlpha(primaryColor, 0.2);
+        const primary10 = withAlpha(primaryColor, 0.1);
+
+        // Booking trend (bar chart) — uses primary color
         this.bookingChartData = {
             labels: this.stats.monthlyBookings.map(m => m.month),
             datasets: [{
                 label: 'Bookings',
                 data: this.stats.monthlyBookings.map(m => m.count),
-                backgroundColor: 'rgba(59, 130, 246, 0.6)',
-                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: primary60,
+                borderColor: primary100,
                 borderWidth: 1,
                 borderRadius: 6
             }]
@@ -103,17 +142,17 @@ export class TntDashboard implements OnInit {
             maintainAspectRatio: false
         };
 
-        // Revenue trend (line chart)
+        // Revenue trend (line chart) — uses primary color
         this.revenueChartData = {
             labels: this.stats.monthlyRevenue.map(m => m.month),
             datasets: [{
                 label: 'Revenue (NPR)',
                 data: this.stats.monthlyRevenue.map(m => m.amount),
                 fill: true,
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                borderColor: 'rgb(16, 185, 129)',
+                backgroundColor: primary10,
+                borderColor: primary100,
                 tension: 0.4,
-                pointBackgroundColor: 'rgb(16, 185, 129)',
+                pointBackgroundColor: primary100,
                 pointRadius: 5
             }]
         };
@@ -126,13 +165,13 @@ export class TntDashboard implements OnInit {
             maintainAspectRatio: false
         };
 
-        // Status breakdown (doughnut)
+        // Status breakdown (doughnut) — primary color family with fades
         this.statusChartData = {
             labels: ['Confirmed', 'Pending', 'Draft', 'Cancelled'],
             datasets: [{
                 data: [this.stats.confirmed, this.stats.pending, this.stats.draft, this.stats.cancelled],
-                backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
-                hoverBackgroundColor: ['#059669', '#d97706', '#2563eb', '#dc2626'],
+                backgroundColor: [primary100, primary60, primary40, primary20],
+                hoverBackgroundColor: [primary100, primary80, primary60, primary40],
                 borderWidth: 0
             }]
         };
@@ -144,13 +183,13 @@ export class TntDashboard implements OnInit {
             maintainAspectRatio: false
         };
 
-        // Payment status (doughnut)
+        // Payment status (doughnut) — primary color family with fades
         this.paymentChartData = {
             labels: this.stats.paymentStatusBreakdown.map(p => p.label || 'Unknown'),
             datasets: [{
                 data: this.stats.paymentStatusBreakdown.map(p => p.count),
-                backgroundColor: ['#ef4444', '#10b981', '#f59e0b', '#6366f1'],
-                hoverBackgroundColor: ['#dc2626', '#059669', '#d97706', '#4f46e5'],
+                backgroundColor: [primary100, primary80, primary40, primary20],
+                hoverBackgroundColor: [primary100, primary100, primary60, primary40],
                 borderWidth: 0
             }]
         };

@@ -85,15 +85,28 @@ export class Login {
             }).subscribe({
                 next: (res) => {           
                     console.log('Login response:', res);       
-                    if (res && (res.success === true|| res === 'Login successful')) {
+                    if (res && res.accessToken) {
+                        // Store auth data
+                        localStorage.setItem('accessToken', res.accessToken);
+                        localStorage.setItem('refreshToken', res.refreshToken);
+                        localStorage.setItem('organizationType', res.user?.organizationType || '');
+                        localStorage.setItem('userInfo', JSON.stringify(res.user));
+
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Login Successful',
-                            detail: res.message || 'Welcome!'
+                            detail: `Welcome, ${res.user?.userFullName || ''}!`
                         });
                         setTimeout(() => {
-                            this.router.navigate(['/my-project-dashboard']);
-                        }, 1000); // Wait 1s to show the toast
+                            const orgType = (res.user?.organizationType || '').toLowerCase();
+                            let dashboardRoute = '/my-project-dashboard';
+                            if (orgType === 'tourandtravels' || orgType === 'tourandtravel') {
+                                dashboardRoute = '/tnt-dashboard';
+                            } else if (orgType === 'clinic') {
+                                dashboardRoute = '/clinic/dashboard';
+                            }
+                            this.router.navigate([dashboardRoute]);
+                        }, 1000);
                     } else {
                         this.messageService.add({
                             severity: 'error',
@@ -106,7 +119,7 @@ export class Login {
                     this.messageService.add({
                         severity: 'error',
                         summary: 'Login Failed',
-                        detail: 'Invalid credentials'
+                        detail: err?.error?.message || 'Invalid credentials'
                     });
                 }
             });

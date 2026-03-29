@@ -1,176 +1,162 @@
 <p-toast></p-toast>
 
-<div class="tnt-dashboard">
-    <!-- Page Header -->
-    <div class="dash-header">
-        <div>
-            <h2 class="dash-title">Tour & Travel Dashboard</h2>
-            <p class="dash-subtitle">Overview of bookings, revenue, and travel operations</p>
-        </div>
-        <button pButton icon="pi pi-refresh" label="Refresh" class="p-button-outlined p-button-sm" (click)="loadStats()"></button>
-    </div>
-
-    <!-- Loading Skeleton -->
-    <div *ngIf="loading" class="dash-skeleton">
-        <div class="stat-cards">
-            <p-skeleton *ngFor="let s of [1,2,3,4,5,6]" height="110px" borderRadius="14px"></p-skeleton>
-        </div>
-        <div class="chart-grid">
-            <p-skeleton height="320px" borderRadius="14px"></p-skeleton>
-            <p-skeleton height="320px" borderRadius="14px"></p-skeleton>
+<div class="grid grid-cols-12 gap-8" *ngIf="loading">
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3" *ngFor="let s of [1,2,3,4]">
+        <div class="card mb-0">
+            <p-skeleton height="80px" borderRadius="8px"></p-skeleton>
         </div>
     </div>
+    <div class="col-span-12 xl:col-span-6">
+        <div class="card"><p-skeleton height="300px" borderRadius="8px"></p-skeleton></div>
+    </div>
+    <div class="col-span-12 xl:col-span-6">
+        <div class="card"><p-skeleton height="300px" borderRadius="8px"></p-skeleton></div>
+    </div>
+</div>
 
-    <!-- Dashboard Content -->
-    <div *ngIf="!loading && stats" class="dash-content">
-
-        <!-- Stat Cards Row -->
-        <div class="stat-cards">
-            <div class="stat-card card-blue">
-                <div class="stat-card-icon"><i class="pi pi-calendar"></i></div>
-                <div class="stat-card-body">
-                    <span class="stat-card-value">{{ stats.totalBookings }}</span>
-                    <span class="stat-card-label">Total Bookings</span>
+<div class="grid grid-cols-12 gap-8" *ngIf="!loading && stats">
+    <!-- Stat Cards -->
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0">
+            <div class="flex justify-between mb-4">
+                <div>
+                    <span class="block text-muted-color font-medium mb-4">Total Bookings</span>
+                    <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ stats.totalBookings }}</div>
+                </div>
+                <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                    <i class="pi pi-calendar text-blue-500 text-xl!"></i>
                 </div>
             </div>
-            <div class="stat-card card-green">
-                <div class="stat-card-icon"><i class="pi pi-check-circle"></i></div>
-                <div class="stat-card-body">
-                    <span class="stat-card-value">{{ stats.confirmed }}</span>
-                    <span class="stat-card-label">Confirmed</span>
-                </div>
-            </div>
-            <div class="stat-card card-orange">
-                <div class="stat-card-icon"><i class="pi pi-clock"></i></div>
-                <div class="stat-card-body">
-                    <span class="stat-card-value">{{ stats.pending + stats.draft }}</span>
-                    <span class="stat-card-label">Pending / Draft</span>
-                </div>
-            </div>
-            <div class="stat-card card-red">
-                <div class="stat-card-icon"><i class="pi pi-times-circle"></i></div>
-                <div class="stat-card-body">
-                    <span class="stat-card-value">{{ stats.cancelled }}</span>
-                    <span class="stat-card-label">Cancelled</span>
-                </div>
-            </div>
-            <div class="stat-card card-emerald">
-                <div class="stat-card-icon"><i class="pi pi-wallet"></i></div>
-                <div class="stat-card-body">
-                    <span class="stat-card-value">NPR {{ formatCurrency(stats.totalRevenue) }}</span>
-                    <span class="stat-card-label">Total Revenue</span>
-                </div>
-            </div>
-            <div class="stat-card card-purple">
-                <div class="stat-card-icon"><i class="pi pi-users"></i></div>
-                <div class="stat-card-body">
-                    <span class="stat-card-value">{{ stats.totalTravelers }}</span>
-                    <span class="stat-card-label">Total Travelers</span>
-                </div>
-            </div>
+            <span class="text-primary font-medium">{{ stats.confirmed }} confirmed</span>
         </div>
-
-        <!-- Charts Row 1 -->
-        <div class="chart-grid">
-            <div class="chart-card">
-                <div class="chart-card-header">
-                    <h3>Booking Trend</h3>
-                    <span class="chart-badge">Last 6 Months</span>
+    </div>
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0">
+            <div class="flex justify-between mb-4">
+                <div>
+                    <span class="block text-muted-color font-medium mb-4">Revenue</span>
+                    <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">NPR {{ formatCurrency(stats.totalRevenue) }}</div>
                 </div>
-                <div class="chart-container">
-                    <p-chart type="bar" [data]="bookingChartData" [options]="bookingChartOptions" [style]="{ height: '260px' }"></p-chart>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-card-header">
-                    <h3>Revenue Trend</h3>
-                    <span class="chart-badge">Last 6 Months</span>
-                </div>
-                <div class="chart-container">
-                    <p-chart type="line" [data]="revenueChartData" [options]="revenueChartOptions" [style]="{ height: '260px' }"></p-chart>
+                <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                    <i class="pi pi-wallet text-orange-500 text-xl!"></i>
                 </div>
             </div>
+            <span class="text-primary font-medium">{{ stats.totalTravelers }} travelers</span>
         </div>
+    </div>
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0">
+            <div class="flex justify-between mb-4">
+                <div>
+                    <span class="block text-muted-color font-medium mb-4">Pending / Draft</span>
+                    <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ stats.pending + stats.draft }}</div>
+                </div>
+                <div class="flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                    <i class="pi pi-clock text-cyan-500 text-xl!"></i>
+                </div>
+            </div>
+            <span class="text-primary font-medium">{{ stats.pending }} pending</span>
+            <span class="text-muted-color">, {{ stats.draft }} draft</span>
+        </div>
+    </div>
+    <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+        <div class="card mb-0">
+            <div class="flex justify-between mb-4">
+                <div>
+                    <span class="block text-muted-color font-medium mb-4">Cancelled</span>
+                    <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ stats.cancelled }}</div>
+                </div>
+                <div class="flex items-center justify-center bg-purple-100 dark:bg-purple-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                    <i class="pi pi-times-circle text-purple-500 text-xl!"></i>
+                </div>
+            </div>
+            <span class="text-muted-color">out of {{ stats.totalBookings }} total</span>
+        </div>
+    </div>
 
-        <!-- Charts Row 2 + Top Itineraries -->
-        <div class="chart-grid triple">
-            <div class="chart-card">
-                <div class="chart-card-header">
-                    <h3>Booking Status</h3>
-                </div>
-                <div class="chart-container donut-container">
-                    <p-chart type="doughnut" [data]="statusChartData" [options]="statusChartOptions" [style]="{ height: '240px' }"></p-chart>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-card-header">
-                    <h3>Payment Status</h3>
-                </div>
-                <div class="chart-container donut-container">
-                    <p-chart type="doughnut" [data]="paymentChartData" [options]="paymentChartOptions" [style]="{ height: '240px' }"></p-chart>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-card-header">
-                    <h3>Top Itineraries</h3>
-                </div>
-                <div class="top-list">
-                    <div class="top-item" *ngFor="let item of stats.topItineraries; let i = index">
-                        <div class="top-rank">{{ i + 1 }}</div>
-                        <div class="top-info">
-                            <span class="top-name">{{ item.title }}</span>
-                            <span class="top-count">{{ item.bookingCount }} booking{{ item.bookingCount !== 1 ? 's' : '' }}</span>
-                        </div>
-                        <div class="top-bar-wrap">
-                            <div class="top-bar" [style.width.%]="stats.topItineraries.length ? (item.bookingCount / stats.topItineraries[0].bookingCount) * 100 : 0"></div>
-                        </div>
+    <!-- Charts Row 1 -->
+    <div class="col-span-12 xl:col-span-6">
+        <div class="card mb-8!">
+            <div class="font-semibold text-xl mb-4">Booking Trend</div>
+            <p-chart type="bar" [data]="bookingChartData" [options]="bookingChartOptions" class="h-80" />
+        </div>
+    </div>
+    <div class="col-span-12 xl:col-span-6">
+        <div class="card mb-8!">
+            <div class="font-semibold text-xl mb-4">Revenue Trend</div>
+            <p-chart type="line" [data]="revenueChartData" [options]="revenueChartOptions" class="h-80" />
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="col-span-12 xl:col-span-4">
+        <div class="card mb-8!">
+            <div class="font-semibold text-xl mb-4">Booking Status</div>
+            <p-chart type="doughnut" [data]="statusChartData" [options]="statusChartOptions" class="h-80" />
+        </div>
+    </div>
+    <div class="col-span-12 xl:col-span-4">
+        <div class="card mb-8!">
+            <div class="font-semibold text-xl mb-4">Payment Status</div>
+            <p-chart type="doughnut" [data]="paymentChartData" [options]="paymentChartOptions" class="h-80" />
+        </div>
+    </div>
+    <div class="col-span-12 xl:col-span-4">
+        <div class="card mb-8!">
+            <div class="font-semibold text-xl mb-4">Top Itineraries</div>
+            <div class="flex flex-col gap-4">
+                <div *ngFor="let item of stats.topItineraries; let i = index" class="flex items-center gap-3">
+                    <div class="flex items-center justify-center bg-primary/10 rounded-full" style="width: 2rem; height: 2rem">
+                        <span class="text-primary font-bold text-sm">{{ i + 1 }}</span>
                     </div>
-                    <div *ngIf="stats.topItineraries.length === 0" class="empty-chart-text">
-                        <i class="pi pi-map-marker"></i>
-                        <p>No itineraries yet</p>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-surface-900 dark:text-surface-0 truncate">{{ item.title }}</div>
+                        <div class="text-muted-color text-sm">{{ item.bookingCount }} booking{{ item.bookingCount !== 1 ? 's' : '' }}</div>
                     </div>
+                    <div class="w-16 h-1.5 rounded-full bg-surface-200 dark:bg-surface-600">
+                        <div class="h-full rounded-full bg-primary" [style.width.%]="stats.topItineraries.length ? (item.bookingCount / stats.topItineraries[0].bookingCount) * 100 : 0"></div>
+                    </div>
+                </div>
+                <div *ngIf="stats.topItineraries.length === 0" class="flex flex-col items-center py-8 text-muted-color">
+                    <i class="pi pi-map-marker text-4xl mb-2"></i>
+                    <p>No itineraries yet</p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Recent Bookings Table -->
-        <div class="chart-card table-card">
-            <div class="chart-card-header">
-                <h3>Recent Bookings</h3>
-                <button pButton label="View All" icon="pi pi-arrow-right" iconPos="right" class="p-button-text p-button-sm" routerLink="/my-bookings"></button>
+    <!-- Recent Bookings Table -->
+    <div class="col-span-12">
+        <div class="card mb-8!">
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-semibold text-xl">Recent Bookings</div>
+                <p-button label="View All" icon="pi pi-arrow-right" iconPos="right" [text]="true" size="small" routerLink="/my-bookings" />
             </div>
             <p-table [value]="stats.recentBookings" responsiveLayout="scroll" [rows]="5">
                 <ng-template pTemplate="header">
                     <tr>
                         <th>Reference</th>
-                        <th>Itinerary</th>
+                        <th pSortableColumn="templateTitle">Itinerary <p-sortIcon field="templateTitle" /></th>
                         <th>Status</th>
                         <th>Payment</th>
-                        <th>Amount</th>
+                        <th pSortableColumn="totalAmount">Amount <p-sortIcon field="totalAmount" /></th>
                         <th>Date</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-b>
                     <tr>
-                        <td><span class="booking-ref">{{ b.bookingReference }}</span></td>
+                        <td><span class="font-mono font-semibold text-sm text-primary">{{ b.bookingReference }}</span></td>
                         <td>{{ b.templateTitle }}</td>
-                        <td><p-tag [value]="b.status" [severity]="getStatusSeverity(b.status)"></p-tag></td>
-                        <td><p-tag [value]="b.paymentStatus" [severity]="getPaymentSeverity(b.paymentStatus)"></p-tag></td>
-                        <td class="amount-cell">NPR {{ formatCurrency(b.totalAmount) }}</td>
+                        <td><p-tag [value]="b.status" [severity]="getStatusSeverity(b.status)" /></td>
+                        <td><p-tag [value]="b.paymentStatus" [severity]="getPaymentSeverity(b.paymentStatus)" /></td>
+                        <td class="font-semibold">NPR {{ formatCurrency(b.totalAmount) }}</td>
                         <td>{{ formatDate(b.createdAt) }}</td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
-                    <tr><td colspan="6" class="text-center p-4">No recent bookings</td></tr>
+                    <tr><td colspan="6" class="text-center py-4 text-muted-color">No recent bookings</td></tr>
                 </ng-template>
             </p-table>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <button pButton label="New Booking" icon="pi pi-plus" class="p-button-primary" routerLink="/booking-list"></button>
-            <button pButton label="View All Bookings" icon="pi pi-list" class="p-button-outlined" routerLink="/my-bookings"></button>
-            <button pButton label="Manage Itineraries" icon="pi pi-map" class="p-button-outlined" routerLink="/itinerary-list"></button>
         </div>
     </div>
 </div>
