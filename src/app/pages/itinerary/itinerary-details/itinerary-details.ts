@@ -1,11 +1,17 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { AccordionModule } from 'primeng/accordion';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ButtonModule } from 'primeng/button';
+
+interface DayCost {
+  name: string;
+  category: string;
+  price: number;
+}
 
 interface ItineraryDay {
   id: number;
@@ -18,6 +24,7 @@ interface ItineraryDay {
   lunchIncluded: boolean;
   dinnerIncluded: boolean;
   activities: string[];
+  costs: DayCost[];
 }
 
 interface ItineraryDetail {
@@ -32,16 +39,22 @@ interface ItineraryDetail {
 @Component({
   selector: 'app-itinerary-details',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, AccordionModule, TagModule, ProgressSpinnerModule],
+  imports: [CommonModule, HttpClientModule, TagModule, ProgressSpinnerModule, ButtonModule],
   templateUrl: './itinerary-details.html',
   styleUrls: ['./itinerary-details.scss']
 })
 export class ItineraryDetailsComponent implements OnInit {
 
   itinerary?: ItineraryDetail;
-  loading: boolean = true;
+  loading = true;
+  collapsedDays: boolean[] = [];
 
-  constructor(private route: ActivatedRoute, private http: HttpClient, private cd: ChangeDetectorRef) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient,
+    private cd: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -54,8 +67,9 @@ export class ItineraryDetailsComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.itinerary = res;
+          this.collapsedDays = (res.days || []).map(() => false);
           this.loading = false;
-          this.cd.detectChanges(); // Force UI update
+          this.cd.detectChanges();
         },
         error: (err) => {
           console.error(err);
@@ -65,13 +79,51 @@ export class ItineraryDetailsComponent implements OnInit {
       });
   }
 
-  // Optional: color tags based on difficulty
-  getDifficultySeverity(level: string) {
-    switch (level.toLowerCase()) {
+  toggleDay(index: number) {
+    this.collapsedDays[index] = !this.collapsedDays[index];
+  }
+
+  expandAll() {
+    this.collapsedDays = this.collapsedDays.map(() => false);
+  }
+
+  collapseAll() {
+    this.collapsedDays = this.collapsedDays.map(() => true);
+  }
+
+  getDifficultySeverity(level: string): 'success' | 'secondary' | 'danger' | 'info' {
+    switch (level?.toLowerCase()) {
       case 'easy': return 'success';
       case 'moderate': return 'secondary';
       case 'hard': return 'danger';
       default: return 'info';
+    }
+  }
+
+  getDayTotal(day: ItineraryDay): number {
+    return (day.costs || []).reduce((sum, c) => sum + (c.price || 0), 0);
+  }
+
+  getGrandTotal(): number {
+    if (!this.itinerary) return 0;
+    return this.itinerary.days.reduce((sum, day) => sum + this.getDayTotal(day), 0);
+  }
+
+  getMeals(day: ItineraryDay): string[] {
+    const meals: string[] = [];
+    if (day.breakfastIncluded) meals.push('Breakfast');
+    if (day.lunchIncluded) meals.push('Lunch');
+    if (day.dinnerIncluded) meals.push('Dinner');
+    return meals;
+  }
+
+  goBack() {
+    this.router.navigate(['/itinerary-list']);
+  }
+
+  goEdit() {
+    if (this.itinerary) {
+      this.router.navigate(['/edit-itinerary', this.itinerary.id]);
     }
   }
 }

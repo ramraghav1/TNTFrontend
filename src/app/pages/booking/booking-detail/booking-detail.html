@@ -1,127 +1,163 @@
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
 <!-- Loading Spinner -->
-<div *ngIf="loading" class="flex justify-content-center align-items-center py-8">
-    <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
+<div *ngIf="loading" class="flex justify-content-center align-items-center" style="min-height: 60vh">
+    <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
 </div>
 
 <!-- Main Content -->
-<div *ngIf="!loading && itinerary" class="surface-ground p-4 w-full">
+<div *ngIf="!loading && itinerary" class="booking-page">
 
     <!-- Back Button -->
-    <button pButton icon="pi pi-arrow-left" label="Back to List" class="p-button-text mb-3" (click)="goBack()"></button>
+    <div class="mb-4">
+        <button pButton icon="pi pi-arrow-left" label="Back to List" class="p-button-text p-button-sm" (click)="goBack()"></button>
+    </div>
 
     <!-- ============================= -->
     <!-- SECTION 1: Itinerary Overview -->
     <!-- ============================= -->
-    <div class="card w-full border-round-xl shadow-2 p-5 mb-4">
-        <h2 class="text-3xl font-bold mb-2">{{ itinerary.title }}</h2>
-        <p class="text-600 text-lg mb-3">{{ itinerary.description }}</p>
-        <div class="flex gap-3 flex-wrap">
-            <p-tag icon="pi pi-calendar" [value]="itinerary.durationDays + ' Days'" severity="info"></p-tag>
-            <p-tag icon="pi pi-chart-line" [value]="itinerary.difficultyLevel"
-                   [severity]="getDifficultySeverity(itinerary.difficultyLevel)"></p-tag>
+    <div class="overview-card mb-4">
+        <div class="overview-header">
+            <div>
+                <h2 class="overview-title">{{ itinerary.title }}</h2>
+                <p class="overview-description">{{ itinerary.description }}</p>
+            </div>
+            <div class="flex gap-2 flex-wrap mt-2">
+                <p-tag icon="pi pi-calendar" [value]="itinerary.durationDays + ' Days'" severity="info"></p-tag>
+                <p-tag icon="pi pi-chart-line" [value]="itinerary.difficultyLevel"
+                       [severity]="getDifficultySeverity(itinerary.difficultyLevel)"></p-tag>
+            </div>
         </div>
     </div>
 
     <!-- ============================= -->
     <!-- SECTION 2: Editable Day Plan  -->
     <!-- ============================= -->
-    <div class="card w-full border-round-xl shadow-1 p-4 mb-4">
-        <h3 class="text-xl font-semibold mb-4">
-            <i class="pi pi-map mr-2"></i>Customize Daily Plan
-        </h3>
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <div class="section-number">1</div>
+            <div>
+                <h3 class="section-title">Customize Daily Plan</h3>
+                <p class="section-subtitle">Modify each day's details as needed</p>
+            </div>
+            <div class="toggle-btns ml-auto">
+                <button pButton label="Expand All" icon="pi pi-angle-double-down" class="p-button-text p-button-sm" (click)="expandAllDays()"></button>
+                <button pButton label="Collapse All" icon="pi pi-angle-double-up" class="p-button-text p-button-sm" (click)="collapseAllDays()"></button>
+            </div>
+        </div>
 
-        <p-accordion [multiple]="true">
-            <p-accordion-panel *ngFor="let day of editableDays; let i = index" [value]="day.id">
-
-                <p-accordion-header>
-                    <div class="flex justify-content-between align-items-center w-full">
-                        <div class="flex align-items-center gap-3">
-                            <span class="text-primary font-bold">Day {{ day.dayNumber }}</span>
-                            <span>{{ day.title }}</span>
+        <div class="day-list">
+            <div *ngFor="let day of editableDays; let i = index" class="day-card">
+                <!-- Day Card Header -->
+                <div class="day-card-header" (click)="toggleDayAccordion(i)">
+                    <div class="flex align-items-center gap-3">
+                        <span class="day-number-badge">{{ day.dayNumber }}</span>
+                        <div>
+                            <span class="day-card-title">Day {{ day.dayNumber }}{{ day.title ? ': ' + day.title : '' }}</span>
+                            <span *ngIf="day.location" class="day-card-location">
+                                <i class="pi pi-map-marker"></i> {{ day.location }}
+                            </span>
                         </div>
-                        <span class="text-sm text-500">{{ day.location }}</span>
                     </div>
-                </p-accordion-header>
+                    <i class="pi day-chevron" [class.pi-chevron-down]="collapsedDayMap[i]" [class.pi-chevron-up]="!collapsedDayMap[i]"></i>
+                </div>
 
-                <p-accordion-content>
-                    <div class="grid p-fluid">
-                        <!-- Row 1: Title & Location -->
-                        <div class="col-12 md:col-6 mb-3">
-                            <label class="block font-semibold mb-2">Title</label>
+                <!-- Day Card Content -->
+                <div *ngIf="!collapsedDayMap[i]" class="day-card-content">
+                    <!-- Row 1: Title & Location -->
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="field-label">Title</label>
                             <input pInputText [(ngModel)]="day.title" placeholder="Day title" />
                         </div>
-                        <div class="col-12 md:col-6 mb-3">
-                            <label class="block font-semibold mb-2">Location</label>
+                        <div class="form-field">
+                            <label class="field-label">Location</label>
                             <input pInputText [(ngModel)]="day.location" placeholder="Location" />
                         </div>
+                    </div>
 
-                        <!-- Row 2: Accommodation & Transport -->
-                        <div class="col-12 md:col-6 mb-3">
-                            <label class="block font-semibold mb-2">Accommodation</label>
+                    <!-- Row 2: Accommodation & Transport -->
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="field-label">Accommodation</label>
                             <input pInputText [(ngModel)]="day.accommodation" placeholder="Accommodation" />
                         </div>
-                        <div class="col-12 md:col-6 mb-3">
-                            <label class="block font-semibold mb-2">Transport</label>
+                        <div class="form-field">
+                            <label class="field-label">Transport</label>
                             <input pInputText [(ngModel)]="day.transport" placeholder="Transport" />
                         </div>
+                    </div>
 
-                        <!-- Row 3: Meals -->
-                        <div class="col-12 mb-3">
-                            <label class="block font-semibold mb-2">Meals Included</label>
-                            <div class="flex gap-4 flex-wrap">
-                                <p-checkbox [(ngModel)]="day.breakfastIncluded" [binary]="true" label="Breakfast"></p-checkbox>
-                                <p-checkbox [(ngModel)]="day.lunchIncluded" [binary]="true" label="Lunch"></p-checkbox>
-                                <p-checkbox [(ngModel)]="day.dinnerIncluded" [binary]="true" label="Dinner"></p-checkbox>
+                    <!-- Meals -->
+                    <div class="form-row">
+                        <div class="form-field-full">
+                            <label class="field-label">Meals Included</label>
+                            <div class="meals-row">
+                                <div class="meal-item">
+                                    <p-checkbox [(ngModel)]="day.breakfastIncluded" [binary]="true" (ngModelChange)="onMealChange(i, 'Breakfast', $event)"></p-checkbox>
+                                    <span>Breakfast</span>
+                                </div>
+                                <div class="meal-item">
+                                    <p-checkbox [(ngModel)]="day.lunchIncluded" [binary]="true" (ngModelChange)="onMealChange(i, 'Lunch', $event)"></p-checkbox>
+                                    <span>Lunch</span>
+                                </div>
+                                <div class="meal-item">
+                                    <p-checkbox [(ngModel)]="day.dinnerIncluded" [binary]="true" (ngModelChange)="onMealChange(i, 'Dinner', $event)"></p-checkbox>
+                                    <span>Dinner</span>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Row 4: Activities -->
-                        <div class="col-12 mb-3">
-                            <label class="block font-semibold mb-2">Activities</label>
-                            <div class="flex flex-wrap gap-2 mb-2">
+                    <!-- Activities -->
+                    <div class="form-row">
+                        <div class="form-field-full">
+                            <label class="field-label">Activities</label>
+                            <div class="flex flex-wrap gap-2 mb-2" *ngIf="day.activities.length > 0">
                                 <p-chip *ngFor="let activity of day.activities; let ai = index"
                                         [label]="activity"
                                         [removable]="true"
-                                        (onRemove)="removeActivity(day, ai)">
+                                        (onRemove)="onActivityRemove(day, ai)">
                                 </p-chip>
                             </div>
                             <div class="flex gap-2">
                                 <input pInputText [(ngModel)]="day.newActivity" placeholder="Add activity"
-                                       (keyup.enter)="addActivity(day)" class="flex-1" />
-                                <button pButton icon="pi pi-plus" class="p-button-outlined" (click)="addActivity(day)"></button>
+                                       (keyup.enter)="onActivityAdd(day)" class="flex-1" />
+                                <button pButton icon="pi pi-plus" class="p-button-outlined p-button-sm" (click)="onActivityAdd(day)"></button>
                             </div>
                         </div>
                     </div>
-                </p-accordion-content>
-
-            </p-accordion-panel>
-        </p-accordion>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- ============================= -->
     <!-- SECTION 3: Booking Info       -->
     <!-- ============================= -->
-    <div class="card w-full border-round-xl shadow-1 p-4 mb-4">
-        <h3 class="text-xl font-semibold mb-4">
-            <i class="pi pi-calendar-plus mr-2"></i>Booking Information
-        </h3>
-
-        <div class="grid p-fluid">
-            <!-- Dates -->
-            <div class="col-12 md:col-6 mb-3">
-                <label class="block font-semibold mb-2">Start Date *</label>
-                <p-datepicker [(ngModel)]="startDate" [showIcon]="true" dateFormat="yy-mm-dd" placeholder="Select start date"></p-datepicker>
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <div class="section-number">2</div>
+            <div>
+                <h3 class="section-title">Booking Information</h3>
+                <p class="section-subtitle">Set your travel dates and preferences</p>
             </div>
-            <div class="col-12 md:col-6 mb-3">
-                <label class="block font-semibold mb-2">End Date *</label>
-                <p-datepicker [(ngModel)]="endDate" [showIcon]="true" dateFormat="yy-mm-dd" placeholder="Select end date"></p-datepicker>
-            </div>
+        </div>
 
-            <!-- Special Requests -->
-            <div class="col-12 mb-3">
-                <label class="block font-semibold mb-2">Special Requests</label>
+        <div class="form-row">
+            <div class="form-field">
+                <label class="field-label">Start Date *</label>
+                <app-nepali-datepicker [(ngModel)]="startDate" placeholder="Select start date" (ngModelChange)="onStartDateChange()"></app-nepali-datepicker>
+            </div>
+            <div class="form-field">
+                <label class="field-label">End Date *</label>
+                <app-nepali-datepicker [(ngModel)]="endDate" placeholder="Select end date" [minDate]="minEndDate"></app-nepali-datepicker>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-field-full">
+                <label class="field-label">Special Requests</label>
                 <textarea pTextarea [(ngModel)]="specialRequests" rows="3" placeholder="Any special requests or notes..."></textarea>
             </div>
         </div>
@@ -130,70 +166,168 @@
     <!-- ============================= -->
     <!-- SECTION 4: Travelers          -->
     <!-- ============================= -->
-    <div class="card w-full border-round-xl shadow-1 p-4 mb-4">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold m-0">
-                <i class="pi pi-users mr-2"></i>Travelers
-            </h3>
-            <button pButton icon="pi pi-plus" label="Add Traveler" class="p-button-outlined p-button-sm" (click)="addTraveler()"></button>
+    <div class="section-card mb-4">
+        <div class="section-header">
+            <div class="section-number">3</div>
+            <div>
+                <h3 class="section-title">Travelers</h3>
+                <p class="section-subtitle">Add everyone who will be traveling</p>
+            </div>
+            <div class="toggle-btns ml-auto">
+                <button pButton label="Expand All" icon="pi pi-angle-double-down" class="p-button-text p-button-sm" (click)="expandAllTravelers()"></button>
+                <button pButton label="Collapse All" icon="pi pi-angle-double-up" class="p-button-text p-button-sm" (click)="collapseAllTravelers()"></button>
+                <button pButton icon="pi pi-plus" label="Add Traveler" class="p-button-outlined p-button-sm" (click)="addTraveler()"></button>
+            </div>
         </div>
 
-        <div *ngFor="let traveler of travelers; let ti = index" class="border-1 surface-border border-round p-4 mb-3">
-            <div class="flex justify-between items-center mb-3">
-                <h4 class="m-0 text-lg font-semibold">Traveler {{ ti + 1 }}</h4>
-                <button *ngIf="travelers.length > 1"
-                        pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm"
-                        (click)="removeTraveler(ti)"></button>
-            </div>
-
-            <div class="grid p-fluid">
-                <!-- Full Name -->
-                <div class="col-12 md:col-6 mb-3">
-                    <label class="block font-semibold mb-2">Full Name *</label>
-                    <input pInputText [(ngModel)]="traveler.fullName" placeholder="Full name" />
+        <div class="traveler-list">
+            <div *ngFor="let traveler of travelers; let ti = index" class="traveler-card">
+                <div class="traveler-card-header" (click)="toggleTravelerAccordion(ti)">
+                    <div class="flex align-items-center gap-2">
+                        <span class="traveler-avatar">
+                            <i class="pi pi-user"></i>
+                        </span>
+                        <h4 class="m-0 font-semibold">Traveler {{ ti + 1 }}{{ traveler.fullName ? ': ' + traveler.fullName : '' }}</h4>
+                    </div>
+                    <div class="flex align-items-center gap-1">
+                        <button *ngIf="travelers.length > 1"
+                                pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm"
+                                (click)="removeTraveler(ti); $event.stopPropagation()"></button>
+                        <i class="pi day-chevron" [class.pi-chevron-down]="collapsedTravelerMap[ti]" [class.pi-chevron-up]="!collapsedTravelerMap[ti]"></i>
+                    </div>
                 </div>
 
-                <!-- Email -->
-                <div class="col-12 md:col-6 mb-3">
-                    <label class="block font-semibold mb-2">Email</label>
-                    <input pInputText [(ngModel)]="traveler.email" placeholder="Email address" />
+                <div *ngIf="!collapsedTravelerMap[ti]" class="traveler-card-content">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="field-label">Full Name *</label>
+                        <input pInputText [(ngModel)]="traveler.fullName" placeholder="Full name" />
+                    </div>
+                    <div class="form-field">
+                        <label class="field-label">Email</label>
+                        <input pInputText [(ngModel)]="traveler.email" placeholder="Email address" />
+                    </div>
                 </div>
-
-                <!-- Contact Number -->
-                <div class="col-12 md:col-6 mb-3">
-                    <label class="block font-semibold mb-2">Contact Number</label>
-                    <input pInputText [(ngModel)]="traveler.contactNumber" placeholder="Phone number" />
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="field-label">Contact Number</label>
+                        <input pInputText [(ngModel)]="traveler.contactNumber" placeholder="Phone number" />
+                    </div>
+                    <div class="form-field">
+                        <label class="field-label">Nationality</label>
+                        <input pInputText [(ngModel)]="traveler.nationality" placeholder="Nationality" />
+                    </div>
                 </div>
-
-                <!-- Nationality -->
-                <div class="col-12 md:col-6 mb-3">
-                    <label class="block font-semibold mb-2">Nationality</label>
-                    <input pInputText [(ngModel)]="traveler.nationality" placeholder="Nationality" />
+                <div class="form-row">
+                    <div class="form-field-third">
+                        <label class="field-label">Adults</label>
+                        <p-inputnumber [(ngModel)]="traveler.adults" [min]="1" [showButtons]="true"></p-inputnumber>
+                    </div>
+                    <div class="form-field-third">
+                        <label class="field-label">Children</label>
+                        <p-inputnumber [(ngModel)]="traveler.children" [min]="0" [showButtons]="true"></p-inputnumber>
+                    </div>
+                    <div class="form-field-third">
+                        <label class="field-label">Seniors</label>
+                        <p-inputnumber [(ngModel)]="traveler.seniors" [min]="0" [showButtons]="true"></p-inputnumber>
+                    </div>
                 </div>
-
-                <!-- Guest counts -->
-                <div class="col-12 md:col-4 mb-3">
-                    <label class="block font-semibold mb-2">Adults</label>
-                    <p-inputnumber [(ngModel)]="traveler.adults" [min]="1" [showButtons]="true"></p-inputnumber>
-                </div>
-                <div class="col-12 md:col-4 mb-3">
-                    <label class="block font-semibold mb-2">Children</label>
-                    <p-inputnumber [(ngModel)]="traveler.children" [min]="0" [showButtons]="true"></p-inputnumber>
-                </div>
-                <div class="col-12 md:col-4 mb-3">
-                    <label class="block font-semibold mb-2">Seniors</label>
-                    <p-inputnumber [(ngModel)]="traveler.seniors" [min]="0" [showButtons]="true"></p-inputnumber>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ============================= -->
-    <!-- SECTION 5: Submit Button      -->
+    <!-- SECTION 5: Cost Breakdown     -->
     <!-- ============================= -->
-    <div class="flex justify-content-end gap-3 mt-4">
+    <div class="section-card mb-4" *ngIf="hasCosts()">
+        <div class="section-header">
+            <div class="section-number">4</div>
+            <div>
+                <h3 class="section-title">Cost Breakdown</h3>
+                <p class="section-subtitle">Review and adjust pricing per day</p>
+            </div>
+            <div class="toggle-btns ml-auto">
+                <button pButton [label]="costEditMode ? 'Done Editing' : 'Update Cost'"
+                        [icon]="costEditMode ? 'pi pi-check' : 'pi pi-pencil'"
+                        [class]="costEditMode ? 'p-button-success p-button-sm' : 'p-button-outlined p-button-sm'"
+                        (click)="toggleCostEdit()"></button>
+            </div>
+        </div>
+
+        <div class="pricing-table">
+            <div *ngFor="let dayCost of bookingDayCosts; let di = index" class="pricing-day-block">
+                <div class="pricing-day-header" *ngIf="dayCost.costs.length > 0">
+                    <span>Day {{ dayCost.dayNumber }}{{ dayCost.title ? ': ' + dayCost.title : '' }}</span>
+                    <span class="pricing-day-total">Rs. {{ getBookingDayTotal(di) }}</span>
+                </div>
+
+                <!-- Read-only mode -->
+                <ng-container *ngIf="!costEditMode">
+                    <div *ngFor="let cost of dayCost.costs" class="pricing-item" [class.pricing-item-disabled]="!cost.enabled">
+                        <div class="pricing-item-name">
+                            <span>{{ cost.name }}</span>
+                            <span class="pricing-item-cat">{{ cost.category }}</span>
+                        </div>
+                        <div class="pricing-item-calc">Rs. {{ cost.price }}</div>
+                    </div>
+                </ng-container>
+
+                <!-- Edit mode -->
+                <ng-container *ngIf="costEditMode">
+                    <div *ngFor="let cost of dayCost.costs; let ci = index" class="pricing-item-edit">
+                        <div class="pricing-edit-left">
+                            <p-checkbox [(ngModel)]="cost.enabled" [binary]="true"></p-checkbox>
+                            <input pInputText [(ngModel)]="cost.name" class="cost-edit-name" [disabled]="!cost.enabled" />
+                            <span class="pricing-item-cat">{{ cost.category }}</span>
+                        </div>
+                        <div class="pricing-edit-right">
+                            <span class="cost-currency-label">Rs.</span>
+                            <input pInputText type="number" [(ngModel)]="cost.price" class="cost-edit-price" [disabled]="!cost.enabled" />
+                            <button pButton icon="pi pi-times" class="p-button-text p-button-danger p-button-sm" (click)="removeCostRow(di, ci)"></button>
+                        </div>
+                    </div>
+                    <div class="pricing-add-row">
+                        <button pButton label="Add Cost Item" icon="pi pi-plus" class="p-button-text p-button-sm" (click)="addCostRow(di)"></button>
+                    </div>
+                </ng-container>
+            </div>
+
+            <!-- Discount Section -->
+            <div class="discount-section">
+                <div class="discount-header">
+                    <span class="discount-label">Discount</span>
+                    <div class="discount-controls">
+                        <select [(ngModel)]="discountType" class="discount-select">
+                            <option value="percent">Percent (%)</option>
+                            <option value="flat">Flat (Rs.)</option>
+                        </select>
+                        <input pInputText type="number" [(ngModel)]="discountValue" class="discount-input" placeholder="0" [min]="0" />
+                    </div>
+                </div>
+                <div class="discount-row" *ngIf="discountValue > 0">
+                    <span>Subtotal</span>
+                    <span>Rs. {{ getSubtotal() }}</span>
+                </div>
+                <div class="discount-row" *ngIf="discountValue > 0">
+                    <span>Discount ({{ discountType === 'percent' ? discountValue + '%' : 'Rs. ' + discountValue }})</span>
+                    <span class="discount-amount">- Rs. {{ getDiscountAmount() | number:'1.2-2' }}</span>
+                </div>
+            </div>
+
+            <div class="pricing-grand-total">
+                <span>Estimated Total</span>
+                <span>Rs. {{ getGrandTotal() | number:'1.2-2' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================= -->
+    <!-- SECTION 6: Action Buttons     -->
+    <!-- ============================= -->
+    <div class="action-bar">
         <button pButton label="Cancel" icon="pi pi-times" class="p-button-outlined p-button-secondary" (click)="goBack()"></button>
-        <button pButton label="Continue Booking Process" icon="pi pi-check" class="p-button-success p-button-lg"
+        <button pButton label="Continue Booking" icon="pi pi-arrow-right" iconPos="right" class="p-button-success p-button-lg"
                 [loading]="submitting"
                 [disabled]="!isFormValid()"
                 (click)="continueBooking()">
@@ -202,8 +336,19 @@
 </div>
 
 <!-- Not Found -->
-<div *ngIf="!loading && !itinerary" class="card p-5 text-center">
-    <i class="pi pi-exclamation-triangle text-4xl text-yellow-500 mb-3"></i>
-    <h3>Itinerary not found</h3>
-    <button pButton label="Back to List" icon="pi pi-arrow-left" class="p-button-text" (click)="goBack()"></button>
+<div *ngIf="!loading && !itinerary" class="not-found-card">
+    <i class="pi pi-exclamation-triangle text-5xl text-yellow-500 mb-3"></i>
+    <h3 class="mb-2">Itinerary not found</h3>
+    <p class="text-600 mb-4">The itinerary you're looking for doesn't exist or has been removed.</p>
+    <button pButton label="Back to List" icon="pi pi-arrow-left" class="p-button-outlined" (click)="goBack()"></button>
 </div>
+
+<!-- Payment Dialog -->
+<app-payment-dialog
+    [(visible)]="showPaymentDialog"
+    [bookingId]="createdBookingId"
+    [bookingReference]="createdBookingRef"
+    [totalAmount]="getSubtotal()"
+    [discountAmount]="getDiscountAmount()"
+    (paymentComplete)="onPaymentComplete()"
+></app-payment-dialog>

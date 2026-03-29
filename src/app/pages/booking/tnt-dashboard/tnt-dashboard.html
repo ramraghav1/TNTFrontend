@@ -1,0 +1,176 @@
+<p-toast></p-toast>
+
+<div class="tnt-dashboard">
+    <!-- Page Header -->
+    <div class="dash-header">
+        <div>
+            <h2 class="dash-title">Tour & Travel Dashboard</h2>
+            <p class="dash-subtitle">Overview of bookings, revenue, and travel operations</p>
+        </div>
+        <button pButton icon="pi pi-refresh" label="Refresh" class="p-button-outlined p-button-sm" (click)="loadStats()"></button>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div *ngIf="loading" class="dash-skeleton">
+        <div class="stat-cards">
+            <p-skeleton *ngFor="let s of [1,2,3,4,5,6]" height="110px" borderRadius="14px"></p-skeleton>
+        </div>
+        <div class="chart-grid">
+            <p-skeleton height="320px" borderRadius="14px"></p-skeleton>
+            <p-skeleton height="320px" borderRadius="14px"></p-skeleton>
+        </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div *ngIf="!loading && stats" class="dash-content">
+
+        <!-- Stat Cards Row -->
+        <div class="stat-cards">
+            <div class="stat-card card-blue">
+                <div class="stat-card-icon"><i class="pi pi-calendar"></i></div>
+                <div class="stat-card-body">
+                    <span class="stat-card-value">{{ stats.totalBookings }}</span>
+                    <span class="stat-card-label">Total Bookings</span>
+                </div>
+            </div>
+            <div class="stat-card card-green">
+                <div class="stat-card-icon"><i class="pi pi-check-circle"></i></div>
+                <div class="stat-card-body">
+                    <span class="stat-card-value">{{ stats.confirmed }}</span>
+                    <span class="stat-card-label">Confirmed</span>
+                </div>
+            </div>
+            <div class="stat-card card-orange">
+                <div class="stat-card-icon"><i class="pi pi-clock"></i></div>
+                <div class="stat-card-body">
+                    <span class="stat-card-value">{{ stats.pending + stats.draft }}</span>
+                    <span class="stat-card-label">Pending / Draft</span>
+                </div>
+            </div>
+            <div class="stat-card card-red">
+                <div class="stat-card-icon"><i class="pi pi-times-circle"></i></div>
+                <div class="stat-card-body">
+                    <span class="stat-card-value">{{ stats.cancelled }}</span>
+                    <span class="stat-card-label">Cancelled</span>
+                </div>
+            </div>
+            <div class="stat-card card-emerald">
+                <div class="stat-card-icon"><i class="pi pi-wallet"></i></div>
+                <div class="stat-card-body">
+                    <span class="stat-card-value">NPR {{ formatCurrency(stats.totalRevenue) }}</span>
+                    <span class="stat-card-label">Total Revenue</span>
+                </div>
+            </div>
+            <div class="stat-card card-purple">
+                <div class="stat-card-icon"><i class="pi pi-users"></i></div>
+                <div class="stat-card-body">
+                    <span class="stat-card-value">{{ stats.totalTravelers }}</span>
+                    <span class="stat-card-label">Total Travelers</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="chart-grid">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Booking Trend</h3>
+                    <span class="chart-badge">Last 6 Months</span>
+                </div>
+                <div class="chart-container">
+                    <p-chart type="bar" [data]="bookingChartData" [options]="bookingChartOptions" [style]="{ height: '260px' }"></p-chart>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Revenue Trend</h3>
+                    <span class="chart-badge">Last 6 Months</span>
+                </div>
+                <div class="chart-container">
+                    <p-chart type="line" [data]="revenueChartData" [options]="revenueChartOptions" [style]="{ height: '260px' }"></p-chart>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 + Top Itineraries -->
+        <div class="chart-grid triple">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Booking Status</h3>
+                </div>
+                <div class="chart-container donut-container">
+                    <p-chart type="doughnut" [data]="statusChartData" [options]="statusChartOptions" [style]="{ height: '240px' }"></p-chart>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Payment Status</h3>
+                </div>
+                <div class="chart-container donut-container">
+                    <p-chart type="doughnut" [data]="paymentChartData" [options]="paymentChartOptions" [style]="{ height: '240px' }"></p-chart>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3>Top Itineraries</h3>
+                </div>
+                <div class="top-list">
+                    <div class="top-item" *ngFor="let item of stats.topItineraries; let i = index">
+                        <div class="top-rank">{{ i + 1 }}</div>
+                        <div class="top-info">
+                            <span class="top-name">{{ item.title }}</span>
+                            <span class="top-count">{{ item.bookingCount }} booking{{ item.bookingCount !== 1 ? 's' : '' }}</span>
+                        </div>
+                        <div class="top-bar-wrap">
+                            <div class="top-bar" [style.width.%]="stats.topItineraries.length ? (item.bookingCount / stats.topItineraries[0].bookingCount) * 100 : 0"></div>
+                        </div>
+                    </div>
+                    <div *ngIf="stats.topItineraries.length === 0" class="empty-chart-text">
+                        <i class="pi pi-map-marker"></i>
+                        <p>No itineraries yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Bookings Table -->
+        <div class="chart-card table-card">
+            <div class="chart-card-header">
+                <h3>Recent Bookings</h3>
+                <button pButton label="View All" icon="pi pi-arrow-right" iconPos="right" class="p-button-text p-button-sm" routerLink="/my-bookings"></button>
+            </div>
+            <p-table [value]="stats.recentBookings" responsiveLayout="scroll" [rows]="5">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Reference</th>
+                        <th>Itinerary</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-b>
+                    <tr>
+                        <td><span class="booking-ref">{{ b.bookingReference }}</span></td>
+                        <td>{{ b.templateTitle }}</td>
+                        <td><p-tag [value]="b.status" [severity]="getStatusSeverity(b.status)"></p-tag></td>
+                        <td><p-tag [value]="b.paymentStatus" [severity]="getPaymentSeverity(b.paymentStatus)"></p-tag></td>
+                        <td class="amount-cell">NPR {{ formatCurrency(b.totalAmount) }}</td>
+                        <td>{{ formatDate(b.createdAt) }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr><td colspan="6" class="text-center p-4">No recent bookings</td></tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button pButton label="New Booking" icon="pi pi-plus" class="p-button-primary" routerLink="/booking-list"></button>
+            <button pButton label="View All Bookings" icon="pi pi-list" class="p-button-outlined" routerLink="/my-bookings"></button>
+            <button pButton label="Manage Itineraries" icon="pi pi-map" class="p-button-outlined" routerLink="/itinerary-list"></button>
+        </div>
+    </div>
+</div>

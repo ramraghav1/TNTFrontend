@@ -3,6 +3,7 @@
     <!-- Toast Notification -->
     <div>
       <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
     </div>
 
     <!-- Single Card with All Content -->
@@ -43,80 +44,151 @@
       <div>
         <div class="flex justify-between items-center mb-4">
           <div class="font-semibold text-xl">Daily Itinerary</div>
-          <p-button label="Add Day" (click)="addDay()" icon="pi pi-plus" severity="success"></p-button>
+          <div class="flex gap-2">
+            @if (form.days.length > 0) {
+              <p-button label="Expand All" (click)="expandAllDays()" icon="pi pi-angle-double-down" severity="info" [outlined]="true" size="small"></p-button>
+              <p-button label="Collapse All" (click)="collapseAllDays()" icon="pi pi-angle-double-up" severity="info" [outlined]="true" size="small"></p-button>
+            }
+            <p-button label="Add Day" (click)="addDay()" icon="pi pi-plus" severity="success"></p-button>
+          </div>
         </div>
 
-        <p-accordion>
+        <div class="flex flex-col gap-4">
           @for (day of form.days; track day.dayNumber; let i = $index) {
-            <p-accordionTab [header]="'Day ' + day.dayNumber + ': ' + day.title">
-              <div class="flex flex-col gap-6">
-                <!-- First Row -->
-                <div class="flex flex-col md:flex-row gap-6">
-                  <div class="flex flex-col gap-2 w-full">
-                    <label>Title</label>
-                    <input pInputText [(ngModel)]="day.title" placeholder="Day title" class="w-full" />
-                  </div>
-                  
-                  <div class="flex flex-col gap-2 w-full">
-                    <label>Location</label>
-                    <input pInputText [(ngModel)]="day.location" placeholder="Location" class="w-full" />
-                  </div>
-                  
-                  <div class="flex flex-col gap-2 w-full">
-                    <label>Accommodation</label>
-                    <input pInputText [(ngModel)]="day.accommodation" placeholder="Hotel/Resort name" class="w-full" />
-                  </div>
+            <div class="day-section" [class.day-collapsed]="collapsedDays[i]" [attr.data-day-index]="i">
+              <!-- Day Header (clickable to toggle) -->
+              <div class="day-header" (click)="toggleDay(i)">
+                <div class="flex items-center gap-3">
+                  <span class="day-badge">{{ day.dayNumber }}</span>
+                  <span class="day-title">Day {{ day.dayNumber }}{{ day.title ? ': ' + day.title : '' }}</span>
+                  @if (day.location) {
+                    <span class="day-location"><i class="pi pi-map-marker"></i> {{ day.location }}</span>
+                  }
                 </div>
-
-                <!-- Second Row -->
-                <div class="flex flex-col md:flex-row gap-6">
-                  <div class="flex flex-col gap-2 w-full">
-                    <label>Transport</label>
-                    <input pInputText [(ngModel)]="day.transport" placeholder="Transport mode" class="w-full" />
-                  </div>
-
-                  <div class="flex flex-col gap-2 w-full">
-                    <label>Activities</label>
-                    <p-multiSelect [(ngModel)]="day.activities" [options]="activityOptions" optionLabel="label" optionValue="value" placeholder="Select activities" class="w-full"></p-multiSelect>
-                  </div>
-                </div>
-
-                <!-- Meals Section -->
-                <div>
-                  <label class="block mb-3 font-semibold">Meals Included</label>
-                  <div class="flex gap-6">
-                    <div class="flex items-center">
-                      <p-checkbox [(ngModel)]="day.breakfastIncluded" binary class="mr-2"></p-checkbox>
-                      <label>Breakfast</label>
-                    </div>
-                    <div class="flex items-center">
-                      <p-checkbox [(ngModel)]="day.lunchIncluded" binary class="mr-2"></p-checkbox>
-                      <label>Lunch</label>
-                    </div>
-                    <div class="flex items-center">
-                      <p-checkbox [(ngModel)]="day.dinnerIncluded" binary class="mr-2"></p-checkbox>
-                      <label>Dinner</label>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Remove Button -->
-                <div>
-                  <p-button label="Remove Day" severity="danger" (click)="removeDay(i)" icon="pi pi-trash"></p-button>
+                <div class="flex items-center gap-2">
+                  <p-button icon="pi pi-trash" severity="danger" [outlined]="true" [rounded]="true" size="small" (click)="removeDay(i); $event.stopPropagation()"></p-button>
+                  <i class="day-toggle-icon pi" [class.pi-chevron-down]="collapsedDays[i]" [class.pi-chevron-up]="!collapsedDays[i]"></i>
                 </div>
               </div>
-            </p-accordionTab>
+
+              <!-- Day Content (collapsible) -->
+              @if (!collapsedDays[i]) {
+                <div class="day-content">
+                  <div class="flex flex-col gap-6">
+                    <!-- First Row -->
+                    <div class="flex flex-col md:flex-row gap-6">
+                      <div class="flex flex-col gap-2 w-full">
+                        <label>Title</label>
+                        <input pInputText [(ngModel)]="day.title" placeholder="Day title" class="w-full" />
+                      </div>
+
+                      <div class="flex flex-col gap-2 w-full">
+                        <label>Location</label>
+                        <input pInputText [(ngModel)]="day.location" placeholder="Location" class="w-full" />
+                      </div>
+
+                      <div class="flex flex-col gap-2 w-full">
+                        <label>Accommodation</label>
+                        <input pInputText [(ngModel)]="day.accommodation" placeholder="Hotel/Resort name" class="w-full" />
+                      </div>
+                    </div>
+
+                    <!-- Second Row -->
+                    <div class="flex flex-col md:flex-row gap-6">
+                      <div class="flex flex-col gap-2 w-full">
+                        <label>Transport</label>
+                        <input pInputText [(ngModel)]="day.transport" placeholder="Transport mode" class="w-full" />
+                      </div>
+
+                      <div class="flex flex-col gap-2 w-full">
+                        <label>Activities</label>
+                        <p-multiSelect [(ngModel)]="day.activities" [options]="activityOptions" optionLabel="label" optionValue="value" placeholder="Select activities" class="w-full"></p-multiSelect>
+                      </div>
+                    </div>
+
+                    <!-- Meals Section -->
+                    <div>
+                      <label class="block mb-3 font-semibold">Meals Included</label>
+                      <div class="flex gap-6">
+                        <div class="flex items-center">
+                          <p-checkbox [(ngModel)]="day.breakfastIncluded" binary class="mr-2"></p-checkbox>
+                          <label>Breakfast</label>
+                        </div>
+                        <div class="flex items-center">
+                          <p-checkbox [(ngModel)]="day.lunchIncluded" binary class="mr-2"></p-checkbox>
+                          <label>Lunch</label>
+                        </div>
+                        <div class="flex items-center">
+                          <p-checkbox [(ngModel)]="day.dinnerIncluded" binary class="mr-2"></p-checkbox>
+                          <label>Dinner</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Pricing Toggle -->
+                    <div class="flex items-center gap-3">
+                      <p-button [label]="showPricing[i] ? 'Hide Pricing' : 'Set Price'"
+                                (click)="togglePricing(i)"
+                                [icon]="showPricing[i] ? 'pi pi-eye-slash' : 'pi pi-wallet'"
+                                [severity]="showPricing[i] ? 'secondary' : 'info'"
+                                [outlined]="true" size="small"></p-button>
+                      @if (getDayTotal(i) > 0) {
+                        <span class="text-sm" style="color: var(--p-primary-500);">
+                          <i class="pi pi-indian-rupee" style="font-size: 0.75rem;"></i> Day Total: Rs. {{ getDayTotal(i) }}
+                        </span>
+                      }
+                    </div>
+
+                    <!-- Pricing Section -->
+                    @if (showPricing[i]) {
+                      <div class="pricing-section">
+                        <div class="flex justify-between items-center mb-3">
+                          <label class="font-semibold text-sm">Cost Items (per person)</label>
+                          <p-button label="Add Custom" (click)="addCustomCost(i)" icon="pi pi-plus"
+                                    severity="info" [outlined]="true" size="small"></p-button>
+                        </div>
+                        <div class="cost-grid">
+                          @for (cost of day.costs; track $index; let ci = $index) {
+                            <div class="cost-row">
+                              <input pInputText [(ngModel)]="cost.name" placeholder="Item name" class="cost-name" />
+                              <div class="cost-price-wrap">
+                                <span class="cost-currency">Rs.</span>
+                                <input pInputText type="number" [(ngModel)]="cost.price" placeholder="0" class="cost-price" />
+                              </div>
+                              <p-button icon="pi pi-times" severity="danger" [text]="true" size="small"
+                                        (click)="removeCost(i, ci)"></p-button>
+                            </div>
+                          }
+                        </div>
+                        <div class="cost-total">
+                          <span>Day {{ day.dayNumber }} Total:</span>
+                          <span class="font-bold">Rs. {{ getDayTotal(i) }}</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
           }
-        </p-accordion>
+        </div>
       </div>
+
+      <!-- Grand Total -->
+      @if (getGrandTotal() > 0) {
+        <div class="grand-total-bar">
+          <span class="font-semibold">Estimated Total Cost (per person):</span>
+          <span class="grand-total-amount">Rs. {{ getGrandTotal() }}</span>
+        </div>
+      }
 
       <!-- Divider -->
       <hr class="my-2">
 
       <!-- Action Buttons -->
       <div class="flex justify-end gap-3 mt-4">
-        <p-button label="Save Itinerary" (click)="submitItinerary()" icon="pi pi-check"></p-button>
-        <p-button label="Cancel" severity="secondary" (click)="resetForm()" icon="pi pi-times"></p-button>
+        <p-button label="Save Itinerary" (click)="confirmSave()" icon="pi pi-check"></p-button>
+        <p-button label="Cancel" severity="secondary" (click)="confirmCancel()" icon="pi pi-times"></p-button>
       </div>
     </div>
   </div>

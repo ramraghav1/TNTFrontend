@@ -1,0 +1,26 @@
+:host{display:block}
+.bookings-page{padding:1.5rem}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
+.page-title{font-size:1.75rem;font-weight:700;margin:0;color:var(--p-surface-900)}
+.page-subtitle{font-size:.9rem;color:var(--p-surface-500);margin:.25rem 0 0}
+.header-actions{display:flex;gap:.5rem}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat-card{display:flex;align-items:center;gap:1rem;background:var(--p-surface-0);border:1px solid var(--p-surface-200);border-radius:12px;padding:1.25rem}
+.stat-icon{display:flex;align-items:center;justify-content:center;width:3rem;height:3rem;border-radius:12px;color:#fff;font-size:1.25rem}
+.stat-icon.bg-blue{background:var(--p-primary-500)}
+.stat-icon.bg-green{background:var(--p-green-500)}
+.stat-icon.bg-orange{background:var(--p-orange-500)}
+.stat-icon.bg-red{background:var(--p-red-500)}
+.stat-info{display:flex;flex-direction:column}
+.stat-value{font-size:1.5rem;font-weight:700;color:var(--p-surface-900)}
+.stat-label{font-size:.8rem;color:var(--p-surface-500)}
+.table-card{background:var(--p-surface-0);border:1px solid var(--p-surface-200);border-radius:14px;padding:1.25rem;overflow:hidden}
+.table-toolbar{display:flex;justify-content:flex-end}
+.booking-ref{font-weight:600;font-family:monospace;font-size:.85rem;color:var(--p-primary-600)}
+.itinerary-name{font-weight:500}
+.amount{font-weight:600;color:var(--p-surface-800)}
+.empty-state{display:flex;flex-direction:column;align-items:center;padding:3rem 1rem;text-align:center;color:var(--p-surface-500)}
+.empty-state i{font-size:3rem;margin-bottom:1rem;color:var(--p-surface-300)}
+.empty-state h3{margin:0 0 .5rem;color:var(--p-surface-700)}
+.empty-state p{margin:0 0 1.5rem}
+.action-btns{display:flex;align-items:center;gap:.35rem}

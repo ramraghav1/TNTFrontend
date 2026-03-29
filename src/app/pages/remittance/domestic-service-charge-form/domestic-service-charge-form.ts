@@ -16,6 +16,7 @@ import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { CardModule } from 'primeng/card';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 
 import {
@@ -46,7 +47,8 @@ import {
         TagModule,
         TableModule,
         ToolbarModule,
-        CardModule
+        CardModule,
+        TooltipModule
     ],
     providers: [MessageService],
     templateUrl: './domestic-service-charge-form.html',
@@ -155,6 +157,8 @@ export class DomesticServiceChargeForm implements OnInit {
                 maxAmount: 999999999,
                 chargeType: 'Flat',
                 chargeValue: 0,
+                sendCommission: 0,
+                payoutCommission: 0,
                 currency: this.currency
             });
         } else {
@@ -169,6 +173,8 @@ export class DomesticServiceChargeForm implements OnInit {
             maxAmount: 0,
             chargeType: 'Flat',
             chargeValue: 0,
+            sendCommission: 0,
+            payoutCommission: 0,
             currency: this.currency
         });
     }

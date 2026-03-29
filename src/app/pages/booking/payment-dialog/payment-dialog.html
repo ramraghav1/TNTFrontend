@@ -1,0 +1,102 @@
+<p-toast></p-toast>
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [closable]="step !== 'processing'"
+    [draggable]="false"
+    [style]="{ width: '480px' }"
+    header="Payment"
+    (onShow)="onShow()"
+    (onHide)="onHide()"
+>
+    <!-- Step 1: Choose payment method -->
+    <div *ngIf="step === 'choose'" class="pay-content">
+        <!-- Amount Summary -->
+        <div class="pay-summary">
+            <div class="pay-summary-row">
+                <span>Booking Reference</span>
+                <span class="pay-ref">{{ bookingReference }}</span>
+            </div>
+            <div class="pay-summary-row">
+                <span>Subtotal</span>
+                <span>NPR {{ totalAmount | number:'1.2-2' }}</span>
+            </div>
+            <div class="pay-summary-row discount-row" *ngIf="discountAmount > 0">
+                <span>Discount</span>
+                <span class="discount-val">- NPR {{ discountAmount | number:'1.2-2' }}</span>
+            </div>
+            <div class="pay-divider"></div>
+            <div class="pay-summary-row pay-total-row">
+                <span>Total Payable</span>
+                <span class="pay-total">NPR {{ grandTotal | number:'1.2-2' }}</span>
+            </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="pay-methods">
+            <h4 class="pay-methods-title">Select Payment Method</h4>
+            <div class="pay-method-cards">
+                <div
+                    class="pay-method-card"
+                    [class.selected]="paymentMethod === 'qr'"
+                    (click)="paymentMethod = 'qr'"
+                >
+                    <i class="pi pi-qrcode"></i>
+                    <span>QR Payment</span>
+                    <small>Scan & pay instantly</small>
+                </div>
+                <div
+                    class="pay-method-card"
+                    [class.selected]="paymentMethod === 'cash'"
+                    (click)="paymentMethod = 'cash'"
+                >
+                    <i class="pi pi-wallet"></i>
+                    <span>Cash</span>
+                    <small>Pay at counter</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- QR Code Preview (shown when QR selected) -->
+        <div *ngIf="paymentMethod === 'qr'" class="qr-preview">
+            <div class="qr-frame">
+                <img [src]="qrImageUrl" alt="Payment QR Code" width="180" height="180" />
+            </div>
+            <div class="qr-account-info">
+                <p><strong>{{ accountName }}</strong></p>
+                <p>A/C: {{ accountNumber }}</p>
+                <p>{{ bankName }}</p>
+            </div>
+        </div>
+
+        <!-- Cash info -->
+        <div *ngIf="paymentMethod === 'cash'" class="cash-info">
+            <i class="pi pi-info-circle"></i>
+            <p>Please pay <strong>NPR {{ grandTotal | number:'1.2-2' }}</strong> at the counter.<br/>A receipt will be provided upon payment confirmation.</p>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="pay-actions">
+            <button pButton label="Cancel" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="onHide()"></button>
+            <button pButton [label]="paymentMethod === 'qr' ? 'I have paid' : 'Confirm Cash Payment'" icon="pi pi-check" class="p-button-success" (click)="proceedPayment()"></button>
+        </div>
+    </div>
+
+    <!-- Step 2: Processing -->
+    <div *ngIf="step === 'processing'" class="pay-processing">
+        <p-progressSpinner [style]="{ width: '60px', height: '60px' }" strokeWidth="4"></p-progressSpinner>
+        <h3>Verifying Payment...</h3>
+        <p>Please wait while we confirm your payment</p>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div *ngIf="step === 'success'" class="pay-success">
+        <div class="success-icon">
+            <i class="pi pi-check-circle"></i>
+        </div>
+        <h3>Payment Received!</h3>
+        <p>Your payment of <strong>NPR {{ grandTotal | number:'1.2-2' }}</strong> has been confirmed.</p>
+        <p class="success-ref">Booking: {{ bookingReference }}</p>
+        <button pButton label="Done" icon="pi pi-check" class="p-button-success" (click)="closeAndNotify()"></button>
+    </div>
+</p-dialog>

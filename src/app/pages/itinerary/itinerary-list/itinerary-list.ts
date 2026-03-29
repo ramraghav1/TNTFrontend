@@ -82,7 +82,7 @@ export class ItineraryList implements OnInit {
   }
 
   editItinerary(itinerary: Itinerary) {
-    this.messageService.add({ severity: 'info', summary: 'Edit', detail: `Edit itinerary ${itinerary.title}` });
+    this.router.navigate(['edit-itinerary', itinerary.id]);
   }
 
   deleteItinerary(itinerary: Itinerary) {
@@ -91,10 +91,17 @@ export class ItineraryList implements OnInit {
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.itineraries = this.itineraries.filter(i => i.id !== itinerary.id);
-        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: `Itinerary ${itinerary.title} deleted` });
-
-        this.cdr.detectChanges(); // Make sure view updates
+        this.http.delete(`${environment.apiBaseUrl}/Itineraries/delete/${itinerary.id}`).subscribe({
+          next: () => {
+            this.itineraries = this.itineraries.filter(i => i.id !== itinerary.id);
+            this.messageService.add({ severity: 'success', summary: 'Deleted', detail: `Itinerary ${itinerary.title} deleted` });
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            console.error(err);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete itinerary' });
+          }
+        });
       }
     });
   }

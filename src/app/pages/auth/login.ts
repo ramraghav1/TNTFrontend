@@ -27,36 +27,8 @@ import { environment } from '../../../environments/environment';
                 <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
                     <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
                         <div class="text-center mb-8">
-                        <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<defs>
-  <linearGradient id="globeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" stop-color="#4facfe"/>
-    <stop offset="100%" stop-color="#00f2fe"/>
-  </linearGradient>
-
-  <linearGradient id="trailGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#ff9a9e"/>
-    <stop offset="100%" stop-color="#fbc2eb"/>
-  </linearGradient>
-</defs>
-
-<!-- Globe -->
-<circle cx="27" cy="20" r="12" fill="url(#globeGrad)" />
-
-<!-- Travel Trail -->
-<path d="M6 22 Q27 35 48 22"
-      stroke="url(#trailGrad)"
-      stroke-width="3"
-      stroke-linecap="round"
-      fill="none"/>
-
-<!-- Airplane -->
-<polygon points="30,10 46,18 32,20 28,28 26,26 28,20 18,18"
-         fill="#ffffff"/>
-
-</svg>
-                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to My App!</div>
+                            <img src="/images/suryantra-logo.png" alt="Suryantra Technologies" style="height: 240px; width: auto;" class="mx-auto mb-4" />
+                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to Suryantra!</div>
                             <span class="text-muted-color font-medium">Sign in to continue</span>
                         </div>
 

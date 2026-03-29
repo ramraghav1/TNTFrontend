@@ -501,6 +501,8 @@ export interface DomesticServiceChargeSlab {
     maxAmount: number;
     chargeType: string;
     chargeValue: number;
+    sendCommission: number;
+    payoutCommission: number;
     currency: string;
 }
 
@@ -549,6 +551,8 @@ export interface DomesticCalculateChargeResponse {
     serviceCharge: number;
     chargeType: string;
     chargeValue: number;
+    sendCommission: number;
+    payoutCommission: number;
     totalDeducted: number;
     currency: string;
 }

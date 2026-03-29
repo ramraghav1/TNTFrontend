@@ -16,36 +16,7 @@ import { LayoutService } from '@/app/layout/service/layout.service';
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" routerLink="/">
-            <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<defs>
-  <linearGradient id="globeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" stop-color="#4facfe"/>
-    <stop offset="100%" stop-color="#00f2fe"/>
-  </linearGradient>
-
-  <linearGradient id="trailGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-    <stop offset="0%" stop-color="#ff9a9e"/>
-    <stop offset="100%" stop-color="#fbc2eb"/>
-  </linearGradient>
-</defs>
-
-<!-- Globe -->
-<circle cx="27" cy="20" r="12" fill="url(#globeGrad)" />
-
-<!-- Travel Trail -->
-<path d="M6 22 Q27 35 48 22"
-      stroke="url(#trailGrad)"
-      stroke-width="3"
-      stroke-linecap="round"
-      fill="none"/>
-
-<!-- Airplane -->
-<polygon points="30,10 46,18 32,20 28,28 26,26 28,20 18,18"
-         fill="#ffffff"/>
-
-</svg>
-                <span>MyProject</span>
+                <img src="/images/suryantra-logo-transparent.svg" alt="Suryantra Technologies" style="height: 56px; width: auto; margin-top: -2px;" />
             </a>
         </div>
 

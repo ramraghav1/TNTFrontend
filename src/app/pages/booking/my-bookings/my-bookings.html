@@ -1,0 +1,122 @@
+<p-toast></p-toast>
+
+<div class="bookings-page">
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h2 class="page-title">My Bookings</h2>
+            <p class="page-subtitle">View and manage all your bookings</p>
+        </div>
+        <div class="header-actions">
+            <button pButton icon="pi pi-refresh" label="Refresh" class="p-button-outlined" (click)="loadBookings()"></button>
+            <button pButton icon="pi pi-plus" label="New Booking" class="p-button-primary" routerLink="/booking-list"></button>
+        </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="table-card">
+        <p-table
+            #dt
+            [value]="bookings"
+            [paginator]="true"
+            [rows]="10"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [loading]="loading"
+            [globalFilterFields]="['bookingReference', 'templateTitle', 'status', 'paymentStatus']"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} bookings"
+            responsiveLayout="scroll"
+            sortField="createdAt"
+            [sortOrder]="-1"
+        >
+            <ng-template pTemplate="caption">
+                <div class="table-toolbar">
+                    <p-iconfield>
+                        <p-inputicon styleClass="pi pi-search"></p-inputicon>
+                        <input pInputText type="text" placeholder="Search bookings..." (input)="onGlobalFilter($event)" />
+                    </p-iconfield>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="bookingReference" style="min-width:140px">Reference <p-sortIcon field="bookingReference"></p-sortIcon></th>
+                    <th pSortableColumn="templateTitle" style="min-width:180px">Itinerary <p-sortIcon field="templateTitle"></p-sortIcon></th>
+                    <th pSortableColumn="status" style="min-width:120px">Status <p-sortIcon field="status"></p-sortIcon></th>
+                    <th pSortableColumn="startDate" style="min-width:120px">Start Date <p-sortIcon field="startDate"></p-sortIcon></th>
+                    <th pSortableColumn="endDate" style="min-width:120px">End Date <p-sortIcon field="endDate"></p-sortIcon></th>
+                    <th pSortableColumn="totalAmount" style="min-width:120px">Amount <p-sortIcon field="totalAmount"></p-sortIcon></th>
+                    <th pSortableColumn="paymentStatus" style="min-width:120px">Payment <p-sortIcon field="paymentStatus"></p-sortIcon></th>
+                    <th pSortableColumn="createdAt" style="min-width:130px">Created <p-sortIcon field="createdAt"></p-sortIcon></th>
+                    <th style="min-width:160px">Actions</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-booking>
+                <tr>
+                    <td>
+                        <span class="booking-ref">{{ booking.bookingReference }}</span>
+                    </td>
+                    <td>
+                        <span class="itinerary-name">{{ booking.templateTitle }}</span>
+                    </td>
+                    <td>
+                        <p-tag [value]="booking.status" [severity]="getStatusSeverity(booking.status)"></p-tag>
+                    </td>
+                    <td>{{ formatDate(booking.startDate) }}</td>
+                    <td>{{ formatDate(booking.endDate) }}</td>
+                    <td>
+                        <span class="amount">${{ formatCurrency(booking.totalAmount) }}</span>
+                    </td>
+                    <td>
+                        <p-tag [value]="booking.paymentStatus" [severity]="getPaymentSeverity(booking.paymentStatus)"></p-tag>
+                    </td>
+                    <td>{{ formatDate(booking.createdAt) }}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button
+                                pButton
+                                icon="pi pi-eye"
+                                class="p-button-rounded p-button-text p-button-info"
+                                (click)="viewBooking(booking)"
+                                pTooltip="View details"
+                            ></button>
+                            <button
+                                *ngIf="booking.paymentStatus?.toLowerCase() === 'unpaid'"
+                                pButton
+                                icon="pi pi-credit-card"
+                                label="Pay Now"
+                                class="p-button-rounded p-button-sm p-button-success"
+                                (click)="payNow(booking)"
+                                pTooltip="Make payment"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="9">
+                        <div class="empty-state">
+                            <i class="pi pi-inbox"></i>
+                            <h3>No bookings yet</h3>
+                            <p>Start by booking an itinerary</p>
+                            <button pButton label="Browse Itineraries" icon="pi pi-arrow-right" routerLink="/booking-list"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<!-- Payment Dialog -->
+<app-payment-dialog
+    [(visible)]="showPaymentDialog"
+    [bookingId]="payBookingId"
+    [bookingReference]="payBookingRef"
+    [totalAmount]="payTotalAmount"
+    [discountAmount]="payDiscountAmount"
+    (paymentComplete)="onPaymentComplete()"
+></app-payment-dialog>

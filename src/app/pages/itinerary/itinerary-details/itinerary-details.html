@@ -1,70 +1,158 @@
-<!-- Loading Spinner -->
-<div *ngIf="loading" class="flex justify-content-center align-items-center py-8">
-    <i class="pi pi-spin pi-spinner text-3xl text-primary"></i>
-</div>
+<!-- Loading -->
+@if (loading) {
+  <div class="flex justify-center items-center py-12">
+    <p-progressSpinner strokeWidth="4" animationDuration="1s"></p-progressSpinner>
+  </div>
+}
 
 <!-- Main Content -->
-<div *ngIf="!loading && itinerary as itineraryData" class="surface-ground p-4 w-full">
+@if (!loading && itinerary) {
+  <div class="flex flex-col gap-6">
 
-  <!-- Header Card -->
-  <div class="card w-full border-round-xl shadow-2 p-5 mb-4">
-    <h2 class="text-4xl font-bold mb-3">{{ itineraryData.title }}</h2>
-    <p class="text-600 text-lg mb-3">{{ itineraryData.description }}</p>
-
-    <div class="flex gap-3 flex-wrap">
-      <p-tag icon="pi pi-calendar" [value]="itineraryData.durationDays + ' Days'" severity="info"></p-tag>
-      <p-tag icon="pi pi-chart-line" [value]="itineraryData.difficultyLevel"
-             [severity]="getDifficultySeverity(itineraryData.difficultyLevel)">
-      </p-tag>
+    <!-- Header Card -->
+    <div class="card">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h2 class="text-2xl font-bold mb-2">{{ itinerary.title }}</h2>
+          <p class="text-sm" style="color: var(--p-surface-500);">{{ itinerary.description || 'No description provided' }}</p>
+        </div>
+        <div class="flex gap-2">
+          <p-button label="Edit" icon="pi pi-pencil" severity="info" [outlined]="true" size="small" (click)="goEdit()"></p-button>
+          <p-button label="Back" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" size="small" (click)="goBack()"></p-button>
+        </div>
+      </div>
+      <div class="flex gap-3 flex-wrap">
+        <p-tag icon="pi pi-calendar" [value]="itinerary.durationDays + ' Days'" severity="info"></p-tag>
+        <p-tag icon="pi pi-chart-line" [value]="itinerary.difficultyLevel || 'Not Set'" [severity]="getDifficultySeverity(itinerary.difficultyLevel)"></p-tag>
+        @if (getGrandTotal() > 0) {
+          <p-tag icon="pi pi-wallet" [value]="'Rs. ' + getGrandTotal() + ' / person'" severity="warn"></p-tag>
+        }
+      </div>
     </div>
-  </div>
 
-  <!-- Days Accordion -->
-  <div class="card w-full border-round-xl shadow-1 p-4">
-    <h4 class="mb-4 text-xl font-semibold">Daily Plan</h4>
-
-    <p-accordion [multiple]="true">
-      <p-accordion-panel *ngFor="let day of itineraryData.days" [value]="day.id">
-
-        <!-- Accordion Header -->
-        <p-accordion-header>
-          <div class="flex justify-content-between align-items-center w-full">
-            <div class="flex align-items-center gap-3">
-              <span class="text-primary font-bold">Day {{ day.dayNumber }}</span>
-              <span>{{ day.title }}</span>
-            </div>
-            <span class="text-sm text-500"> {{ day.location }}</span>
+    <!-- Days Section -->
+    <div class="card">
+      <div class="flex justify-between items-center mb-4">
+        <div class="font-semibold text-xl">Daily Plan</div>
+        @if (itinerary.days.length > 1) {
+          <div class="flex gap-2">
+            <p-button label="Expand All" (click)="expandAll()" icon="pi pi-angle-double-down" severity="info" [outlined]="true" size="small"></p-button>
+            <p-button label="Collapse All" (click)="collapseAll()" icon="pi pi-angle-double-up" severity="info" [outlined]="true" size="small"></p-button>
           </div>
-        </p-accordion-header>
+        }
+      </div>
 
-        <p-accordion-content>
-            <div class="w-full overflow-x-auto">
-              <table class="w-full border-collapse">
-                <thead>
-                  <tr class="text-left text-lg font-bold text-700 border-b-1 border-gray-300">
-                    <th class="p-2">Accommodation</th>
-                    <th class="p-2">Transport</th>
-                    <th class="p-2">Meals</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="text-600">
-                    <td class="p-2">{{ day.accommodation }}</td>
-                    <td class="p-2">{{ day.transport }}</td>
-                    <td class="p-2">
-                      <span *ngIf="day.breakfastIncluded">🍳 Breakfast </span>
-                      <span *ngIf="day.lunchIncluded">🍽 Lunch </span>
-                      <span *ngIf="day.dinnerIncluded">🍲 Dinner</span>
-                      <span *ngIf="!day.breakfastIncluded && !day.lunchIncluded && !day.dinnerIncluded">None</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+      <div class="flex flex-col gap-4">
+        @for (day of itinerary.days; track day.dayNumber; let i = $index) {
+          <div class="day-card" [attr.data-day-index]="i">
+            <!-- Day Header -->
+            <div class="day-header" (click)="toggleDay(i)">
+              <div class="flex items-center gap-3">
+                <span class="day-badge">{{ day.dayNumber }}</span>
+                <div>
+                  <span class="day-title">Day {{ day.dayNumber }}{{ day.title ? ': ' + day.title : '' }}</span>
+                  @if (day.location) {
+                    <span class="day-location"><i class="pi pi-map-marker"></i> {{ day.location }}</span>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                @if (getDayTotal(day) > 0) {
+                  <span class="day-cost-tag">Rs. {{ getDayTotal(day) }}</span>
+                }
+                <i class="pi" [class.pi-chevron-down]="collapsedDays[i]" [class.pi-chevron-up]="!collapsedDays[i]" style="color: var(--p-surface-500);"></i>
+              </div>
             </div>
-          </p-accordion-content>
 
-      </p-accordion-panel>
-    </p-accordion>
+            <!-- Day Content -->
+            @if (!collapsedDays[i]) {
+              <div class="day-body">
+                <!-- Info Grid -->
+                <div class="info-grid">
+                  @if (day.accommodation) {
+                    <div class="info-item">
+                      <div class="info-label"><i class="pi pi-building"></i> Accommodation</div>
+                      <div class="info-value">{{ day.accommodation }}</div>
+                    </div>
+                  }
+                  @if (day.transport) {
+                    <div class="info-item">
+                      <div class="info-label"><i class="pi pi-car"></i> Transport</div>
+                      <div class="info-value">{{ day.transport }}</div>
+                    </div>
+                  }
+                  <div class="info-item">
+                    <div class="info-label"><i class="pi pi-sun"></i> Meals</div>
+                    <div class="info-value">
+                      @if (getMeals(day).length > 0) {
+                        <div class="flex gap-2 flex-wrap">
+                          @for (meal of getMeals(day); track meal) {
+                            <span class="meal-chip">{{ meal }}</span>
+                          }
+                        </div>
+                      } @else {
+                        <span style="color: var(--p-surface-400);">None included</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Activities -->
+                @if (day.activities && day.activities.length > 0) {
+                  <div class="section-block">
+                    <div class="section-label"><i class="pi pi-flag"></i> Activities</div>
+                    <div class="flex gap-2 flex-wrap">
+                      @for (activity of day.activities; track activity) {
+                        <span class="activity-chip">{{ activity }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <!-- Costs -->
+                @if (day.costs && day.costs.length > 0) {
+                  <div class="section-block">
+                    <div class="section-label"><i class="pi pi-wallet"></i> Cost Breakdown</div>
+                    <div class="cost-list">
+                      @for (cost of day.costs; track $index) {
+                        <div class="cost-line">
+                          <div class="flex items-center gap-2">
+                            <span>{{ cost.name }}</span>
+                            <span class="cost-category">{{ cost.category }}</span>
+                          </div>
+                          <span class="cost-amount">Rs. {{ cost.price }}</span>
+                        </div>
+                      }
+                      <div class="cost-line cost-total-line">
+                        <span class="font-semibold">Day Total</span>
+                        <span class="font-bold" style="color: var(--p-primary-600);">Rs. {{ getDayTotal(day) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Grand Total Card -->
+    @if (getGrandTotal() > 0) {
+      <div class="grand-total-card">
+        <span class="font-semibold">Estimated Total Cost (per person)</span>
+        <span class="grand-total-amount">Rs. {{ getGrandTotal() }}</span>
+      </div>
+    }
 
   </div>
-</div>
+}
+
+<!-- Not Found -->
+@if (!loading && !itinerary) {
+  <div class="card text-center py-8">
+    <i class="pi pi-exclamation-circle text-4xl mb-3" style="color: var(--p-surface-400);"></i>
+    <p class="text-lg" style="color: var(--p-surface-500);">Itinerary not found</p>
+    <p-button label="Back to List" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (click)="goBack()" class="mt-4"></p-button>
+  </div>
+}

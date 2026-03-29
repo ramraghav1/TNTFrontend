@@ -46,15 +46,17 @@ export class AppMenu {
             {
                 label: 'Itinerary',
                 items: [
-                    { label: 'View Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/itinerary-list'] },
-                    { label: 'Add Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/add-itinerary'] },
-                    { label: 'Manage Itinerary', icon: 'pi pi-fw pi-table', routerLink: ['/transaction/send'] },
+                    { label: 'View Itinerary', icon: 'pi pi-fw pi-map', routerLink: ['/itinerary-list'] },
+                    { label: 'Add Itinerary', icon: 'pi pi-fw pi-plus-circle', routerLink: ['/add-itinerary'] },
+                    { label: 'Manage Itinerary', icon: 'pi pi-fw pi-cog', routerLink: ['/transaction/send'] },
                 ]
             },
             {
                 label: 'Booking',
                 items: [
+                    { label: 'TNT Dashboard', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/tnt-dashboard'] },
                     { label: 'Book Itinerary', icon: 'pi pi-fw pi-bookmark', routerLink: ['/booking-list'] },
+                    { label: 'My Bookings', icon: 'pi pi-fw pi-list', routerLink: ['/my-bookings'] },
                 ]
             },
             {
@@ -71,6 +73,18 @@ export class AppMenu {
                     { label: 'Domestic Service Charges', icon: 'pi pi-fw pi-building', routerLink: ['/remittance/domestic-service-charges'] },
                     { label: 'Vouchers', icon: 'pi pi-fw pi-file-edit', routerLink: ['/remittance/vouchers'] },
                     { label: 'Statement of Account', icon: 'pi pi-fw pi-book', routerLink: ['/remittance/statement-of-account'] },
+                ]
+            },
+            {
+                label: 'Clinic',
+                items: [
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-objects-column', routerLink: ['/clinic/dashboard'] },
+                    { label: 'Tenants', icon: 'pi pi-fw pi-building', routerLink: ['/clinic/tenants'] },
+                    { label: 'Practitioners', icon: 'pi pi-fw pi-id-card', routerLink: ['/clinic/practitioners'] },
+                    { label: 'Patients', icon: 'pi pi-fw pi-users', routerLink: ['/clinic/patients'] },
+                    { label: 'Services', icon: 'pi pi-fw pi-briefcase', routerLink: ['/clinic/services'] },
+                    { label: 'Appointments', icon: 'pi pi-fw pi-calendar', routerLink: ['/clinic/appointments'] },
+                    { label: 'Invoices', icon: 'pi pi-fw pi-file', routerLink: ['/clinic/invoices'] },
                 ]
             },
             // {
