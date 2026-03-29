@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -39,7 +39,7 @@ interface ItineraryDetail {
 @Component({
   selector: 'app-itinerary-details',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, TagModule, ProgressSpinnerModule, ButtonModule],
+  imports: [CommonModule, TagModule, ProgressSpinnerModule, ButtonModule],
   templateUrl: './itinerary-details.html',
   styleUrls: ['./itinerary-details.scss']
 })

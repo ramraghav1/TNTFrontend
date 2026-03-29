@@ -9,7 +9,7 @@ import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { Toast } from "primeng/toast";
 import { environment } from '../../../environments/environment';
@@ -17,7 +17,7 @@ import { environment } from '../../../environments/environment';
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [HttpClientModule, CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, Toast],
+    imports: [CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, Toast],
     providers: [MessageService], 
     template: `
         <p-toast></p-toast> 

@@ -1,7 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
 
 import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
@@ -21,7 +20,6 @@ import { LayoutService } from '../../../layout/service/layout.service';
     imports: [
         CommonModule,
         RouterModule,
-        HttpClientModule,
         ChartModule,
         TableModule,
         ButtonModule,

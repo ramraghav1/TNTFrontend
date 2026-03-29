@@ -40,6 +40,7 @@ import { ClinicServiceList } from './app/pages/clinic/clinic-service-list/clinic
 import { AppointmentList } from './app/pages/clinic/appointment-list/appointment-list';
 import { InvoiceList } from './app/pages/clinic/invoice-list/invoice-list';
 import { OrganizationSetup } from './app/pages/organization/organization-setup/organization-setup';
+import { authGuard } from './app/auth.guard';
 
 export const appRoutes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -47,6 +48,7 @@ export const appRoutes: Routes = [
     {
         path: '',
         component: AppLayout,
+        canActivate: [authGuard],
         children: [
             { path: 'my-project-dashboard', component: Dashboard },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },

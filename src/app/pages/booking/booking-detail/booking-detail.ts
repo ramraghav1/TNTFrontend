@@ -2,7 +2,6 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
 
 // PrimeNG
 import { AccordionModule } from 'primeng/accordion';
@@ -59,7 +58,6 @@ interface EditableDay extends ItineraryDay {
     imports: [
         CommonModule,
         FormsModule,
-        HttpClientModule,
         AccordionModule,
         TagModule,
         ButtonModule,

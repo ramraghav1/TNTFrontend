@@ -1,7 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -18,7 +17,6 @@ import { BookingService, Itinerary } from '../booking.service';
     standalone: true,
     imports: [
         CommonModule,
-        HttpClientModule,
         RouterModule,
         TableModule,
         ButtonModule,

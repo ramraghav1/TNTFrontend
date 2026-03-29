@@ -9,7 +9,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { CheckboxModule } from 'primeng/checkbox';
 import { CommonModule } from '@angular/common';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Toast } from 'primeng/toast';
@@ -47,7 +47,7 @@ interface CreateItineraryRequest {
   standalone: true,
   imports: [
     FormsModule, FluidModule, InputTextModule, ButtonModule, SelectModule, TextareaModule,
-    MultiSelectModule, CheckboxModule, CommonModule, HttpClientModule, Toast, ConfirmDialog
+    MultiSelectModule, CheckboxModule, CommonModule, Toast, ConfirmDialog
   ],
   providers: [MessageService, ConfirmationService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 
@@ -27,7 +27,6 @@ interface Itinerary {
   standalone: true,
   imports: [
     CommonModule,
-    HttpClientModule,
     RouterModule,
     TableModule,
     ButtonModule,

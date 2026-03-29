@@ -5,135 +5,153 @@ import { CommonModule } from '@angular/common';
     selector: 'features-widget',
     standalone: true,
     imports: [CommonModule],
-    template: ` <div id="features" class="py-6 px-6 lg:px-20 mt-8 mx-0 lg:mx-20">
-        <div class="grid grid-cols-12 gap-4 justify-center">
-            <div class="col-span-12 text-center mt-20 mb-6">
-                <div class="text-surface-900 dark:text-surface-0 font-normal mb-2 text-4xl">Marvelous Features</div>
-                <span class="text-muted-color text-2xl">Placerat in egestas erat...</span>
+    template: `
+    <div id="features" class="relative py-20 px-6 lg:px-20 mx-0 lg:mx-0 overflow-hidden">
+        <!-- Subtle background gradient -->
+        <div class="absolute inset-0 -z-10" style="
+            background: linear-gradient(180deg, transparent 0%, rgba(var(--primary-rgb, 99,102,241), 0.03) 30%, rgba(var(--primary-rgb, 99,102,241), 0.05) 70%, transparent 100%);
+        "></div>
+
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+                      style="background: rgba(var(--primary-rgb, 99,102,241), 0.1); color: var(--primary-color)">
+                    Our Products
+                </span>
+                <div class="text-surface-900 dark:text-surface-0 font-bold mb-4 text-4xl">Solutions Built for Your Industry</div>
+                <span class="text-muted-color text-xl max-w-3xl mx-auto block">Purpose-built solutions designed to streamline operations and drive growth — plus custom software built to your spec.</span>
             </div>
 
-            <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pr-8 lg:pb-8 mt-6 lg:mt-0">
-                <div style="height: 160px; padding: 2px; border-radius: 10px; background: linear-gradient(90deg, rgba(253, 228, 165, 0.2), rgba(187, 199, 205, 0.2)), linear-gradient(180deg, rgba(253, 228, 165, 0.2), rgba(187, 199, 205, 0.2))">
-                    <div class="p-4 bg-surface-0 dark:bg-surface-900 h-full" style="border-radius: 8px">
-                        <div class="flex items-center justify-center bg-yellow-200 mb-4" style="width: 3.5rem; height: 3.5rem; border-radius: 10px">
-                            <i class="pi pi-fw pi-users text-2xl! text-yellow-700"></i>
-                        </div>
-                        <h5 class="mb-2 text-surface-900 dark:text-surface-0">Easy to Use</h5>
-                        <span class="text-surface-600 dark:text-surface-200">Posuere morbi leo urna molestie.</span>
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
+                <!-- Remittance -->
+                <div class="rounded-2xl p-8 flex flex-col transition-all duration-500 hover:-translate-y-2 group border bg-surface-0 dark:bg-surface-800"
+                     style="border-color: rgba(34,197,94,0.2); box-shadow: 0 4px 24px rgba(0,0,0,0.04)">
+                    <div class="flex items-center justify-center mb-6 rounded-2xl transition-transform duration-500 group-hover:scale-110" style="width: 72px; height: 72px; background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05))">
+                        <i class="pi pi-money-bill text-4xl! text-green-600"></i>
                     </div>
-                </div>
-            </div>
-
-            <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pr-8 lg:pb-8 mt-6 lg:mt-0">
-                <div style="height: 160px; padding: 2px; border-radius: 10px; background: linear-gradient(90deg, rgba(145, 226, 237, 0.2), rgba(251, 199, 145, 0.2)), linear-gradient(180deg, rgba(253, 228, 165, 0.2), rgba(172, 180, 223, 0.2))">
-                    <div class="p-4 bg-surface-0 dark:bg-surface-900 h-full" style="border-radius: 8px">
-                        <div class="flex items-center justify-center bg-cyan-200 mb-4" style="width: 3.5rem; height: 3.5rem; border-radius: 10px">
-                            <i class="pi pi-fw pi-palette text-2xl! text-cyan-700"></i>
-                        </div>
-                        <h5 class="mb-2 text-surface-900 dark:text-surface-0">Fresh Design</h5>
-                        <span class="text-surface-600 dark:text-surface-200">Semper risus in hendrerit.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pb-8 mt-6 lg:mt-0">
-                <div style="height: 160px; padding: 2px; border-radius: 10px; background: linear-gradient(90deg, rgba(145, 226, 237, 0.2), rgba(172, 180, 223, 0.2)), linear-gradient(180deg, rgba(172, 180, 223, 0.2), rgba(246, 158, 188, 0.2))">
-                    <div class="p-4 bg-surface-0 dark:bg-surface-900 h-full" style="border-radius: 8px">
-                        <div class="flex items-center justify-center bg-indigo-200" style="width: 3.5rem; height: 3.5rem; border-radius: 10px">
-                            <i class="pi pi-fw pi-map text-2xl! text-indigo-700"></i>
-                        </div>
-                        <div class="mt-6 mb-1 text-surface-900 dark:text-surface-0 text-xl font-semibold">Well Documented</div>
-                        <span class="text-surface-600 dark:text-surface-200">Non arcu risus quis varius quam quisque.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pr-8 lg:pb-8 mt-6 lg:mt-0">
-                <div style="height: 160px; padding: 2px; border-radius: 10px; background: linear-gradient(90deg, rgba(187, 199, 205, 0.2), rgba(251, 199, 145, 0.2)), linear-gradient(180deg, rgba(253, 228, 165, 0.2), rgba(145, 210, 204, 0.2))">
-                    <div class="p-4 bg-surface-0 dark:bg-surface-900 h-full" style="border-radius: 8px">
-                        <div class="flex items-center justify-center bg-slate-200 mb-4" style="width: 3.5rem; height: 3.5rem; border-radius: 10px">
-                            <i class="pi pi-fw pi-id-card text-2xl! text-slate-700"></i>
-                        </div>
-                        <div class="mt-6 mb-1 text-surface-900 dark:text-surface-0 text-xl font-semibold">Responsive Layout</div>
-                        <span class="text-surface-600 dark:text-surface-200">Nulla malesuada pellentesque elit.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pr-8 lg:pb-8 mt-6 lg:mt-0">
-                <div style="height: 160px; padding: 2px; border-radius: 10px; background: linear-gradient(90deg, rgba(187, 199, 205, 0.2), rgba(246, 158, 188, 0.2)), linear-gradient(180deg, rgba(145, 226, 237, 0.2), rgba(160, 210, 250, 0.2))">
-                    <div class="p-4 bg-surface-0 dark:bg-surface-900 h-full" style="border-radius: 8px">
-                        <div class="flex items-center justify-center bg-orange-200 mb-4" style="width: 3.5rem; height: 3.5rem; border-radius: 10px">
-                            <i class="pi pi-fw pi-star text-2xl! text-orange-700"></i>
-                        </div>
-                        <div class="mt-6 mb-1 text-surface-900 dark:text-surface-0 text-xl font-semibold">Clean Code</div>
-                        <span class="text-surface-600 dark:text-surface-200">Condimentum lacinia quis vel eros.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pb-8 mt-6 lg:mt-0">
-                <div style="height: 160px; padding: 2px; border-radius: 10px; background: linear-gradient(90deg, rgba(251, 199, 145, 0.2), rgba(246, 158, 188, 0.2)), linear-gradient(180deg, rgba(172, 180, 223, 0.2), rgba(212, 162, 221, 0.2))">
-                    <div class="p-4 bg-surface-0 dark:bg-surface-900 h-full" style="border-radius: 8px">
-                        <div class="flex items-center justify-center bg-pink-200 mb-4" style="width: 3.5rem; height: 3.5rem; border-radius: 10px">
-                            <i class="pi pi-fw pi-moon text-2xl! text-pink-700"></i>
-                        </div>
-                        <div class="mt-6 mb-1 text-surface-900 dark:text-surface-0 text-xl font-semibold">Dark Mode</div>
-                        <span class="text-surface-600 dark:text-surface-200">Convallis tellus id interdum velit laoreet.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pr-8 mt-6 lg:mt-0">
-                <div style="height: 160px; padding: 2px; border-radius: 10px; background: linear-gradient(90deg, rgba(145, 210, 204, 0.2), rgba(160, 210, 250, 0.2)), linear-gradient(180deg, rgba(187, 199, 205, 0.2), rgba(145, 210, 204, 0.2))">
-                    <div class="p-4 bg-surface-0 dark:bg-surface-900 h-full" style="border-radius: 8px">
-                        <div class="flex items-center justify-center bg-teal-200 mb-4" style="width: 3.5rem; height: 3.5rem; border-radius: 10px">
-                            <i class="pi pi-fw pi-shopping-cart text-2xl! text-teal-700"></i>
-                        </div>
-                        <div class="mt-6 mb-1 text-surface-900 dark:text-surface-0 text-xl font-semibold">Ready to Use</div>
-                        <span class="text-surface-600 dark:text-surface-200">Mauris sit amet massa vitae.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg:pr-8 mt-6 lg:mt-0">
-                <div style="height: 160px; padding: 2px; border-radius: 10px; background: linear-gradient(90deg, rgba(145, 210, 204, 0.2), rgba(212, 162, 221, 0.2)), linear-gradient(180deg, rgba(251, 199, 145, 0.2), rgba(160, 210, 250, 0.2))">
-                    <div class="p-4 bg-surface-0 dark:bg-surface-900 h-full" style="border-radius: 8px">
-                        <div class="flex items-center justify-center bg-blue-200 mb-4" style="width: 3.5rem; height: 3.5rem; border-radius: 10px">
-                            <i class="pi pi-fw pi-globe text-2xl! text-blue-700"></i>
-                        </div>
-                        <div class="mt-6 mb-1 text-surface-900 dark:text-surface-0 text-xl font-semibold">Modern Practices</div>
-                        <span class="text-surface-600 dark:text-surface-200">Elementum nibh tellus molestie nunc non.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-span-12 md:col-span-12 lg:col-span-4 p-0 lg-4 mt-6 lg:mt-0">
-                <div style="height: 160px; padding: 2px; border-radius: 10px; background: linear-gradient(90deg, rgba(160, 210, 250, 0.2), rgba(212, 162, 221, 0.2)), linear-gradient(180deg, rgba(246, 158, 188, 0.2), rgba(212, 162, 221, 0.2))">
-                    <div class="p-4 bg-surface-0 dark:bg-surface-900 h-full" style="border-radius: 8px">
-                        <div class="flex items-center justify-center bg-purple-200 mb-4" style="width: 3.5rem; height: 3.5rem; border-radius: 10px">
-                            <i class="pi pi-fw pi-eye text-2xl! text-purple-700"></i>
-                        </div>
-                        <div class="mt-6 mb-1 text-surface-900 dark:text-surface-0 text-xl font-semibold">Privacy</div>
-                        <span class="text-surface-600 dark:text-surface-200">Neque egestas congue quisque.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div
-                class="col-span-12 mt-20 mb-20 p-2 md:p-20"
-                style="border-radius: 20px; background: linear-gradient(0deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), radial-gradient(77.36% 256.97% at 77.36% 57.52%, #efe1af 0%, #c3dcfa 100%)"
-            >
-                <div class="flex flex-col justify-center items-center text-center px-4 py-4 md:py-0">
-                    <div class="text-gray-900 mb-2 text-3xl font-semibold">Joséphine Miller</div>
-                    <span class="text-gray-600 text-2xl">Peak Interactive</span>
-                    <p class="text-gray-900 sm:line-height-2 md:line-height-4 text-2xl mt-6" style="max-width: 800px">
-                        “Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.”
+                    <h3 class="text-2xl font-bold text-surface-900 dark:text-surface-0 mb-3">Remittance System</h3>
+                    <p class="text-surface-600 dark:text-surface-200 text-lg mb-6 leading-relaxed">
+                        End-to-end money transfer management with agent networks, compliance tracking, and real-time exchange rates.
                     </p>
-                    <img src="https://primefaces.org/cdn/templates/sakai/landing/peak-logo.svg" class="mt-6" alt="Company logo" />
+                    <ul class="list-none p-0 m-0 flex flex-col gap-3 mt-auto">
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-green-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Multi-currency transaction processing</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-green-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Agent &amp; branch management</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-green-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Compliance &amp; KYC tracking</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-green-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Real-time reports &amp; analytics</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Clinic -->
+                <div class="rounded-2xl p-8 flex flex-col transition-all duration-500 hover:-translate-y-2 group border bg-surface-0 dark:bg-surface-800"
+                     style="border-color: rgba(59,130,246,0.2); box-shadow: 0 4px 24px rgba(0,0,0,0.04)">
+                    <div class="flex items-center justify-center mb-6 rounded-2xl transition-transform duration-500 group-hover:scale-110" style="width: 72px; height: 72px; background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.05))">
+                        <i class="pi pi-heart text-4xl! text-blue-500"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-surface-900 dark:text-surface-0 mb-3">Clinic Management</h3>
+                    <p class="text-surface-600 dark:text-surface-200 text-lg mb-6 leading-relaxed">
+                        Complete clinic appointment and patient management system to streamline healthcare operations.
+                    </p>
+                    <ul class="list-none p-0 m-0 flex flex-col gap-3 mt-auto">
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-blue-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Online appointment scheduling</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-blue-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Patient records &amp; history</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-blue-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Doctor &amp; staff management</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-blue-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Billing &amp; prescription tracking</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tour and Travel -->
+                <div class="rounded-2xl p-8 flex flex-col transition-all duration-500 hover:-translate-y-2 group border bg-surface-0 dark:bg-surface-800"
+                     style="border-color: rgba(168,85,247,0.2); box-shadow: 0 4px 24px rgba(0,0,0,0.04)">
+                    <div class="flex items-center justify-center mb-6 rounded-2xl transition-transform duration-500 group-hover:scale-110" style="width: 72px; height: 72px; background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(168,85,247,0.05))">
+                        <i class="pi pi-map text-4xl! text-purple-500"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-surface-900 dark:text-surface-0 mb-3">Tour &amp; Travel</h3>
+                    <p class="text-surface-600 dark:text-surface-200 text-lg mb-6 leading-relaxed">
+                        Build and manage travel itineraries, bookings, and customer experiences from start to finish.
+                    </p>
+                    <ul class="list-none p-0 m-0 flex flex-col gap-3 mt-auto">
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-purple-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Day-by-day itinerary builder</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-purple-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Booking &amp; payment management</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-purple-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Meal &amp; activity customization</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-purple-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Dashboard with analytics</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Custom Software -->
+                <div class="rounded-2xl p-8 flex flex-col transition-all duration-500 hover:-translate-y-2 group border bg-surface-0 dark:bg-surface-800"
+                     style="border-color: rgba(245,158,11,0.2); box-shadow: 0 4px 24px rgba(0,0,0,0.04)">
+                    <div class="flex items-center justify-center mb-6 rounded-2xl transition-transform duration-500 group-hover:scale-110" style="width: 72px; height: 72px; background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.05))">
+                        <i class="pi pi-code text-4xl! text-amber-500"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-surface-900 dark:text-surface-0 mb-3">Custom Software</h3>
+                    <p class="text-surface-600 dark:text-surface-200 text-lg mb-6 leading-relaxed">
+                        Got a unique idea? We build tailor-made software solutions with a working demo delivered in just 30 days.
+                    </p>
+                    <div class="rounded-xl p-4 mb-6" style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.15)">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="pi pi-clock text-amber-500"></i>
+                            <span class="text-surface-900 dark:text-surface-0 font-bold">30-Day Demo Guarantee</span>
+                        </div>
+                        <span class="text-surface-600 dark:text-surface-300 text-sm">From ideation to a working prototype — fast.</span>
+                    </div>
+                    <ul class="list-none p-0 m-0 flex flex-col gap-3 mt-auto">
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-amber-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Requirements analysis &amp; scoping</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-amber-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Rapid prototyping &amp; MVP development</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-amber-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Modern tech stack &amp; scalable architecture</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="pi pi-check-circle text-amber-500"></i>
+                            <span class="text-surface-700 dark:text-surface-100">Full-cycle development &amp; deployment</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </div>`
+    </div>
+    `,
+    styles: ``
 })
 export class FeaturesWidget {}
