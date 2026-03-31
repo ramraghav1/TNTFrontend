@@ -8,14 +8,12 @@ import { LayoutService } from '@/app/layout/service/layout.service';
 import { MenuModule } from 'primeng/menu';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { BadgeModule } from 'primeng/badge';
 import { NotificationService, Notification } from '@/app/layout/service/notification.service';
-import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule, BadgeModule, DatePipe],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -56,10 +54,12 @@ import { DatePipe } from '@angular/common';
                     <!-- Notification Bell -->
                     <div class="relative" #notifContainer>
                         <button type="button" class="layout-topbar-action" (click)="toggleNotifications($event)">
-                            <i class="pi pi-bell" pBadge
-                               [value]="notificationService.unreadCount() > 0 ? notificationService.unreadCount().toString() : ''"
-                               [severity]="'danger'"
-                               [style]="{ fontSize: '1.25rem' }"></i>
+                            <i class="pi pi-bell"></i>
+                            @if (notificationService.unreadCount() > 0) {
+                                <span class="notification-badge">
+                                    {{ notificationService.unreadCount() }}
+                                </span>
+                            }
                             <span>Notifications</span>
                         </button>
 
@@ -122,7 +122,26 @@ import { DatePipe } from '@angular/common';
                 </div>
             </div>
         </div>
-    </div>`
+    </div>`,
+    styles: [`
+        .notification-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--p-primary-color);
+            color: var(--p-primary-contrast-color);
+            border-radius: 50%;
+            font-size: 0.65rem;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            line-height: 1;
+            pointer-events: none;
+        }
+    `]
 })
 export class AppTopbar {
     items!: MenuItem[];
