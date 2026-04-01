@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectorRef, ElementRef, HostListener } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -6,6 +6,10 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '@/app/layout/service/layout.service';
 import { MenuModule } from 'primeng/menu';
+import { BadgeModule } from 'primeng/badge';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { Popover, PopoverModule } from 'primeng/popover';
+import { ButtonModule } from 'primeng/button';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { NotificationService, Notification } from '@/app/layout/service/notification.service';
@@ -13,7 +17,7 @@ import { NotificationService, Notification } from '@/app/layout/service/notifica
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule, BadgeModule, OverlayBadgeModule, PopoverModule, ButtonModule],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -52,58 +56,58 @@ import { NotificationService, Notification } from '@/app/layout/service/notifica
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
                     <!-- Notification Bell -->
-                    <div class="relative" #notifContainer>
-                        <button type="button" class="layout-topbar-action" (click)="toggleNotifications($event)">
-                            <i class="pi pi-bell"></i>
+                    <div class="relative">
+                        <button type="button" class="layout-topbar-action" (click)="toggleNotifications(notifPopover, $event)">
                             @if (notificationService.unreadCount() > 0) {
-                                <span class="notification-badge">
-                                    {{ notificationService.unreadCount() }}
-                                </span>
+                                <p-overlaybadge [value]="notificationService.unreadCount().toString()" severity="danger">
+                                    <i class="pi pi-bell" style="font-size: 1.25rem"></i>
+                                </p-overlaybadge>
+                            } @else {
+                                <i class="pi pi-bell" style="font-size: 1.25rem"></i>
                             }
                             <span>Notifications</span>
                         </button>
 
-                        @if (showNotifications) {
-                            <div class="notification-panel absolute right-0 top-full mt-1 bg-surface-0 dark:bg-surface-900 border border-surface rounded-lg shadow-lg z-50"
-                                 style="width: 380px; max-height: 480px; overflow: hidden;">
-                                <!-- Header -->
-                                <div class="flex items-center justify-between px-4 py-3 border-b border-surface">
-                                    <span class="font-semibold text-lg">Notifications</span>
-                                    @if (notificationService.hasUnread()) {
-                                        <button class="text-primary text-sm hover:underline cursor-pointer" (click)="notificationService.markAllAsRead()">
-                                            Mark all as read
-                                        </button>
-                                    }
-                                </div>
-
-                                <!-- Notification List -->
-                                <div style="max-height: 400px; overflow-y: auto;">
-                                    @for (notif of notificationService.notifications(); track notif.id) {
-                                        <div class="flex items-start gap-3 px-4 py-3 border-b border-surface hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors cursor-pointer"
-                                             [class.bg-primary-50]="!notif.isRead"
-                                             [class.dark:bg-primary-900/20]="!notif.isRead"
-                                             (click)="onNotificationClick(notif)">
-                                            <div class="flex-shrink-0 mt-1">
-                                                <i [class]="'pi ' + (notif.icon || 'pi-info-circle')" class="text-xl text-primary"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="font-medium text-sm">{{ notif.title }}</div>
-                                                <div class="text-sm text-muted-color mt-0.5 truncate">{{ notif.message }}</div>
-                                                <div class="text-xs text-muted-color mt-1">{{ notif.createdAt | date:'short' }}</div>
-                                            </div>
-                                            <button class="flex-shrink-0 p-1 hover:text-red-500 transition-colors" (click)="onDeleteNotification($event, notif.id)" title="Delete">
-                                                <i class="pi pi-times text-sm"></i>
-                                            </button>
-                                        </div>
-                                    } @empty {
-                                        <div class="px-4 py-8 text-center text-muted-color">
-                                            <i class="pi pi-bell-slash text-4xl mb-2 block"></i>
-                                            <span>No notifications</span>
-                                        </div>
-                                    }
-                                </div>
+                        <p-popover #notifPopover [style]="{ width: '420px' }" styleClass="notification-popover">
+                            <!-- Header -->
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="font-semibold text-xl">Notifications</span>
+                                @if (notificationService.hasUnread()) {
+                                    <button pButton type="button" label="Mark all read" class="p-button-text p-button-sm p-button-plain" icon="pi pi-check-circle" (click)="notificationService.markAllAsRead()"></button>
+                                }
                             </div>
-                        }
+
+                            <!-- Notification List -->
+                            <div style="max-height: 400px; overflow-y: auto; margin: 0 -1.25rem; padding: 0 1.25rem;">
+                                @for (notif of notificationService.notifications(); track notif.id) {
+                                    <div class="flex items-center py-3 cursor-pointer notification-item"
+                                         [class.border-b]="!$last"
+                                         [class.border-surface]="!$last"
+                                         [class.notification-unread]="!notif.isRead"
+                                         (click)="onNotificationClick(notif)">
+                                        <div class="w-12 h-12 flex items-center justify-center rounded-full mr-4 shrink-0"
+                                             [ngClass]="getNotifIconBgClass(notif.type)">
+                                            <i [ngClass]="['pi', getNotifIcon(notif), 'text-xl!', getNotifIconColorClass(notif.type)]"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <span class="text-surface-900 dark:text-surface-0 font-medium leading-normal block">{{ notif.title }}</span>
+                                            <span class="text-surface-700 dark:text-surface-100 text-sm leading-normal block mt-0.5">{{ notif.message }}</span>
+                                            <span class="text-muted-color text-xs block mt-1">{{ getTimeAgo(notif.createdAt) }}</span>
+                                        </div>
+                                        <button class="shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors ml-2"
+                                                (click)="onDeleteNotification($event, notif.id)" title="Remove">
+                                            <i class="pi pi-times text-sm text-muted-color hover:text-red-500"></i>
+                                        </button>
+                                    </div>
+                                } @empty {
+                                    <div class="py-8 text-center text-muted-color">
+                                        <i class="pi pi-bell-slash text-4xl mb-3 block text-surface-400"></i>
+                                        <span class="block text-lg font-medium">No notifications</span>
+                                        <span class="block text-sm mt-1">You're all caught up!</span>
+                                    </div>
+                                }
+                            </div>
+                        </p-popover>
                     </div>
 
                     <button type="button" class="layout-topbar-action">
@@ -124,22 +128,46 @@ import { NotificationService, Notification } from '@/app/layout/service/notifica
         </div>
     </div>`,
     styles: [`
-        .notification-badge {
+        :host ::ng-deep .notification-popover {
+            .p-popover-content {
+                padding: 1.25rem;
+            }
+        }
+
+        .notification-item {
+            transition: background-color 0.2s;
+            border-radius: var(--content-border-radius);
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            margin: 0 -0.5rem;
+        }
+
+        .notification-item:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .notification-unread {
+            position: relative;
+            background-color: var(--p-primary-50, rgba(var(--primary-500), 0.05));
+        }
+
+        .notification-unread::before {
+            content: '';
             position: absolute;
-            top: 2px;
-            right: 2px;
-            background: var(--p-primary-color);
-            color: var(--p-primary-contrast-color);
-            border-radius: 50%;
-            font-size: 0.65rem;
-            min-width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            line-height: 1;
-            pointer-events: none;
+            left: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            border-radius: 0 4px 4px 0;
+            background-color: var(--primary-color);
+        }
+
+        :host ::ng-deep .layout-topbar-action .p-overlaybadge .p-badge {
+            font-size: 0.625rem;
+            min-width: 1.15rem;
+            height: 1.15rem;
+            line-height: 1.15rem;
         }
     `]
 })
@@ -147,14 +175,11 @@ export class AppTopbar {
     items!: MenuItem[];
     profileMenuItems: MenuItem[] = [];
     userFullName: string = '';
-    showNotifications = false;
-
     layoutService = inject(LayoutService);
     notificationService = inject(NotificationService);
     private router = inject(Router);
     private http = inject(HttpClient);
     private cdr = inject(ChangeDetectorRef);
-    private el = inject(ElementRef);
 
     constructor() {
         try {
@@ -181,23 +206,10 @@ export class AppTopbar {
         }
     }
 
-    @HostListener('document:click', ['$event'])
-    onDocumentClick(event: Event) {
-        if (this.showNotifications && !this.el.nativeElement.querySelector('.notification-panel')?.contains(event.target as Node)) {
-            // Check if click was on the bell button
-            const bellButton = this.el.nativeElement.querySelector('[title="notif-bell"]');
-            if (!bellButton?.contains(event.target as Node)) {
-                this.showNotifications = false;
-            }
-        }
-    }
-
-    toggleNotifications(event: Event) {
+    toggleNotifications(popover: Popover, event: Event) {
         event.stopPropagation();
-        this.showNotifications = !this.showNotifications;
-        if (this.showNotifications) {
-            this.notificationService.loadNotifications();
-        }
+        this.notificationService.loadNotifications();
+        popover.toggle(event);
     }
 
     onNotificationClick(notif: Notification) {
@@ -206,13 +218,81 @@ export class AppTopbar {
         }
         if (notif.link) {
             this.router.navigate([notif.link]);
-            this.showNotifications = false;
         }
     }
 
     onDeleteNotification(event: Event, id: number) {
         event.stopPropagation();
         this.notificationService.deleteNotification(id);
+    }
+
+    /** Return Sakai-style icon based on notification type */
+    getNotifIcon(notif: Notification): string {
+        if (notif.icon) return notif.icon;
+        const iconMap: Record<string, string> = {
+            'transaction': 'pi-dollar',
+            'payment': 'pi-dollar',
+            'booking': 'pi-calendar',
+            'info': 'pi-info-circle',
+            'warning': 'pi-exclamation-triangle',
+            'success': 'pi-check-circle',
+            'user': 'pi-user',
+            'message': 'pi-envelope',
+            'system': 'pi-cog',
+            'reminder': 'pi-clock',
+        };
+        return iconMap[notif.type?.toLowerCase()] || 'pi-bell';
+    }
+
+    /** Background class for the circular icon container */
+    getNotifIconBgClass(type: string): string {
+        const bgMap: Record<string, string> = {
+            'transaction': 'bg-blue-100 dark:bg-blue-400/10',
+            'payment': 'bg-blue-100 dark:bg-blue-400/10',
+            'booking': 'bg-orange-100 dark:bg-orange-400/10',
+            'info': 'bg-cyan-100 dark:bg-cyan-400/10',
+            'warning': 'bg-orange-100 dark:bg-orange-400/10',
+            'success': 'bg-green-100 dark:bg-green-400/10',
+            'user': 'bg-purple-100 dark:bg-purple-400/10',
+            'message': 'bg-indigo-100 dark:bg-indigo-400/10',
+            'system': 'bg-gray-100 dark:bg-gray-400/10',
+            'reminder': 'bg-pink-100 dark:bg-pink-400/10',
+        };
+        return bgMap[type?.toLowerCase()] || 'bg-primary-100 dark:bg-primary-400/10';
+    }
+
+    /** Text color class for the icon */
+    getNotifIconColorClass(type: string): string {
+        const colorMap: Record<string, string> = {
+            'transaction': 'text-blue-500',
+            'payment': 'text-blue-500',
+            'booking': 'text-orange-500',
+            'info': 'text-cyan-500',
+            'warning': 'text-orange-500',
+            'success': 'text-green-500',
+            'user': 'text-purple-500',
+            'message': 'text-indigo-500',
+            'system': 'text-gray-500',
+            'reminder': 'text-pink-500',
+        };
+        return colorMap[type?.toLowerCase()] || 'text-primary';
+    }
+
+    /** Human-readable relative time */
+    getTimeAgo(dateStr: string): string {
+        const now = new Date();
+        const date = new Date(dateStr);
+        const diffMs = now.getTime() - date.getTime();
+        const diffMin = Math.floor(diffMs / 60000);
+        const diffHr = Math.floor(diffMs / 3600000);
+        const diffDay = Math.floor(diffMs / 86400000);
+
+        if (diffMin < 1) return 'Just now';
+        if (diffMin < 60) return `${diffMin} min ago`;
+        if (diffHr < 24) return `${diffHr} hr ago`;
+        if (diffDay === 1) return 'Yesterday';
+        if (diffDay < 7) return `${diffDay} days ago`;
+        return date.toLocaleDateString();
     }
 
     toggleDarkMode() {
