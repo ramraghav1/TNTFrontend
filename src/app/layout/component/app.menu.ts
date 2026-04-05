@@ -25,10 +25,10 @@ export class AppMenu {
 
     // Define which menu groups each org type can see
     private orgMenuMap: { [key: string]: string[] } = {
-        'tourandtravels': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'Tenant'],
-        'tourandtravel': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'Tenant'],
-        'remittance': ['Home', 'Transaction', 'Reports', 'Remittance', 'Tenant'],
-        'clinic': ['Home', 'Clinic', 'Tenant'],
+        'tourandtravels': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'User Management', 'Tenant'],
+        'tourandtravel': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'User Management', 'Tenant'],
+        'remittance': ['Home', 'Transaction', 'Reports', 'Remittance', 'User Management', 'Tenant'],
+        'clinic': ['Home', 'Clinic', 'User Management', 'Tenant'],
     };
 
     ngOnInit() {
@@ -124,14 +124,24 @@ export class AppMenu {
                     { label: 'Create Tenant', icon: 'pi pi-fw pi-plus-circle', routerLink: ['/pages/tenant/create'] },
                 ]
             },
+            'User Management': {
+                label: 'User Management',
+                items: [
+                    { label: 'Manage Users', icon: 'pi pi-fw pi-users', routerLink: ['/pages/users'] },
+                    { label: 'Roles & Permissions', icon: 'pi pi-fw pi-shield', routerLink: ['/pages/roles'] },
+                ]
+            },
         };
 
         const orgType = (localStorage.getItem('organizationType') || '').toLowerCase();
         const allowedGroups = this.orgMenuMap[orgType];
 
         if (allowedGroups) {
-            // Show only menus for this org type
-            this.model = allowedGroups
+            // If product is specified, exclude 'Home' and 'Tenant' menus
+            const filteredGroups = allowedGroups.filter(key => key !== 'Home' && key !== 'Tenant');
+            
+            // Show only menus for this org type (without Home and Tenant)
+            this.model = filteredGroups
                 .filter(key => this.allMenus[key])
                 .map(key => this.allMenus[key]);
         } else {

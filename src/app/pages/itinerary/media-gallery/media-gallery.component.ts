@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -40,7 +40,7 @@ import { ItineraryEnhancementService, ItineraryMedia, CreateMediaRequest } from 
     templateUrl: './media-gallery.component.html',
     styleUrls: ['./media-gallery.component.scss']
 })
-export class MediaGalleryComponent implements OnInit {
+export class MediaGalleryComponent implements OnInit, OnChanges {
     @Input() itineraryId!: number;
     @Input() editable: boolean = true;
 
@@ -83,27 +83,45 @@ export class MediaGalleryComponent implements OnInit {
         private enhancementService: ItineraryEnhancementService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private translate: TranslateService
+        private translate: TranslateService,
+        private cd: ChangeDetectorRef
     ) {}
 
     ngOnInit(): void {
-        console.log('MediaGalleryComponent initialized with itineraryId:', this.itineraryId);
-        if (this.itineraryId) {
+        console.log('MediaGalleryComponent ngOnInit - itineraryId:', this.itineraryId);
+        // Don't load here - let ngOnChanges handle it
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        console.log('MediaGalleryComponent ngOnChanges:', changes);
+        // Load media whenever itineraryId is set or changes
+        if (changes['itineraryId']?.currentValue) {
+            console.log('Loading media for itineraryId:', changes['itineraryId'].currentValue);
             this.loadMedia();
         }
     }
 
     loadMedia() {
-        console.log('Loading media for itinerary:', this.itineraryId);
+        if (!this.itineraryId) {
+            console.log('No itineraryId, skipping media load');
+            return;
+        }
+        
+        console.log('loadMedia called for itinerary:', this.itineraryId);
         this.loading = true;
         this.enhancementService.getMedia(this.itineraryId).subscribe({
             next: (media) => {
+                console.log('Media loaded successfully:', media);
                 this.mediaItems = media.sort((a, b) => a.displayOrder - b.displayOrder);
+                console.log('Sorted media items:', this.mediaItems);
                 this.loading = false;
+                this.cd.detectChanges();
+                console.log('Change detection triggered');
             },
             error: (err) => {
-                console.error(err);
+                console.error('Error loading media:', err);
                 this.loading = false;
+                this.cd.detectChanges();
                 this.messageService.add({
                     severity: 'error',
                     summary: this.translate.instant('common.error'),

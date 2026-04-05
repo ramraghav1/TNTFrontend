@@ -46,10 +46,13 @@
                                         [alt]="media.caption || 'Itinerary image'"
                                         width="100%"
                                         [preview]="true"
+                                        loading="lazy"
+                                        imageClass="media-image-element"
                                         class="media-image"></p-image>
                             } @else if (media.mediaType === 'Video') {
                                 <video [src]="media.mediaUrl" 
                                        controls 
+                                       preload="metadata"
                                        class="media-video">
                                     Your browser does not support the video tag.
                                 </video>
@@ -57,6 +60,7 @@
                                 <div class="video-thumbnail" (click)="openVideoDialog(media)">
                                     <img [src]="getYouTubeThumbnail(media.mediaUrl)" 
                                          [alt]="media.caption || 'Video thumbnail'"
+                                         loading="lazy"
                                          class="thumbnail-img">
                                     <div class="play-overlay">
                                         <i class="pi pi-play" style="font-size: 3rem;"></i>
@@ -108,84 +112,15 @@
     }
 </div>
 
-<!-- Add Media Dialog -->
-<p-dialog [(visible)]="showAddDialog" 
-          [modal]="true" 
-          [style]="{ width: '500px' }"
-          header="Add Media"
-          [draggable]="false"
-          [resizable]="false">
-    <div class="flex flex-col gap-4">
-        <!-- Media Type -->
-        <div class="flex flex-col gap-2">
-            <label for="mediaType" class="font-semibold">Media Type</label>
-            <p-select [(ngModel)]="newMedia.mediaType" 
-                     inputId="mediaType"
-                     [options]="mediaTypes" 
-                     placeholder="Select media type"
-                     styleClass="w-full"></p-select>
-        </div>
-
-        <!-- Media URL -->
-        <div class="flex flex-col gap-2">
-            <label for="mediaUrl" class="font-semibold">
-                @if (newMedia.mediaType === 'VideoLink') {
-                    YouTube/Vimeo URL
-                } @else {
-                    Media URL
-                }
-            </label>
-            <input pInputText 
-                   id="mediaUrl"
-                   [(ngModel)]="newMedia.mediaUrl" 
-                   placeholder="Enter media URL"
-                   class="w-full" />
-        </div>
-
-        <!-- Caption -->
-        <div class="flex flex-col gap-2">
-            <label for="caption" class="font-semibold">Caption (Optional)</label>
-            <textarea pTextarea 
-                     id="caption"
-                     [(ngModel)]="newMedia.caption" 
-                     [rows]="3" 
-                     placeholder="Enter caption"
-                     class="w-full"></textarea>
-        </div>
-
-        <!-- Featured -->
-        <div class="flex items-center gap-2">
-            <p-checkbox [(ngModel)]="newMedia.isFeatured" 
-                       inputId="isFeatured"
-                       [binary]="true"></p-checkbox>
-            <label for="isFeatured" class="cursor-pointer">Set as featured</label>
-        </div>
-    </div>
-
-    <ng-template pTemplate="footer">
-        <button pButton 
-                type="button" 
-                label="Cancel" 
-                icon="pi pi-times" 
-                (click)="closeAddDialog()"
-                [outlined]="true"
-                severity="secondary"></button>
-        <button pButton 
-                type="button" 
-                label="Add" 
-                icon="pi pi-check" 
-                (click)="addMedia()"
-                [disabled]="!newMedia.mediaType || !newMedia.mediaUrl"></button>
-    </ng-template>
-</p-dialog>
-
 <!-- Video Link Dialog -->
 <p-dialog [(visible)]="showVideoDialog" 
           [modal]="true" 
+          [blockScroll]="false"
           [style]="{ width: '800px', maxWidth: '90vw' }"
           [header]="selectedMedia?.caption || 'Video'"
           [draggable]="false"
-          [resizable]="false">
+          [resizable]="false"
+          appendTo="body">
     @if (selectedMedia && selectedMedia.mediaUrl) {
         <iframe [src]="getVideoEmbedUrl(selectedMedia.mediaUrl)" 
                 frameborder="0" 
@@ -197,11 +132,14 @@
 <!-- Add Media Dialog -->
 <p-dialog header="{{ 'itinerary.addMedia' | translate }}" 
           [(visible)]="showAddDialog" 
-          [modal]="true" 
-          [style]="{ width: '50vw' }"
+          [modal]="true"
+          [blockScroll]="false"
+          [style]="{ width: '500px', maxWidth: '90vw' }"
+          [contentStyle]="{ maxHeight: '70vh', overflow: 'auto' }"
           [draggable]="false"
-          [resizable]="false">
-    <div class="flex flex-col gap-4 p-4">
+          [resizable]="false"
+          appendTo="body">
+    <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
             <label for="mediaType">{{ 'itinerary.mediaType' | translate }} *</label>
             <p-select id="mediaType" 
@@ -255,7 +193,7 @@
         <button pButton 
                 type="button" 
                 label="{{ 'common.cancel' | translate }}" 
-                (click)="showAddDialog = false"
+                (click)="closeAddDialog()"
                 severity="secondary"
                 [outlined]="true"></button>
         <button pButton 
@@ -263,6 +201,7 @@
                 label="{{ 'common.save' | translate }}" 
                 (click)="addMedia()"
                 [loading]="loading"
+                [disabled]="!newMedia.mediaType || !newMedia.mediaUrl"
                 icon="pi pi-check"></button>
     </ng-template>
 </p-dialog>

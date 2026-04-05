@@ -97,11 +97,19 @@ export class Login {
                 next: (res) => {           
                     console.log('Login response:', res);       
                     if (res && res.accessToken) {
-                        // Store auth data
+                        // Store auth data including tenant information
                         localStorage.setItem('accessToken', res.accessToken);
                         localStorage.setItem('refreshToken', res.refreshToken);
                         localStorage.setItem('organizationType', res.user?.organizationType || '');
                         localStorage.setItem('userInfo', JSON.stringify(res.user));
+                        
+                        // Store tenant information separately for easy access
+                        if (res.user?.tenantId) {
+                            localStorage.setItem('tenantId', res.user.tenantId.toString());
+                        }
+                        if (res.user?.tenantName) {
+                            localStorage.setItem('tenantName', res.user.tenantName);
+                        }
 
                         this.messageService.add({
                             severity: 'success',

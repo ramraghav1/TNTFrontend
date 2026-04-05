@@ -1,11 +1,9 @@
 import { Component, inject, ChangeDetectorRef } from '@angular/core';
-import { MenuItem } from 'primeng/api';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '@/app/layout/service/layout.service';
-import { MenuModule } from 'primeng/menu';
 import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { Popover, PopoverModule } from 'primeng/popover';
@@ -18,7 +16,7 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule, BadgeModule, OverlayBadgeModule, PopoverModule, ButtonModule, LanguageSelectorComponent],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, BadgeModule, OverlayBadgeModule, PopoverModule, ButtonModule, LanguageSelectorComponent],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -122,11 +120,57 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
                     </button>
-                    <button type="button" class="layout-topbar-action" (click)="profileMenu.toggle($event)">
+                    <button type="button" class="layout-topbar-action" (click)="profilePopover.toggle($event)">
                         <i class="pi pi-user"></i>
                         <span>{{ userFullName || 'Profile' }}</span>
                     </button>
-                    <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" />
+                    <p-popover #profilePopover 
+                        [style]="{ minWidth: '320px' }" 
+                        styleClass="profile-popover" 
+                        appendTo="body"
+                        [autoZIndex]="true"
+                        [baseZIndex]="10000">
+                        <div class="profile-card">
+                            <!-- User Avatar & Info Section -->
+                            <div class="user-info-section">
+                                <div class="user-avatar">
+                                    <i class="pi pi-user"></i>
+                                </div>
+                                <div class="user-details">
+                                    <div class="user-name">{{ userFullName || 'User' }}</div>
+                                    @if (userEmail) {
+                                        <div class="user-email">{{ userEmail }}</div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Tenant Info Badge -->
+                            @if (tenantName) {
+                                <div class="tenant-badge">
+                                    <div class="tenant-icon">
+                                        <i class="pi pi-building"></i>
+                                    </div>
+                                    <div class="tenant-info">
+                                        <div class="tenant-label">Organization</div>
+                                        <div class="tenant-name">{{ tenantName }}</div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Divider -->
+                            <div class="profile-divider"></div>
+
+                            <!-- Action Buttons -->
+                            <div class="profile-actions">
+                                <button pButton 
+                                    class="p-button-text profile-action-btn logout-btn" 
+                                    (click)="logout(); profilePopover.hide()">
+                                    <i class="pi pi-sign-out"></i>
+                                    <span>Sign Out</span>
+                                </button>
+                            </div>
+                        </div>
+                    </p-popover>
                 </div>
             </div>
         </div>
@@ -173,12 +217,180 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
             height: 1.15rem;
             line-height: 1.15rem;
         }
+
+        /* Profile Popover Styles */
+        :host ::ng-deep .profile-popover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+            border-radius: 12px !important;
+        }
+
+        :host ::ng-deep .profile-popover .p-popover-content {
+            padding: 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        :host ::ng-deep .profile-card {
+            background: var(--surface-0);
+        }
+
+        /* User Info Section */
+        :host ::ng-deep .user-info-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+        }
+
+        :host ::ng-deep .user-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        :host ::ng-deep .user-avatar i {
+            font-size: 1.75rem;
+            color: white;
+        }
+
+        :host ::ng-deep .user-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        :host ::ng-deep .user-name {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: white;
+            margin-bottom: 0.25rem;
+            line-height: 1.4;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        :host ::ng-deep .user-email {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.9);
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        /* Tenant Badge */
+        :host ::ng-deep .tenant-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: var(--surface-50);
+            border-left: 3px solid var(--primary-500);
+        }
+
+        :host ::ng-deep .tenant-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--primary-50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        :host ::ng-deep .tenant-icon i {
+            font-size: 1.25rem;
+            color: var(--primary-500);
+        }
+
+        :host ::ng-deep .tenant-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        :host ::ng-deep .tenant-label {
+            font-size: 0.75rem;
+            color: var(--text-color-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        :host ::ng-deep .tenant-name {
+            font-size: 0.938rem;
+            color: var(--text-color);
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        /* Divider */
+        :host ::ng-deep .profile-divider {
+            height: 1px;
+            background: var(--surface-border);
+            margin: 0.5rem 0;
+        }
+
+        /* Action Buttons */
+        :host ::ng-deep .profile-actions {
+            padding: 0.75rem;
+        }
+
+        :host ::ng-deep .profile-action-btn {
+            width: 100%;
+            justify-content: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem !important;
+            border-radius: 8px !important;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        :host ::ng-deep .logout-btn {
+            color: var(--red-500) !important;
+        }
+
+        :host ::ng-deep .logout-btn:hover {
+            background: var(--red-50) !important;
+            color: var(--red-600) !important;
+        }
+
+        :host ::ng-deep .logout-btn i {
+            font-size: 1.125rem;
+        }
+
+        /* Dark Mode */
+        :host-context(.app-dark) ::ng-deep .profile-card {
+            background: var(--surface-900);
+        }
+
+        :host-context(.app-dark) ::ng-deep .tenant-badge {
+            background: var(--surface-800);
+            border-left-color: var(--primary-400);
+        }
+
+        :host-context(.app-dark) ::ng-deep .tenant-icon {
+            background: var(--surface-700);
+        }
+
+        :host-context(.app-dark) ::ng-deep .tenant-icon i {
+            color: var(--primary-400);
+        }
+
+        :host-context(.app-dark) ::ng-deep .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+        }
     `]
 })
 export class AppTopbar {
-    items!: MenuItem[];
-    profileMenuItems: MenuItem[] = [];
     userFullName: string = '';
+    userEmail: string = '';
+    tenantName: string = '';
     layoutService = inject(LayoutService);
     notificationService = inject(NotificationService);
     private router = inject(Router);
@@ -189,20 +401,9 @@ export class AppTopbar {
         try {
             const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
             this.userFullName = userInfo?.userFullName || '';
+            this.userEmail = userInfo?.emailAddress || '';
+            this.tenantName = userInfo?.tenantName || localStorage.getItem('tenantName') || '';
         } catch { }
-
-        this.profileMenuItems = [
-            {
-                label: this.userFullName || 'User',
-                items: [
-                    {
-                        label: 'Logout',
-                        icon: 'pi pi-sign-out',
-                        command: () => this.logout()
-                    }
-                ]
-            }
-        ];
 
         // Connect to notifications if logged in
         if (localStorage.getItem('accessToken')) {
@@ -326,6 +527,8 @@ export class AppTopbar {
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('organizationType');
         localStorage.removeItem('userInfo');
+        localStorage.removeItem('tenantId');
+        localStorage.removeItem('tenantName');
         this.router.navigate(['/login']);
         this.cdr.detectChanges();
     }

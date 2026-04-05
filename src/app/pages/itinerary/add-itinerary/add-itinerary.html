@@ -1,15 +1,10 @@
-<p-fluid>
-  <div class="flex flex-col gap-8">
-    <!-- Toast Notification -->
-    <div>
-      <p-toast></p-toast>
-      <p-confirmDialog></p-confirmDialog>
-    </div>
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
-    <!-- Single Card with All Content -->
-    <div class="card flex flex-col gap-6">
-      <!-- Title -->
-      <h2 class="text-2xl font-bold">Create Itinerary</h2>
+<p-fluid>
+  <div class="card flex flex-col gap-6">
+    <!-- Title -->
+    <h2 class="text-2xl font-bold">Create Itinerary</h2>
 
       <!-- Basic Information Section -->
       <div>
@@ -191,5 +186,4 @@
         <p-button label="Cancel" severity="secondary" (click)="confirmCancel()" icon="pi pi-times"></p-button>
       </div>
     </div>
-  </div>
 </p-fluid>
