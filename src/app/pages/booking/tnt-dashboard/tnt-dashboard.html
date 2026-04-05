@@ -20,70 +20,70 @@
         <div class="card mb-0">
             <div class="flex justify-between mb-4">
                 <div>
-                    <span class="block text-muted-color font-medium mb-4">Total Bookings</span>
+                    <span class="block text-muted-color font-medium mb-4">{{ 'booking.tntDashboard.totalBookings' | translate }}</span>
                     <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ stats.totalBookings }}</div>
                 </div>
                 <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                     <i class="pi pi-calendar text-blue-500 text-xl!"></i>
                 </div>
             </div>
-            <span class="text-primary font-medium">{{ stats.confirmed }} confirmed</span>
+            <span class="text-primary font-medium">{{ stats.confirmed }} {{ 'booking.tntDashboard.confirmed' | translate }}</span>
         </div>
     </div>
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
         <div class="card mb-0">
             <div class="flex justify-between mb-4">
                 <div>
-                    <span class="block text-muted-color font-medium mb-4">Revenue</span>
+                    <span class="block text-muted-color font-medium mb-4">{{ 'booking.tntDashboard.revenue' | translate }}</span>
                     <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">NPR {{ formatCurrency(stats.totalRevenue) }}</div>
                 </div>
                 <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                     <i class="pi pi-wallet text-orange-500 text-xl!"></i>
                 </div>
             </div>
-            <span class="text-primary font-medium">{{ stats.totalTravelers }} travelers</span>
+            <span class="text-primary font-medium">{{ stats.totalTravelers }} {{ 'booking.tntDashboard.travelers' | translate }}</span>
         </div>
     </div>
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
         <div class="card mb-0">
             <div class="flex justify-between mb-4">
                 <div>
-                    <span class="block text-muted-color font-medium mb-4">Pending / Draft</span>
+                    <span class="block text-muted-color font-medium mb-4">{{ 'booking.tntDashboard.pendingDraft' | translate }}</span>
                     <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ stats.pending + stats.draft }}</div>
                 </div>
                 <div class="flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                     <i class="pi pi-clock text-cyan-500 text-xl!"></i>
                 </div>
             </div>
-            <span class="text-primary font-medium">{{ stats.pending }} pending</span>
-            <span class="text-muted-color">, {{ stats.draft }} draft</span>
+            <span class="text-primary font-medium">{{ stats.pending }} {{ 'booking.tntDashboard.pending' | translate }}</span>
+            <span class="text-muted-color">, {{ stats.draft }} {{ 'booking.tntDashboard.draft' | translate }}</span>
         </div>
     </div>
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
         <div class="card mb-0">
             <div class="flex justify-between mb-4">
                 <div>
-                    <span class="block text-muted-color font-medium mb-4">Cancelled</span>
+                    <span class="block text-muted-color font-medium mb-4">{{ 'booking.tntDashboard.cancelled' | translate }}</span>
                     <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ stats.cancelled }}</div>
                 </div>
                 <div class="flex items-center justify-center bg-purple-100 dark:bg-purple-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                     <i class="pi pi-times-circle text-purple-500 text-xl!"></i>
                 </div>
             </div>
-            <span class="text-muted-color">out of {{ stats.totalBookings }} total</span>
+            <span class="text-muted-color">{{ 'booking.tntDashboard.outOfTotal' | translate:{total: stats.totalBookings} }}</span>
         </div>
     </div>
 
     <!-- Charts Row 1 -->
     <div class="col-span-12 xl:col-span-6">
         <div class="card mb-8!">
-            <div class="font-semibold text-xl mb-4">Booking Trend</div>
+            <div class="font-semibold text-xl mb-4">{{ 'booking.tntDashboard.bookingTrend' | translate }}</div>
             <p-chart type="bar" [data]="bookingChartData" [options]="bookingChartOptions" class="h-80" />
         </div>
     </div>
     <div class="col-span-12 xl:col-span-6">
         <div class="card mb-8!">
-            <div class="font-semibold text-xl mb-4">Revenue Trend</div>
+            <div class="font-semibold text-xl mb-4">{{ 'booking.tntDashboard.revenueTrend' | translate }}</div>
             <p-chart type="line" [data]="revenueChartData" [options]="revenueChartOptions" class="h-80" />
         </div>
     </div>
@@ -91,19 +91,19 @@
     <!-- Charts Row 2 -->
     <div class="col-span-12 xl:col-span-4">
         <div class="card mb-8!">
-            <div class="font-semibold text-xl mb-4">Booking Status</div>
+            <div class="font-semibold text-xl mb-4">{{ 'booking.tntDashboard.bookingStatus' | translate }}</div>
             <p-chart type="doughnut" [data]="statusChartData" [options]="statusChartOptions" class="h-80" />
         </div>
     </div>
     <div class="col-span-12 xl:col-span-4">
         <div class="card mb-8!">
-            <div class="font-semibold text-xl mb-4">Payment Status</div>
+            <div class="font-semibold text-xl mb-4">{{ 'booking.tntDashboard.paymentStatus' | translate }}</div>
             <p-chart type="doughnut" [data]="paymentChartData" [options]="paymentChartOptions" class="h-80" />
         </div>
     </div>
     <div class="col-span-12 xl:col-span-4">
         <div class="card mb-8!">
-            <div class="font-semibold text-xl mb-4">Top Itineraries</div>
+            <div class="font-semibold text-xl mb-4">{{ 'booking.tntDashboard.topItineraries' | translate }}</div>
             <div class="flex flex-col gap-4">
                 <div *ngFor="let item of stats.topItineraries; let i = index" class="flex items-center gap-3">
                     <div class="flex items-center justify-center bg-primary/10 rounded-full" style="width: 2rem; height: 2rem">
@@ -111,7 +111,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-medium text-surface-900 dark:text-surface-0 truncate">{{ item.title }}</div>
-                        <div class="text-muted-color text-sm">{{ item.bookingCount }} booking{{ item.bookingCount !== 1 ? 's' : '' }}</div>
+                        <div class="text-muted-color text-sm">{{ item.bookingCount }} {{ item.bookingCount !== 1 ? ('booking.tntDashboard.bookings' | translate) : ('booking.tntDashboard.booking' | translate) }}</div>
                     </div>
                     <div class="w-16 h-1.5 rounded-full bg-surface-200 dark:bg-surface-600">
                         <div class="h-full rounded-full bg-primary" [style.width.%]="stats.topItineraries.length ? (item.bookingCount / stats.topItineraries[0].bookingCount) * 100 : 0"></div>
@@ -119,7 +119,7 @@
                 </div>
                 <div *ngIf="stats.topItineraries.length === 0" class="flex flex-col items-center py-8 text-muted-color">
                     <i class="pi pi-map-marker text-4xl mb-2"></i>
-                    <p>No itineraries yet</p>
+                    <p>{{ 'booking.tntDashboard.noItineraries' | translate }}</p>
                 </div>
             </div>
         </div>
@@ -129,18 +129,18 @@
     <div class="col-span-12">
         <div class="card mb-8!">
             <div class="flex justify-between items-center mb-4">
-                <div class="font-semibold text-xl">Recent Bookings</div>
-                <p-button label="View All" icon="pi pi-arrow-right" iconPos="right" [text]="true" size="small" routerLink="/my-bookings" />
+                <div class="font-semibold text-xl">{{ 'booking.tntDashboard.recentBookings' | translate }}</div>
+                <p-button [label]="'booking.tntDashboard.viewAll' | translate" icon="pi pi-arrow-right" iconPos="right" [text]="true" size="small" routerLink="/my-bookings" />
             </div>
             <p-table [value]="stats.recentBookings" responsiveLayout="scroll" [rows]="5">
                 <ng-template pTemplate="header">
                     <tr>
-                        <th>Reference</th>
-                        <th pSortableColumn="templateTitle">Itinerary <p-sortIcon field="templateTitle" /></th>
-                        <th>Status</th>
-                        <th>Payment</th>
-                        <th pSortableColumn="totalAmount">Amount <p-sortIcon field="totalAmount" /></th>
-                        <th>Date</th>
+                        <th>{{ 'booking.tntDashboard.reference' | translate }}</th>
+                        <th pSortableColumn="templateTitle">{{ 'booking.tntDashboard.itinerary' | translate }} <p-sortIcon field="templateTitle" /></th>
+                        <th>{{ 'booking.tntDashboard.status' | translate }}</th>
+                        <th>{{ 'booking.tntDashboard.payment' | translate }}</th>
+                        <th pSortableColumn="totalAmount">{{ 'booking.tntDashboard.amount' | translate }} <p-sortIcon field="totalAmount" /></th>
+                        <th>{{ 'booking.tntDashboard.date' | translate }}</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-b>
@@ -154,7 +154,7 @@
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
-                    <tr><td colspan="6" class="text-center py-4 text-muted-color">No recent bookings</td></tr>
+                    <tr><td colspan="6" class="text-center py-4 text-muted-color">{{ 'booking.tntDashboard.noRecentBookings' | translate }}</td></tr>
                 </ng-template>
             </p-table>
         </div>

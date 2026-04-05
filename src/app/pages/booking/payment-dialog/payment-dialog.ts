@@ -10,6 +10,7 @@ import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { BookingService } from '../booking.service';
 
@@ -25,7 +26,8 @@ import { BookingService } from '../booking.service';
         InputNumberModule,
         DividerModule,
         ToastModule,
-        ProgressSpinnerModule
+        ProgressSpinnerModule,
+        TranslateModule
     ],
     providers: [MessageService],
     templateUrl: './payment-dialog.html',

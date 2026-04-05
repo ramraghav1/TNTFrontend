@@ -12,6 +12,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MessageService } from 'primeng/api';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { BookingService, BookingListItem } from '../booking.service';
 import { PaymentDialog } from '../payment-dialog/payment-dialog';
@@ -31,7 +32,8 @@ import { PaymentDialog } from '../payment-dialog/payment-dialog';
         TooltipModule,
         IconFieldModule,
         InputIconModule,
-        PaymentDialog
+        PaymentDialog,
+        TranslateModule
     ],
     providers: [MessageService],
     templateUrl: './my-bookings.html',

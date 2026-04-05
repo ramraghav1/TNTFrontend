@@ -10,6 +10,7 @@ import { ToastModule } from 'primeng/toast';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { BookingService, DashboardStats } from '../booking.service';
 import { LayoutService } from '../../../layout/service/layout.service';
@@ -26,7 +27,8 @@ import { LayoutService } from '../../../layout/service/layout.service';
         TagModule,
         ToastModule,
         SkeletonModule,
-        TooltipModule
+        TooltipModule,
+        TranslateModule
     ],
     providers: [MessageService],
     templateUrl: './tnt-dashboard.html',

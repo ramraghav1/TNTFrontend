@@ -4,12 +4,12 @@
     <!-- Header -->
     <div class="page-header">
         <div>
-            <h2 class="page-title">My Bookings</h2>
-            <p class="page-subtitle">View and manage all your bookings</p>
+            <h2 class="page-title">{{ 'booking.myBookings.title' | translate }}</h2>
+            <p class="page-subtitle">{{ 'booking.myBookings.subtitle' | translate }}</p>
         </div>
         <div class="header-actions">
-            <button pButton icon="pi pi-refresh" label="Refresh" class="p-button-outlined" (click)="loadBookings()"></button>
-            <button pButton icon="pi pi-plus" label="New Booking" class="p-button-primary" routerLink="/booking-list"></button>
+            <button pButton icon="pi pi-refresh" [label]="'booking.myBookings.refresh' | translate" class="p-button-outlined" (click)="loadBookings()"></button>
+            <button pButton icon="pi pi-plus" [label]="'booking.myBookings.newBooking' | translate" class="p-button-primary" routerLink="/booking-list"></button>
         </div>
     </div>
 
@@ -24,7 +24,7 @@
             [loading]="loading"
             [globalFilterFields]="['bookingReference', 'templateTitle', 'status', 'paymentStatus']"
             [showCurrentPageReport]="true"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} bookings"
+            [currentPageReportTemplate]="'booking.myBookings.showingPageReport' | translate">
             responsiveLayout="scroll"
             sortField="createdAt"
             [sortOrder]="-1"
@@ -33,22 +33,22 @@
                 <div class="table-toolbar">
                     <p-iconfield>
                         <p-inputicon styleClass="pi pi-search"></p-inputicon>
-                        <input pInputText type="text" placeholder="Search bookings..." (input)="onGlobalFilter($event)" />
+                        <input pInputText type="text" [placeholder]="'booking.myBookings.searchPlaceholder' | translate" (input)="onGlobalFilter($event)" />
                     </p-iconfield>
                 </div>
             </ng-template>
 
             <ng-template pTemplate="header">
                 <tr>
-                    <th pSortableColumn="bookingReference" style="min-width:140px">Reference <p-sortIcon field="bookingReference"></p-sortIcon></th>
-                    <th pSortableColumn="templateTitle" style="min-width:180px">Itinerary <p-sortIcon field="templateTitle"></p-sortIcon></th>
-                    <th pSortableColumn="status" style="min-width:120px">Status <p-sortIcon field="status"></p-sortIcon></th>
-                    <th pSortableColumn="startDate" style="min-width:120px">Start Date <p-sortIcon field="startDate"></p-sortIcon></th>
-                    <th pSortableColumn="endDate" style="min-width:120px">End Date <p-sortIcon field="endDate"></p-sortIcon></th>
-                    <th pSortableColumn="totalAmount" style="min-width:120px">Amount <p-sortIcon field="totalAmount"></p-sortIcon></th>
-                    <th pSortableColumn="paymentStatus" style="min-width:120px">Payment <p-sortIcon field="paymentStatus"></p-sortIcon></th>
-                    <th pSortableColumn="createdAt" style="min-width:130px">Created <p-sortIcon field="createdAt"></p-sortIcon></th>
-                    <th style="min-width:160px">Actions</th>
+                    <th pSortableColumn="bookingReference" style="min-width:140px">{{ 'booking.myBookings.reference' | translate }} <p-sortIcon field="bookingReference"></p-sortIcon></th>
+                    <th pSortableColumn="templateTitle" style="min-width:180px">{{ 'booking.myBookings.itinerary' | translate }} <p-sortIcon field="templateTitle"></p-sortIcon></th>
+                    <th pSortableColumn="status" style="min-width:120px">{{ 'booking.myBookings.status' | translate }} <p-sortIcon field="status"></p-sortIcon></th>
+                    <th pSortableColumn="startDate" style="min-width:120px">{{ 'booking.myBookings.startDate' | translate }} <p-sortIcon field="startDate"></p-sortIcon></th>
+                    <th pSortableColumn="endDate" style="min-width:120px">{{ 'booking.myBookings.endDate' | translate }} <p-sortIcon field="endDate"></p-sortIcon></th>
+                    <th pSortableColumn="totalAmount" style="min-width:120px">{{ 'booking.myBookings.amount' | translate }} <p-sortIcon field="totalAmount"></p-sortIcon></th>
+                    <th pSortableColumn="paymentStatus" style="min-width:120px">{{ 'booking.myBookings.payment' | translate }} <p-sortIcon field="paymentStatus"></p-sortIcon></th>
+                    <th pSortableColumn="createdAt" style="min-width:130px">{{ 'booking.myBookings.created' | translate }} <p-sortIcon field="createdAt"></p-sortIcon></th>
+                    <th style="min-width:160px">{{ 'booking.actions' | translate }}</th>
                 </tr>
             </ng-template>
 
@@ -79,16 +79,16 @@
                                 icon="pi pi-eye"
                                 class="p-button-rounded p-button-text p-button-info"
                                 (click)="viewBooking(booking)"
-                                pTooltip="View details"
+                                [pTooltip]="'booking.myBookings.viewDetails' | translate"
                             ></button>
                             <button
                                 *ngIf="booking.paymentStatus?.toLowerCase() === 'unpaid'"
                                 pButton
                                 icon="pi pi-credit-card"
-                                label="Pay Now"
+                                [label]="'booking.myBookings.payNow' | translate"
                                 class="p-button-rounded p-button-sm p-button-success"
                                 (click)="payNow(booking)"
-                                pTooltip="Make payment"
+                                [pTooltip]="'booking.myBookings.makePayment' | translate"
                             ></button>
                         </div>
                     </td>
@@ -100,9 +100,9 @@
                     <td colspan="9">
                         <div class="empty-state">
                             <i class="pi pi-inbox"></i>
-                            <h3>No bookings yet</h3>
-                            <p>Start by booking an itinerary</p>
-                            <button pButton label="Browse Itineraries" icon="pi pi-arrow-right" routerLink="/booking-list"></button>
+                            <h3>{{ 'booking.myBookings.noBookingsYet' | translate }}</h3>
+                            <p>{{ 'booking.myBookings.noBookingsMessage' | translate }}</p>
+                            <button pButton [label]="'booking.myBookings.browseItineraries' | translate" icon="pi pi-arrow-right" routerLink="/booking-list"></button>
                         </div>
                     </td>
                 </tr>

@@ -145,6 +145,13 @@
       </div>
     }
 
+    <!-- Media Gallery Section -->
+    @if (itinerary.id) {
+      <div class="card">
+        <app-media-gallery [itineraryId]="itinerary.id" [editable]="true"></app-media-gallery>
+      </div>
+    }
+
   </div>
 }
 

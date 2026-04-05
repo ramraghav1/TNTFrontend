@@ -1,13 +1,14 @@
 import { afterNextRender, Component, effect, inject, signal } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
+import { TranslateModule } from '@ngx-translate/core';
 import { LayoutService } from '@/app/layout/service/layout.service';
 
 @Component({
     standalone: true,
     selector: 'app-revenue-stream-widget',
-    imports: [ChartModule],
+    imports: [ChartModule, TranslateModule],
     template: `<div class="card mb-8!">
-        <div class="font-semibold text-xl mb-4">Revenue Stream</div>
+        <div class="font-semibold text-xl mb-4">{{ 'dashboard.revenueStream.title' | translate }}</div>
         <p-chart type="bar" [data]="chartData()" [options]="chartOptions()" class="h-100" />
     </div>`
 })

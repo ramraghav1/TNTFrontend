@@ -6,6 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ButtonModule } from 'primeng/button';
+import { MediaGalleryComponent } from '../media-gallery';
 
 interface DayCost {
   name: string;
@@ -39,7 +40,7 @@ interface ItineraryDetail {
 @Component({
   selector: 'app-itinerary-details',
   standalone: true,
-  imports: [CommonModule, TagModule, ProgressSpinnerModule, ButtonModule],
+  imports: [CommonModule, TagModule, ProgressSpinnerModule, ButtonModule, MediaGalleryComponent],
   templateUrl: './itinerary-details.html',
   styleUrls: ['./itinerary-details.scss']
 })

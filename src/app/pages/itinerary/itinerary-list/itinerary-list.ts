@@ -13,6 +13,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface Itinerary {
   id: number;
@@ -34,7 +35,8 @@ interface Itinerary {
     InputTextModule,
     ConfirmDialogModule,
     DialogModule,
-    TooltipModule
+    TooltipModule,
+    TranslateModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './itinerary-list.html'

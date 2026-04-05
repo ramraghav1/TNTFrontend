@@ -25,10 +25,10 @@ export class AppMenu {
 
     // Define which menu groups each org type can see
     private orgMenuMap: { [key: string]: string[] } = {
-        'tourandtravels': ['Home', 'Itinerary', 'Booking'],
-        'tourandtravel': ['Home', 'Itinerary', 'Booking'],
-        'remittance': ['Home', 'Transaction', 'Reports', 'Remittance'],
-        'clinic': ['Home', 'Clinic'],
+        'tourandtravels': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'Tenant'],
+        'tourandtravel': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'Tenant'],
+        'remittance': ['Home', 'Transaction', 'Reports', 'Remittance', 'Tenant'],
+        'clinic': ['Home', 'Clinic', 'Tenant'],
     };
 
     ngOnInit() {
@@ -72,6 +72,22 @@ export class AppMenu {
                     { label: 'My Bookings', icon: 'pi pi-fw pi-list', routerLink: ['/my-bookings'] },
                 ]
             },
+            'Inventory': {
+                label: 'Inventory',
+                items: [
+                    { label: 'Hotels', icon: 'pi pi-fw pi-building', routerLink: ['/inventory/hotels'] },
+                    { label: 'Vehicles', icon: 'pi pi-fw pi-car', routerLink: ['/inventory/vehicles'] },
+                    { label: 'Guides', icon: 'pi pi-fw pi-user', routerLink: ['/inventory/guides'] },
+                    { label: 'Activities', icon: 'pi pi-fw pi-flag', routerLink: ['/inventory/activities'] },
+                ]
+            },
+            'Availability': {
+                label: 'Availability',
+                items: [
+                    { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/availability/calendar'] },
+                    { label: 'Package Departures', icon: 'pi pi-fw pi-directions', routerLink: ['/availability/departures'] },
+                ]
+            },
             'Remittance': {
                 label: 'Remittance',
                 items: [
@@ -98,6 +114,14 @@ export class AppMenu {
                     { label: 'Services', icon: 'pi pi-fw pi-briefcase', routerLink: ['/clinic/services'] },
                     { label: 'Appointments', icon: 'pi pi-fw pi-calendar', routerLink: ['/clinic/appointments'] },
                     { label: 'Invoices', icon: 'pi pi-fw pi-file', routerLink: ['/clinic/invoices'] },
+                ]
+            },
+            'Tenant': {
+                label: 'Tenant Management',
+                items: [
+                    { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/pages/tenant/settings'] },
+                    { label: 'Products', icon: 'pi pi-fw pi-box', routerLink: ['/pages/tenant/products'] },
+                    { label: 'Create Tenant', icon: 'pi pi-fw pi-plus-circle', routerLink: ['/pages/tenant/create'] },
                 ]
             },
         };

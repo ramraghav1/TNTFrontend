@@ -2,7 +2,7 @@
 
 <div class="card">
     <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold">Book an Itinerary</h2>
+        <h2 class="text-2xl font-bold">{{ 'booking.bookingList' | translate }}</h2>
     </div>
 
     <p-table
@@ -15,12 +15,12 @@
     >
         <ng-template pTemplate="header">
             <tr>
-                <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-                <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
-                <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
-                <th pSortableColumn="durationDays">Duration <p-sortIcon field="durationDays"></p-sortIcon></th>
-                <th pSortableColumn="difficultyLevel">Difficulty <p-sortIcon field="difficultyLevel"></p-sortIcon></th>
-                <th>Actions</th>
+                <th pSortableColumn="id">{{ 'booking.id' | translate }} <p-sortIcon field="id"></p-sortIcon></th>
+                <th pSortableColumn="title">{{ 'booking.title' | translate }} <p-sortIcon field="title"></p-sortIcon></th>
+                <th pSortableColumn="description">{{ 'booking.description' | translate }} <p-sortIcon field="description"></p-sortIcon></th>
+                <th pSortableColumn="durationDays">{{ 'booking.duration' | translate }} <p-sortIcon field="durationDays"></p-sortIcon></th>
+                <th pSortableColumn="difficultyLevel">{{ 'booking.difficulty' | translate }} <p-sortIcon field="difficultyLevel"></p-sortIcon></th>
+                <th>{{ 'booking.actions' | translate }}</th>
             </tr>
         </ng-template>
 
@@ -29,18 +29,18 @@
                 <td>{{ itinerary.id }}</td>
                 <td>{{ itinerary.title }}</td>
                 <td>{{ itinerary.description }}</td>
-                <td>{{ itinerary.durationDays }} days</td>
+                <td>{{ itinerary.durationDays }} {{ 'booking.days' | translate }}</td>
                 <td>
                     <p-tag [value]="itinerary.difficultyLevel" [severity]="getDifficultySeverity(itinerary.difficultyLevel)"></p-tag>
                 </td>
                 <td>
                     <p-button
                         icon="pi pi-eye"
-                        label="View Detail"
+                        [label]="'booking.viewDetail' | translate"
                         [rounded]="true"
                         size="small"
                         (click)="viewDetail(itinerary)"
-                        pTooltip="View details and book"
+                        [pTooltip]="'booking.viewDetailsAndBook' | translate"
                     />
                 </td>
             </tr>
@@ -48,7 +48,7 @@
 
         <ng-template pTemplate="emptymessage">
             <tr>
-                <td colspan="6" class="text-center">No itineraries found</td>
+                <td colspan="6" class="text-center">{{ 'booking.noItinerariesFound' | translate }}</td>
             </tr>
         </ng-template>
     </p-table>

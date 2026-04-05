@@ -13,11 +13,12 @@ import { ButtonModule } from 'primeng/button';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { NotificationService, Notification } from '@/app/layout/service/notification.service';
+import { LanguageSelectorComponent } from './language-selector/language-selector.component';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule, BadgeModule, OverlayBadgeModule, PopoverModule, ButtonModule],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule, BadgeModule, OverlayBadgeModule, PopoverModule, ButtonModule, LanguageSelectorComponent],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -30,6 +31,9 @@ import { NotificationService, Notification } from '@/app/layout/service/notifica
 
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
+                <!-- Language Selector -->
+                <app-language-selector></app-language-selector>
+                
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>

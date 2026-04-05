@@ -3,21 +3,22 @@ import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { Product, ProductService } from '@/app/pages/service/product.service';
 
 @Component({
     standalone: true,
     selector: 'app-recent-sales-widget',
-    imports: [CommonModule, TableModule, ButtonModule, RippleModule],
+    imports: [CommonModule, TableModule, ButtonModule, RippleModule, TranslateModule],
     template: `<div class="card mb-8!">
-        <div class="font-semibold text-xl mb-4">Recent Sales</div>
+        <div class="font-semibold text-xl mb-4">{{ 'dashboard.recentSales.title' | translate }}</div>
         <p-table [value]="products()" [paginator]="true" [rows]="5" responsiveLayout="scroll">
             <ng-template #header>
                 <tr>
-                    <th>Image</th>
-                    <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
-                    <th pSortableColumn="price">Price <p-sortIcon field="price"></p-sortIcon></th>
-                    <th>View</th>
+                    <th>{{ 'common.view' | translate }}</th>
+                    <th pSortableColumn="name">{{ 'common.details' | translate }} <p-sortIcon field="name"></p-sortIcon></th>
+                    <th pSortableColumn="price">{{ 'dashboard.recentSales.amount' | translate }} <p-sortIcon field="price"></p-sortIcon></th>
+                    <th>{{ 'common.view' | translate }}</th>
                 </tr>
             </ng-template>
             <ng-template #body let-product>

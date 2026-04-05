@@ -40,6 +40,15 @@ import { ClinicServiceList } from './app/pages/clinic/clinic-service-list/clinic
 import { AppointmentList } from './app/pages/clinic/appointment-list/appointment-list';
 import { InvoiceList } from './app/pages/clinic/invoice-list/invoice-list';
 import { OrganizationSetup } from './app/pages/organization/organization-setup/organization-setup';
+import { HotelListComponent } from './app/pages/inventory/hotel-list/hotel-list';
+import { HotelFormComponent } from './app/pages/inventory/hotel-form/hotel-form';
+import { VehicleListComponent } from './app/pages/inventory/vehicle-list/vehicle-list';
+import { VehicleFormComponent } from './app/pages/inventory/vehicle-form/vehicle-form';
+import { GuideListComponent } from './app/pages/inventory/guide-list/guide-list';
+import { GuideFormComponent } from './app/pages/inventory/guide-form/guide-form';
+import { ActivityListComponent } from './app/pages/inventory/activity-list/activity-list';
+import { ActivityFormComponent } from './app/pages/inventory/activity-form/activity-form';
+import { AvailabilityCalendarComponent } from './app/pages/inventory/availability-calendar/availability-calendar';
 import { authGuard } from './app/auth.guard';
 
 export const appRoutes: Routes = [
@@ -93,7 +102,22 @@ export const appRoutes: Routes = [
             { path: 'clinic/services', component: ClinicServiceList },
             { path: 'clinic/appointments', component: AppointmentList },
             { path: 'clinic/invoices', component: InvoiceList },
-            { path: 'organization-setup', component: OrganizationSetup }
+            { path: 'organization-setup', component: OrganizationSetup },
+            // Inventory Management
+            { path: 'inventory/hotels', component: HotelListComponent },
+            { path: 'inventory/hotels/new', component: HotelFormComponent },
+            { path: 'inventory/hotels/edit/:id', component: HotelFormComponent },
+            { path: 'inventory/vehicles', component: VehicleListComponent },
+            { path: 'inventory/vehicles/new', component: VehicleFormComponent },
+            { path: 'inventory/vehicles/edit/:id', component: VehicleFormComponent },
+            { path: 'inventory/guides', component: GuideListComponent },
+            { path: 'inventory/guides/new', component: GuideFormComponent },
+            { path: 'inventory/guides/edit/:id', component: GuideFormComponent },
+            { path: 'inventory/activities', component: ActivityListComponent },
+            { path: 'inventory/activities/new', component: ActivityFormComponent },
+            { path: 'inventory/activities/edit/:id', component: ActivityFormComponent },
+            // Availability Management
+            { path: 'availability/calendar', component: AvailabilityCalendarComponent }
         ]
     },
     { path: 'landing', component: Landing },

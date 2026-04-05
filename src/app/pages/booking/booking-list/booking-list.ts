@@ -9,6 +9,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { BookingService, Itinerary } from '../booking.service';
 
@@ -23,7 +24,8 @@ import { BookingService, Itinerary } from '../booking.service';
         ToastModule,
         InputTextModule,
         TagModule,
-        TooltipModule
+        TooltipModule,
+        TranslateModule
     ],
     providers: [MessageService],
     templateUrl: './booking-list.html',
@@ -55,7 +57,7 @@ export class BookingList implements OnInit {
             error: (err) => {
                 console.error(err);
                 this.loading = false;
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load itineraries' });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'booking.failedToLoad' });
                 this.cdr.detectChanges();
             }
         });
