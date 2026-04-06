@@ -60,6 +60,7 @@ export interface CreateBookingRequest {
     endDate: string;
     travelers: TravelerRequest[];
     specialRequests: string;
+    totalAmount: number;
 }
 
 export interface CustomizeDayRequest {
@@ -166,6 +167,73 @@ export interface DashboardStats {
 }
 
 // ===========================
+// Inventory Interfaces
+// ===========================
+
+export interface InventoryGuide {
+    id: number;
+    fullName: string;
+    specialization?: string;
+    pricePerDay: number;
+    rating?: number;
+    photo?: string;
+    languages?: string[];
+    experienceYears?: number;
+    isActive?: boolean;
+}
+
+export interface InventoryVehicle {
+    id: number;
+    vehicleType: string;
+    model?: string;
+    capacity?: number;
+    pricePerDay: number;
+    driverName?: string;
+    features?: string[];
+    isActive?: boolean;
+}
+
+export interface InventoryHotelRoom {
+    id: number;
+    roomType: string;
+    capacity: number;
+    pricePerNight: number;
+    totalRooms: number;
+}
+
+export interface InventoryHotel {
+    id: number;
+    name: string;
+    location?: string;
+    starRating?: number;
+    category?: string;
+    rooms?: InventoryHotelRoom[];
+    isActive?: boolean;
+}
+
+export interface AssignInventoryRequest {
+    inventoryType: string;
+    inventoryId: number;
+    startDate: string;
+    endDate: string;
+    quantity: number;
+    price: number;
+    notes?: string;
+}
+
+export interface BookingInventoryItem {
+    id: number;
+    inventoryType: string;
+    inventoryId: number;
+    inventoryName: string;
+    startDate: string;
+    endDate: string;
+    quantity: number;
+    price: number;
+    notes?: string;
+}
+
+// ===========================
 // Service
 // ===========================
 
@@ -243,5 +311,32 @@ export class BookingService {
 
     getDashboardStats(): Observable<DashboardStats> {
         return this.http.get<DashboardStats>(`${this.baseUrl}/Bookings/dashboard-stats`);
+    }
+
+    // ===========================
+    // Inventory
+    // ===========================
+    getGuides(): Observable<InventoryGuide[]> {
+        return this.http.get<InventoryGuide[]>(`${this.baseUrl}/inventory/guides`);
+    }
+
+    getVehicles(): Observable<InventoryVehicle[]> {
+        return this.http.get<InventoryVehicle[]>(`${this.baseUrl}/inventory/vehicles`);
+    }
+
+    getHotels(): Observable<InventoryHotel[]> {
+        return this.http.get<InventoryHotel[]>(`${this.baseUrl}/inventory/hotels`);
+    }
+
+    assignInventory(bookingId: number, request: AssignInventoryRequest): Observable<any> {
+        return this.http.post(`${this.baseUrl}/Bookings/${bookingId}/inventory`, request);
+    }
+
+    getBookingInventory(bookingId: number): Observable<BookingInventoryItem[]> {
+        return this.http.get<BookingInventoryItem[]>(`${this.baseUrl}/Bookings/${bookingId}/inventory`);
+    }
+
+    removeInventoryItem(itemId: number): Observable<any> {
+        return this.http.delete(`${this.baseUrl}/Bookings/inventory/${itemId}`);
     }
 }

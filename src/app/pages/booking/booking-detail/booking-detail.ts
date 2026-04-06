@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 // PrimeNG
 import { AccordionModule } from 'primeng/accordion';
@@ -29,7 +30,12 @@ import {
     CreateBookingRequest,
     TravelerRequest,
     CustomizeDayRequest,
-    DayCostEntry
+    DayCostEntry,
+    InventoryGuide,
+    InventoryVehicle,
+    InventoryHotel,
+    InventoryHotelRoom,
+    AssignInventoryRequest
 } from '../booking.service';
 
 import { PaymentDialog } from '../payment-dialog/payment-dialog';
@@ -109,6 +115,16 @@ export class BookingDetail implements OnInit {
     createdBookingId = 0;
     createdBookingRef = '';
 
+    // Inventory selection
+    guides: InventoryGuide[] = [];
+    vehicles: InventoryVehicle[] = [];
+    hotels: InventoryHotel[] = [];
+    selectedGuide: InventoryGuide | null = null;
+    selectedVehicle: InventoryVehicle | null = null;
+    selectedHotel: InventoryHotel | null = null;
+    selectedRoomType: InventoryHotelRoom | null = null;
+    inventoryLoading = false;
+
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -146,6 +162,8 @@ export class BookingDetail implements OnInit {
                 this.addTraveler();
                 // Build cost data from itinerary
                 this.buildCostData();
+                // Load inventory options
+                this.loadInventory();
                 this.loading = false;
                 this.cdr.detectChanges();
             },
@@ -283,37 +301,15 @@ export class BookingDetail implements OnInit {
             startDate: this.startDate!.toISOString(),
             endDate: this.endDate!.toISOString(),
             travelers: this.travelers,
-            specialRequests: this.specialRequests
+            specialRequests: this.specialRequests,
+            totalAmount: this.getGrandTotal()
         };
 
         this.bookingService.createBooking(request).subscribe({
             next: (res) => {
-                this.submitting = false;
                 this.createdBookingId = res.instanceId;
                 this.createdBookingRef = res.bookingReference || '';
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Booking Created',
-                    detail: 'Your booking has been created successfully!'
-                });
-                this.cdr.detectChanges();
-                // Show payment confirmation
-                this.confirmationService.confirm({
-                    message: 'Would you like to pay now or skip for later?',
-                    header: 'Payment',
-                    icon: 'pi pi-credit-card',
-                    acceptLabel: 'Pay Now',
-                    rejectLabel: 'Skip for Now',
-                    acceptButtonStyleClass: 'p-button-success',
-                    rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
-                    accept: () => {
-                        this.showPaymentDialog = true;
-                        this.cdr.detectChanges();
-                    },
-                    reject: () => {
-                        this.router.navigate(['/my-bookings']);
-                    }
-                });
+                this.assignInventoryAfterBooking(res.instanceId);
             },
             error: (err) => {
                 console.error(err);
@@ -324,6 +320,44 @@ export class BookingDetail implements OnInit {
                     detail: 'Failed to create booking. Please try again.'
                 });
                 this.cdr.detectChanges();
+            }
+        });
+    }
+
+    private assignInventoryAfterBooking(bookingId: number): void {
+        const assignments = this.buildInventoryAssignments();
+        if (assignments.length === 0) {
+            this.onBookingCreationComplete();
+            return;
+        }
+        forkJoin(assignments.map(req => this.bookingService.assignInventory(bookingId, req))).subscribe({
+            next: () => this.onBookingCreationComplete(),
+            error: () => this.onBookingCreationComplete() // non-fatal
+        });
+    }
+
+    private onBookingCreationComplete(): void {
+        this.submitting = false;
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Booking Created',
+            detail: 'Your booking has been created successfully!'
+        });
+        this.cdr.detectChanges();
+        this.confirmationService.confirm({
+            message: 'Would you like to pay now or skip for later?',
+            header: 'Payment',
+            icon: 'pi pi-credit-card',
+            acceptLabel: 'Pay Now',
+            rejectLabel: 'Skip for Now',
+            acceptButtonStyleClass: 'p-button-success',
+            rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
+            accept: () => {
+                this.showPaymentDialog = true;
+                this.cdr.detectChanges();
+            },
+            reject: () => {
+                this.router.navigate(['/my-bookings']);
             }
         });
     }
@@ -441,5 +475,104 @@ export class BookingDetail implements OnInit {
 
     hasCosts(): boolean {
         return this.bookingDayCosts.some(d => d.costs.length > 0);
+    }
+
+    // ===========================
+    // Inventory helpers
+    // ===========================
+
+    loadInventory(): void {
+        this.inventoryLoading = true;
+        forkJoin({
+            guides: this.bookingService.getGuides(),
+            vehicles: this.bookingService.getVehicles(),
+            hotels: this.bookingService.getHotels()
+        }).subscribe({
+            next: ({ guides, vehicles, hotels }) => {
+                this.guides = guides.filter(g => g.isActive !== false);
+                this.vehicles = vehicles.filter(v => v.isActive !== false);
+                this.hotels = hotels.filter(h => h.isActive !== false);
+                this.inventoryLoading = false;
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.inventoryLoading = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    toggleGuide(guide: InventoryGuide): void {
+        this.selectedGuide = this.selectedGuide?.id === guide.id ? null : guide;
+    }
+
+    toggleVehicle(vehicle: InventoryVehicle): void {
+        this.selectedVehicle = this.selectedVehicle?.id === vehicle.id ? null : vehicle;
+    }
+
+    toggleHotel(hotel: InventoryHotel): void {
+        if (this.selectedHotel?.id === hotel.id) {
+            this.selectedHotel = null;
+            this.selectedRoomType = null;
+        } else {
+            this.selectedHotel = hotel;
+            this.selectedRoomType = null;
+        }
+    }
+
+    getStars(n: number): number[] {
+        return Array.from({ length: Math.min(n, 5) });
+    }
+
+    private getTripDays(): number {
+        if (!this.startDate || !this.endDate) return this.itinerary?.durationDays || 1;
+        const ms = this.endDate.getTime() - this.startDate.getTime();
+        return Math.max(1, Math.ceil(ms / (1000 * 60 * 60 * 24)));
+    }
+
+    private buildInventoryAssignments(): AssignInventoryRequest[] {
+        const result: AssignInventoryRequest[] = [];
+        if (!this.startDate || !this.endDate) return result;
+        const startStr = this.startDate.toISOString().split('T')[0];
+        const endStr = this.endDate.toISOString().split('T')[0];
+        const days = this.getTripDays();
+
+        if (this.selectedGuide) {
+            result.push({
+                inventoryType: 'guide',
+                inventoryId: this.selectedGuide.id,
+                startDate: startStr,
+                endDate: endStr,
+                quantity: 1,
+                price: this.selectedGuide.pricePerDay * days,
+                notes: `Guide: ${this.selectedGuide.fullName}`
+            });
+        }
+        if (this.selectedVehicle) {
+            result.push({
+                inventoryType: 'vehicle',
+                inventoryId: this.selectedVehicle.id,
+                startDate: startStr,
+                endDate: endStr,
+                quantity: 1,
+                price: this.selectedVehicle.pricePerDay * days,
+                notes: `Vehicle: ${this.selectedVehicle.vehicleType}${this.selectedVehicle.model ? ' ' + this.selectedVehicle.model : ''}`
+            });
+        }
+        if (this.selectedHotel) {
+            const roomPrice = this.selectedRoomType ? this.selectedRoomType.pricePerNight * days : 0;
+            result.push({
+                inventoryType: 'hotel',
+                inventoryId: this.selectedHotel.id,
+                startDate: startStr,
+                endDate: endStr,
+                quantity: 1,
+                price: roomPrice,
+                notes: this.selectedRoomType
+                    ? `Hotel: ${this.selectedHotel.name}, Room: ${this.selectedRoomType.roomType}`
+                    : `Hotel: ${this.selectedHotel.name}`
+            });
+        }
+        return result;
     }
 }

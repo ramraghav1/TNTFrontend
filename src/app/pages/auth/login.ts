@@ -110,6 +110,11 @@ export class Login {
                         if (res.user?.tenantName) {
                             localStorage.setItem('tenantName', res.user.tenantName);
                         }
+                        if (res.user?.tenantLogoUrl) {
+                            localStorage.setItem('tenantLogoUrl', res.user.tenantLogoUrl);
+                        } else {
+                            localStorage.removeItem('tenantLogoUrl');
+                        }
 
                         this.messageService.add({
                             severity: 'success',

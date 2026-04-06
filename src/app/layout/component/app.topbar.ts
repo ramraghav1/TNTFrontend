@@ -23,7 +23,13 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
                 <i class="pi pi-bars"></i>
             </button>
             <a class="layout-topbar-logo" routerLink="/">
-                <img src="/images/suryantra-logo-transparent.svg" alt="Suryantra Technologies" style="height: 56px; width: auto; margin-top: -2px;" />
+                @if (tenantLogoUrl) {
+                    <img [src]="tenantLogoUrl" [alt]="tenantName || 'Logo'" style="height: 56px; width: auto; margin-top: -2px; max-width: 180px; object-fit: contain;" />
+                } @else if (tenantName) {
+                    <span class="tenant-name-logo">{{ tenantName.toUpperCase() }}</span>
+                } @else {
+                    <img src="/images/suryantra-logo-transparent.svg" alt="Suryantra Technologies" style="height: 56px; width: auto; margin-top: -2px;" />
+                }
             </a>
         </div>
 
@@ -282,9 +288,25 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
             line-height: 1.4;
         }
 
+        /* Tenant name as logo placeholder */
+        .tenant-name-logo {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-400, var(--primary-color)) 50%, var(--primary-700, var(--primary-color)) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            white-space: nowrap;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+        }
+
         /* Tenant Badge */
-        :host ::ng-deep .tenant-badge {
-            display: flex;
+        :host ::ng-deep .tenant-badge {            display: flex;
             align-items: center;
             gap: 0.75rem;
             padding: 1rem 1.5rem;
@@ -324,7 +346,7 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
 
         :host ::ng-deep .tenant-name {
             font-size: 0.938rem;
-            color: var(--text-color);
+            color: var(--primary-color);
             font-weight: 600;
             word-break: break-word;
         }
@@ -391,6 +413,7 @@ export class AppTopbar {
     userFullName: string = '';
     userEmail: string = '';
     tenantName: string = '';
+    tenantLogoUrl: string = '';
     layoutService = inject(LayoutService);
     notificationService = inject(NotificationService);
     private router = inject(Router);
@@ -403,6 +426,7 @@ export class AppTopbar {
             this.userFullName = userInfo?.userFullName || '';
             this.userEmail = userInfo?.emailAddress || '';
             this.tenantName = userInfo?.tenantName || localStorage.getItem('tenantName') || '';
+            this.tenantLogoUrl = userInfo?.tenantLogoUrl || localStorage.getItem('tenantLogoUrl') || '';
         } catch { }
 
         // Connect to notifications if logged in
@@ -529,6 +553,7 @@ export class AppTopbar {
         localStorage.removeItem('userInfo');
         localStorage.removeItem('tenantId');
         localStorage.removeItem('tenantName');
+        localStorage.removeItem('tenantLogoUrl');
         this.router.navigate(['/login']);
         this.cdr.detectChanges();
     }
