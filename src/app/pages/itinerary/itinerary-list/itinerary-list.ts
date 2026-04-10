@@ -12,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -36,6 +37,7 @@ interface Itinerary {
     ConfirmDialogModule,
     DialogModule,
     TooltipModule,
+    TagModule,
     TranslateModule
   ],
   providers: [MessageService, ConfirmationService],
@@ -84,6 +86,14 @@ export class ItineraryList implements OnInit {
 
   editItinerary(itinerary: Itinerary) {
     this.router.navigate(['edit-itinerary', itinerary.id]);
+  }
+
+  difficultyTag(level: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
+    const l = (level ?? '').toLowerCase();
+    if (l.includes('easy'))      return 'success';
+    if (l.includes('moderate'))  return 'info';
+    if (l.includes('strenuous') || l.includes('hard') || l.includes('difficult')) return 'danger';
+    return 'secondary';
   }
 
   deleteItinerary(itinerary: Itinerary) {

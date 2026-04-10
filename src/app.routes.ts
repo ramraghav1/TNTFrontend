@@ -15,6 +15,8 @@ import { BookingList } from './app/pages/booking/booking-list/booking-list';
 import { BookingDetail } from './app/pages/booking/booking-detail/booking-detail';
 import { MyBookings } from './app/pages/booking/my-bookings/my-bookings';
 import { TntDashboard } from './app/pages/booking/tnt-dashboard/tnt-dashboard';
+import { ManageBookings } from './app/pages/booking/manage-bookings/manage-bookings';
+import { DepartureList } from './app/pages/booking/departure-list/departure-list';
 import { CountryList } from './app/pages/remittance/country-list/country-list';
 import { PaymentTypeList } from './app/pages/remittance/payment-type-list/payment-type-list';
 import { AgentList } from './app/pages/remittance/agent-list/agent-list';
@@ -73,6 +75,8 @@ export const appRoutes: Routes = [
             { path: 'booking-list', component: BookingList },
             { path: 'booking-detail/:id', component: BookingDetail },
             { path: 'my-bookings', component: MyBookings },
+            { path: 'manage-bookings', component: ManageBookings },
+            { path: 'departure-list', component: DepartureList },
             { path: 'tnt-dashboard', component: TntDashboard },
             { path: 'remittance/countries', component: CountryList },
             { path: 'remittance/payment-types', component: PaymentTypeList },
@@ -121,6 +125,10 @@ export const appRoutes: Routes = [
         ]
     },
     { path: 'landing', component: Landing },
+    {
+        path: 'tour',
+        loadChildren: () => import('./app/pages/tour-website/tour.routes').then(m => m.tourRoutes)
+    },
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },
     { path: '**', redirectTo: '/notfound' }

@@ -11,22 +11,39 @@
     
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="id">{{ 'itinerary.id' | translate }} <p-sortIcon field="id"></p-sortIcon></th>
-        <th pSortableColumn="title">{{ 'itinerary.title' | translate }} <p-sortIcon field="title"></p-sortIcon></th>
-        <th pSortableColumn="description">{{ 'itinerary.description' | translate }} <p-sortIcon field="description"></p-sortIcon></th>
-        <th pSortableColumn="durationDays">{{ 'itinerary.duration' | translate }} <p-sortIcon field="durationDays"></p-sortIcon></th>
-        <th pSortableColumn="difficultyLevel">{{ 'itinerary.difficulty' | translate }} <p-sortIcon field="difficultyLevel"></p-sortIcon></th>
-        <th>{{ 'itinerary.actions' | translate }}</th>
+        <th pSortableColumn="id" style="width:60px">{{ 'itinerary.id' | translate }} <p-sortIcon field="id"></p-sortIcon></th>
+        <th pSortableColumn="title" style="min-width:160px;max-width:220px">{{ 'itinerary.title' | translate }} <p-sortIcon field="title"></p-sortIcon></th>
+        <th style="min-width:180px;max-width:300px">{{ 'itinerary.description' | translate }}</th>
+        <th pSortableColumn="durationDays" style="width:100px">{{ 'itinerary.duration' | translate }} <p-sortIcon field="durationDays"></p-sortIcon></th>
+        <th pSortableColumn="difficultyLevel" style="width:140px">{{ 'itinerary.difficulty' | translate }} <p-sortIcon field="difficultyLevel"></p-sortIcon></th>
+        <th style="width:120px">{{ 'itinerary.actions' | translate }}</th>
       </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-itinerary>
       <tr>
         <td>{{ itinerary.id }}</td>
-        <td>{{ itinerary.title }}</td>
-        <td>{{ itinerary.description }}</td>
+        <td style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+            [pTooltip]="itinerary.title" tooltipPosition="top"
+            [showDelay]="500">{{ itinerary.title }}</td>
+        <td style="max-width:300px;">
+          <span
+            class="block overflow-hidden text-ellipsis whitespace-nowrap"
+            style="max-width:280px"
+            [pTooltip]="itinerary.description"
+            tooltipPosition="top"
+            [showDelay]="300">
+            {{ itinerary.description | slice:0:120 }}{{ (itinerary.description?.length ?? 0) > 120 ? '…' : '' }}
+          </span>
+        </td>
         <td>{{ itinerary.durationDays }} {{ 'itinerary.days' | translate }}</td>
-        <td>{{ itinerary.difficultyLevel }}</td>
+        <td>
+          <p-tag
+            [value]="itinerary.difficultyLevel"
+            [severity]="difficultyTag(itinerary.difficultyLevel)"
+            [rounded]="true">
+          </p-tag>
+        </td>
         <td class="flex gap-2">
           <button pButton icon="pi pi-eye" class="p-button-text p-button-rounded p-button-info" (click)="viewDetails(itinerary)" [pTooltip]="'itinerary.viewDetails' | translate"></button>
           <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-secondary" (click)="editItinerary(itinerary)" [pTooltip]="'itinerary.edit' | translate"></button>

@@ -196,6 +196,10 @@ export interface CalendarEvent {
     color?: string;
     description?: string;
     linkedBookingId?: number;
+    // Assigned resources (populated for Booking events)
+    guideName?: string;
+    vehicleName?: string;
+    hotelName?: string;
 }
 
 export interface CalendarViewRequest {

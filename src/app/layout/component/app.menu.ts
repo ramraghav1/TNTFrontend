@@ -70,6 +70,8 @@ export class AppMenu {
                     { label: 'TNT Dashboard', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/tnt-dashboard'] },
                     { label: 'Book Itinerary', icon: 'pi pi-fw pi-bookmark', routerLink: ['/booking-list'] },
                     { label: 'My Bookings', icon: 'pi pi-fw pi-list', routerLink: ['/my-bookings'] },
+                    { label: 'Manage Bookings', icon: 'pi pi-fw pi-calendar-plus', routerLink: ['/manage-bookings'] },
+                    { label: 'Departures', icon: 'pi pi-fw pi-map', routerLink: ['/departure-list'] },
                 ]
             },
             'Inventory': {

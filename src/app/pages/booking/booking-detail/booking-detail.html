@@ -238,103 +238,12 @@
     </div>
 
     <!-- ============================= -->
-    <!-- SECTION 4: Inventory Selection -->
     <!-- ============================= -->
-    <div class="section-card mb-4">
-        <div class="section-header">
-            <div class="section-number">4</div>
-            <div>
-                <h3 class="section-title">Assign Inventory</h3>
-                <p class="section-subtitle">Select guide, transport, and hotel for the trip (optional)</p>
-            </div>
-            <div class="ml-auto" *ngIf="inventoryLoading">
-                <i class="pi pi-spin pi-spinner text-primary"></i>
-            </div>
-        </div>
-
-        <!-- Guide Selection -->
-        <div class="inv-section">
-            <h4 class="inv-section-title"><i class="pi pi-user"></i> Guide</h4>
-            <div class="inv-grid">
-                <div *ngFor="let guide of guides"
-                     class="inv-card"
-                     [class.inv-card-selected]="selectedGuide?.id === guide.id"
-                     (click)="toggleGuide(guide)">
-                    <div class="inv-check" *ngIf="selectedGuide?.id === guide.id"><i class="pi pi-check-circle"></i></div>
-                    <div class="inv-avatar">
-                        <img *ngIf="guide.photo" [src]="guide.photo" [alt]="guide.fullName" />
-                        <i *ngIf="!guide.photo" class="pi pi-user"></i>
-                    </div>
-                    <div class="inv-info">
-                        <div class="inv-name">{{ guide.fullName }}</div>
-                        <div class="inv-sub">{{ guide.specialization || 'General' }}<span *ngIf="guide.experienceYears"> • {{ guide.experienceYears }}yr exp</span></div>
-                        <div class="inv-price">Rs. {{ guide.pricePerDay }}/day</div>
-                        <div class="inv-rating" *ngIf="guide.rating"><i class="pi pi-star-fill"></i> {{ guide.rating }}</div>
-                    </div>
-                </div>
-            </div>
-            <p *ngIf="!inventoryLoading && guides.length === 0" class="inv-empty">No guides available.</p>
-        </div>
-
-        <!-- Vehicle Selection -->
-        <div class="inv-section">
-            <h4 class="inv-section-title"><i class="pi pi-car"></i> Transport</h4>
-            <div class="inv-grid">
-                <div *ngFor="let vehicle of vehicles"
-                     class="inv-card"
-                     [class.inv-card-selected]="selectedVehicle?.id === vehicle.id"
-                     (click)="toggleVehicle(vehicle)">
-                    <div class="inv-check" *ngIf="selectedVehicle?.id === vehicle.id"><i class="pi pi-check-circle"></i></div>
-                    <div class="inv-icon"><i class="pi pi-car"></i></div>
-                    <div class="inv-info">
-                        <div class="inv-name">{{ vehicle.vehicleType }}{{ vehicle.model ? ': ' + vehicle.model : '' }}</div>
-                        <div class="inv-sub"><span *ngIf="vehicle.capacity">{{ vehicle.capacity }} seats</span><span *ngIf="vehicle.driverName"> • {{ vehicle.driverName }}</span></div>
-                        <div class="inv-price">Rs. {{ vehicle.pricePerDay }}/day</div>
-                    </div>
-                </div>
-            </div>
-            <p *ngIf="!inventoryLoading && vehicles.length === 0" class="inv-empty">No vehicles available.</p>
-        </div>
-
-        <!-- Hotel Selection -->
-        <div class="inv-section">
-            <h4 class="inv-section-title"><i class="pi pi-building"></i> Hotel / Accommodation</h4>
-            <div class="inv-grid">
-                <div *ngFor="let hotel of hotels"
-                     class="inv-card"
-                     [class.inv-card-selected]="selectedHotel?.id === hotel.id"
-                     (click)="toggleHotel(hotel)">
-                    <div class="inv-check" *ngIf="selectedHotel?.id === hotel.id"><i class="pi pi-check-circle"></i></div>
-                    <div class="inv-icon"><i class="pi pi-building"></i></div>
-                    <div class="inv-info">
-                        <div class="inv-name">{{ hotel.name }}</div>
-                        <div class="inv-sub" *ngIf="hotel.location">{{ hotel.location }}</div>
-                        <div class="inv-stars" *ngIf="hotel.starRating">
-                            <i class="pi pi-star-fill" *ngFor="let s of getStars(hotel.starRating)"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Room type selector when hotel selected -->
-            <div class="room-type-row" *ngIf="selectedHotel && selectedHotel.rooms && selectedHotel.rooms.length > 0">
-                <label class="field-label">Room Type</label>
-                <select [(ngModel)]="selectedRoomType" class="discount-select room-type-select">
-                    <option [ngValue]="null">-- Select room type --</option>
-                    <option *ngFor="let room of selectedHotel.rooms" [ngValue]="room">
-                        {{ room.roomType }} ({{ room.capacity }} pax) — Rs. {{ room.pricePerNight }}/night
-                    </option>
-                </select>
-            </div>
-            <p *ngIf="!inventoryLoading && hotels.length === 0" class="inv-empty">No hotels available.</p>
-        </div>
-    </div>
-
-    <!-- ============================= -->
-    <!-- SECTION 5: Cost Breakdown     -->
+    <!-- SECTION 4: Cost Breakdown     -->
     <!-- ============================= -->
     <div class="section-card mb-4" *ngIf="hasCosts()">
         <div class="section-header">
-            <div class="section-number">5</div>
+            <div class="section-number">4</div>
             <div>
                 <h3 class="section-title">Cost Breakdown</h3>
                 <p class="section-subtitle">Review and adjust pricing per day</p>
