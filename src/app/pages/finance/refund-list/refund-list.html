@@ -1,0 +1,94 @@
+<p-toast></p-toast>
+
+<div class="card">
+    <div class="flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <h2 class="text-2xl font-bold m-0">Refunds</h2>
+        <p-button label="Request Refund" icon="pi pi-plus" (onClick)="openCreateDialog()"></p-button>
+    </div>
+
+    <p-table [value]="refunds" [loading]="loading" [paginator]="true" [rows]="15"
+        dataKey="id" responsiveLayout="scroll" styleClass="p-datatable-gridlines p-datatable-sm">
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="bookingReference">Booking Ref <p-sortIcon field="bookingReference"></p-sortIcon></th>
+                <th>Reason</th>
+                <th pSortableColumn="refundAmount" class="text-right">Amount <p-sortIcon field="refundAmount"></p-sortIcon></th>
+                <th pSortableColumn="requestedAt">Requested <p-sortIcon field="requestedAt"></p-sortIcon></th>
+                <th>Processed At</th>
+                <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-refund>
+            <tr>
+                <td>{{ refund.bookingReference }}</td>
+                <td>{{ refund.reason }}</td>
+                <td class="text-right font-semibold">{{ refund.currency }} {{ refund.refundAmount | number:'1.2-2' }}</td>
+                <td>{{ refund.requestedAt | date:'mediumDate' }}</td>
+                <td>{{ refund.processedAt ? (refund.processedAt | date:'mediumDate') : '—' }}</td>
+                <td><p-tag [value]="refund.status | titlecase" [severity]="getStatusSeverity(refund.status)"></p-tag></td>
+                <td>
+                    @if (refund.status === 'pending') {
+                        <p-button icon="pi pi-check-circle" size="small" severity="success" pTooltip="Process Refund" (onClick)="openProcessDialog(refund)"></p-button>
+                    }
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr><td colspan="7" class="text-center py-4 text-color-secondary">No refunds found.</td></tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Create Refund Dialog -->
+<p-dialog header="Request Refund" [(visible)]="showCreateDialog" [modal]="true" [style]="{ width: '460px' }">
+    <div class="flex flex-column gap-3 p-2">
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold">Booking ID <span class="text-red-500">*</span></label>
+            <p-inputNumber [(ngModel)]="createForm.bookingId" [min]="1" styleClass="w-full"></p-inputNumber>
+        </div>
+        <div class="grid">
+            <div class="col-7 flex flex-column gap-1">
+                <label class="font-semibold">Refund Amount <span class="text-red-500">*</span></label>
+                <p-inputNumber [(ngModel)]="createForm.refundAmount" [min]="0" [minFractionDigits]="2" styleClass="w-full"></p-inputNumber>
+            </div>
+            <div class="col-5 flex flex-column gap-1">
+                <label class="font-semibold">Currency</label>
+                <p-select [options]="currencyOptions" [(ngModel)]="createForm.currency" optionLabel="label" optionValue="value" styleClass="w-full"></p-select>
+            </div>
+        </div>
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold">Reason <span class="text-red-500">*</span></label>
+            <input pInputText [(ngModel)]="createForm.reason" placeholder="Reason for refund" class="w-full" />
+        </div>
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold">Notes</label>
+            <input pInputText [(ngModel)]="createForm.notes" placeholder="Additional notes" class="w-full" />
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" severity="secondary" (onClick)="showCreateDialog = false"></p-button>
+        <p-button label="Submit" icon="pi pi-send" [loading]="saving"
+            [disabled]="!createForm.reason || !createForm.refundAmount" (onClick)="createRefund()"></p-button>
+    </ng-template>
+</p-dialog>
+
+<!-- Process Refund Dialog -->
+<p-dialog header="Process Refund" [(visible)]="showProcessDialog" [modal]="true" [style]="{ width: '420px' }">
+    <div class="flex flex-column gap-3 p-2">
+        <p class="text-color-secondary m-0">Enter the transaction reference to mark this refund as processed.</p>
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold">Transaction Reference <span class="text-red-500">*</span></label>
+            <input pInputText [(ngModel)]="processForm.transactionReference" placeholder="Bank/payment reference" class="w-full" />
+        </div>
+        <div class="flex flex-column gap-1">
+            <label class="font-semibold">Notes</label>
+            <input pInputText [(ngModel)]="processForm.notes" placeholder="Processing notes" class="w-full" />
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" severity="secondary" (onClick)="showProcessDialog = false"></p-button>
+        <p-button label="Confirm Process" icon="pi pi-check" severity="success" [loading]="saving"
+            [disabled]="!processForm.transactionReference" (onClick)="processRefund()"></p-button>
+    </ng-template>
+</p-dialog>

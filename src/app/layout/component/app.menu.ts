@@ -25,8 +25,8 @@ export class AppMenu {
 
     // Define which menu groups each org type can see
     private orgMenuMap: { [key: string]: string[] } = {
-        'tourandtravels': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'User Management', 'Tenant'],
-        'tourandtravel': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'User Management', 'Tenant'],
+        'tourandtravels': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'Finance', 'User Management', 'Tenant'],
+                    'tourandtravel': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'Finance', 'User Management', 'Tenant'],
         'remittance': ['Home', 'Transaction', 'Reports', 'Remittance', 'User Management', 'Tenant'],
         'clinic': ['Home', 'Clinic', 'User Management', 'Tenant'],
     };
@@ -88,6 +88,16 @@ export class AppMenu {
                 items: [
                     { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/availability/calendar'] },
                     { label: 'Package Departures', icon: 'pi pi-fw pi-directions', routerLink: ['/availability/departures'] },
+                ]
+            },
+            'Finance': {
+                label: 'Finance',
+                items: [
+                    { label: 'Finance Summary', icon: 'pi pi-fw pi-chart-pie', routerLink: ['/finance/summary'] },
+                    { label: 'Invoices', icon: 'pi pi-fw pi-file-invoice', routerLink: ['/finance/invoices'] },
+                    { label: 'Expenses', icon: 'pi pi-fw pi-money-bill', routerLink: ['/finance/expenses'] },
+                    { label: 'Commissions', icon: 'pi pi-fw pi-percentage', routerLink: ['/finance/commissions'] },
+                    { label: 'Refunds', icon: 'pi pi-fw pi-replay', routerLink: ['/finance/refunds'] },
                 ]
             },
             'Remittance': {

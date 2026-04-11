@@ -51,6 +51,11 @@ import { GuideFormComponent } from './app/pages/inventory/guide-form/guide-form'
 import { ActivityListComponent } from './app/pages/inventory/activity-list/activity-list';
 import { ActivityFormComponent } from './app/pages/inventory/activity-form/activity-form';
 import { AvailabilityCalendarComponent } from './app/pages/inventory/availability-calendar/availability-calendar';
+import { FinanceSummary } from './app/pages/finance/finance-summary/finance-summary';
+import { FinanceInvoiceList } from './app/pages/finance/invoice-list/invoice-list';
+import { ExpenseList } from './app/pages/finance/expense-list/expense-list';
+import { CommissionList } from './app/pages/finance/commission-list/commission-list';
+import { RefundList } from './app/pages/finance/refund-list/refund-list';
 import { authGuard } from './app/auth.guard';
 
 export const appRoutes: Routes = [
@@ -121,7 +126,13 @@ export const appRoutes: Routes = [
             { path: 'inventory/activities/new', component: ActivityFormComponent },
             { path: 'inventory/activities/edit/:id', component: ActivityFormComponent },
             // Availability Management
-            { path: 'availability/calendar', component: AvailabilityCalendarComponent }
+            { path: 'availability/calendar', component: AvailabilityCalendarComponent },
+            // Finance & Accounting
+            { path: 'finance/summary', component: FinanceSummary },
+            { path: 'finance/invoices', component: FinanceInvoiceList },
+            { path: 'finance/expenses', component: ExpenseList },
+            { path: 'finance/commissions', component: CommissionList },
+            { path: 'finance/refunds', component: RefundList }
         ]
     },
     { path: 'landing', component: Landing },
