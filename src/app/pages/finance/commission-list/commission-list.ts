@@ -6,9 +6,10 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { SelectModule } from 'primeng/select';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { FinanceService, Commission, CreateCommissionRequest } from '../finance.service';
 
@@ -18,7 +19,7 @@ import { FinanceService, Commission, CreateCommissionRequest } from '../finance.
     imports: [
         CommonModule, FormsModule,
         TableModule, ButtonModule, ToastModule, TagModule,
-        InputTextModule, DialogModule, InputNumberModule, SelectModule
+        InputTextModule, SelectModule, DialogModule, InputNumberModule, ProgressSpinnerModule
     ],
     providers: [MessageService],
     templateUrl: './commission-list.html',
@@ -29,7 +30,6 @@ export class CommissionList implements OnInit {
     loading = false;
     showDialog = false;
     saving = false;
-
     form: CreateCommissionRequest = this.emptyForm();
 
     currencyOptions = [
@@ -43,9 +43,7 @@ export class CommissionList implements OnInit {
         private cdr: ChangeDetectorRef
     ) {}
 
-    ngOnInit(): void {
-        this.loadCommissions();
-    }
+    ngOnInit(): void { this.loadCommissions(); }
 
     private emptyForm(): CreateCommissionRequest {
         return { bookingId: 0, agentName: '', commissionRate: 0, commissionAmount: 0, currency: 'NPR' };
@@ -59,28 +57,20 @@ export class CommissionList implements OnInit {
         });
     }
 
-    openAddDialog(): void {
-        this.form = this.emptyForm();
-        this.showDialog = true;
-    }
+    openAddDialog(): void { this.form = this.emptyForm(); this.showDialog = true; }
 
     saveCommission(): void {
         this.saving = true;
         this.financeService.createCommission(this.form).subscribe({
-            next: () => {
-                this.saving = false;
-                this.showDialog = false;
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Commission recorded' });
-                this.loadCommissions();
-            },
-            error: (err) => { console.error(err); this.saving = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save commission' }); }
+            next: () => { this.saving = false; this.showDialog = false; this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Commission recorded' }); this.loadCommissions(); },
+            error: () => { this.saving = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save' }); }
         });
     }
 
     updateStatus(commission: Commission, status: string): void {
         this.financeService.updateCommissionStatus(commission.id, status).subscribe({
-            next: () => { commission.status = status; this.cdr.detectChanges(); this.messageService.add({ severity: 'success', summary: 'Updated', detail: `Commission marked as ${status}` }); },
-            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update status' })
+            next: () => { commission.status = status; this.cdr.detectChanges(); this.messageService.add({ severity: 'success', summary: 'Updated', detail: `Status: ${status}` }); },
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update' })
         });
     }
 

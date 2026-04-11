@@ -6,9 +6,10 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { SelectModule } from 'primeng/select';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { FinanceService, Refund, CreateRefundRequest, ProcessRefundRequest } from '../finance.service';
 
@@ -18,7 +19,7 @@ import { FinanceService, Refund, CreateRefundRequest, ProcessRefundRequest } fro
     imports: [
         CommonModule, FormsModule,
         TableModule, ButtonModule, ToastModule, TagModule,
-        InputTextModule, DialogModule, InputNumberModule, SelectModule
+        InputTextModule, SelectModule, DialogModule, InputNumberModule, ProgressSpinnerModule
     ],
     providers: [MessageService],
     templateUrl: './refund-list.html',
@@ -27,12 +28,10 @@ import { FinanceService, Refund, CreateRefundRequest, ProcessRefundRequest } fro
 export class RefundList implements OnInit {
     refunds: Refund[] = [];
     loading = false;
-
     showCreateDialog = false;
     showProcessDialog = false;
     saving = false;
     processingId: number | null = null;
-
     createForm: CreateRefundRequest = this.emptyCreateForm();
     processForm: ProcessRefundRequest = { transactionReference: '' };
 
@@ -47,9 +46,7 @@ export class RefundList implements OnInit {
         private cdr: ChangeDetectorRef
     ) {}
 
-    ngOnInit(): void {
-        this.loadRefunds();
-    }
+    ngOnInit(): void { this.loadRefunds(); }
 
     private emptyCreateForm(): CreateRefundRequest {
         return { bookingId: 0, refundAmount: 0, currency: 'NPR', reason: '' };
@@ -59,31 +56,19 @@ export class RefundList implements OnInit {
         this.loading = true;
         this.financeService.getRefunds().subscribe({
             next: (data) => { this.refunds = data; this.loading = false; this.cdr.detectChanges(); },
-            error: (err) => { console.error(err); this.loading = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load refunds' }); }
+            error: () => { this.loading = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load refunds' }); }
         });
     }
 
-    openCreateDialog(): void {
-        this.createForm = this.emptyCreateForm();
-        this.showCreateDialog = true;
-    }
+    openCreateDialog(): void { this.createForm = this.emptyCreateForm(); this.showCreateDialog = true; }
 
-    openProcessDialog(refund: Refund): void {
-        this.processingId = refund.id;
-        this.processForm = { transactionReference: '' };
-        this.showProcessDialog = true;
-    }
+    openProcessDialog(refund: Refund): void { this.processingId = refund.id; this.processForm = { transactionReference: '' }; this.showProcessDialog = true; }
 
     createRefund(): void {
         this.saving = true;
         this.financeService.createRefund(this.createForm).subscribe({
-            next: () => {
-                this.saving = false;
-                this.showCreateDialog = false;
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Refund request created' });
-                this.loadRefunds();
-            },
-            error: (err) => { console.error(err); this.saving = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create refund' }); }
+            next: () => { this.saving = false; this.showCreateDialog = false; this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Refund request created' }); this.loadRefunds(); },
+            error: () => { this.saving = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create refund' }); }
         });
     }
 
@@ -91,13 +76,8 @@ export class RefundList implements OnInit {
         if (!this.processingId) return;
         this.saving = true;
         this.financeService.processRefund(this.processingId, this.processForm).subscribe({
-            next: () => {
-                this.saving = false;
-                this.showProcessDialog = false;
-                this.messageService.add({ severity: 'success', summary: 'Processed', detail: 'Refund processed successfully' });
-                this.loadRefunds();
-            },
-            error: (err) => { console.error(err); this.saving = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to process refund' }); }
+            next: () => { this.saving = false; this.showProcessDialog = false; this.messageService.add({ severity: 'success', summary: 'Processed', detail: 'Refund processed' }); this.loadRefunds(); },
+            error: () => { this.saving = false; this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to process' }); }
         });
     }
 

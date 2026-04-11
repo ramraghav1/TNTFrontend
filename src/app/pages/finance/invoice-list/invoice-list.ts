@@ -7,9 +7,12 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectButtonModule } from 'primeng/selectbutton';
+import { SelectModule } from 'primeng/select';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FinanceService, InvoiceListItem } from '../finance.service';
@@ -20,8 +23,8 @@ import { FinanceService, InvoiceListItem } from '../finance.service';
     imports: [
         CommonModule, RouterModule, FormsModule,
         TableModule, ButtonModule, ToastModule, TagModule,
-        InputTextModule, SelectButtonModule, DialogModule,
-        InputNumberModule, ConfirmDialogModule
+        InputTextModule, SelectModule, IconFieldModule, InputIconModule,
+        DialogModule, InputNumberModule, ProgressSpinnerModule, ConfirmDialogModule
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './invoice-list.html',
@@ -32,12 +35,10 @@ export class FinanceInvoiceList implements OnInit {
     loading = false;
     globalFilter = '';
 
-    // Generate Invoice Dialog
     showGenerateDialog = false;
     bookingIdInput: number | null = null;
     generating = false;
 
-    // Status update
     statusOptions = [
         { label: 'All', value: '' },
         { label: 'Draft', value: 'draft' },
@@ -62,11 +63,7 @@ export class FinanceInvoiceList implements OnInit {
     loadInvoices(): void {
         this.loading = true;
         this.financeService.getInvoices(1, 100, this.selectedStatus || undefined).subscribe({
-            next: (data) => {
-                this.invoices = data;
-                this.loading = false;
-                this.cdr.detectChanges();
-            },
+            next: (data) => { this.invoices = data; this.loading = false; this.cdr.detectChanges(); },
             error: (err) => {
                 console.error(err);
                 this.loading = false;
@@ -75,9 +72,7 @@ export class FinanceInvoiceList implements OnInit {
         });
     }
 
-    onStatusFilter(): void {
-        this.loadInvoices();
-    }
+    onStatusFilter(): void { this.loadInvoices(); }
 
     openGenerateDialog(): void {
         this.bookingIdInput = null;
@@ -106,13 +101,10 @@ export class FinanceInvoiceList implements OnInit {
         this.financeService.updateInvoiceStatus(invoice.id, status).subscribe({
             next: () => {
                 invoice.status = status;
-                this.messageService.add({ severity: 'success', summary: 'Updated', detail: `Invoice marked as ${status}` });
                 this.cdr.detectChanges();
+                this.messageService.add({ severity: 'success', summary: 'Updated', detail: 'Invoice status updated' });
             },
-            error: (err) => {
-                console.error(err);
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update status' });
-            }
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update status' })
         });
     }
 
