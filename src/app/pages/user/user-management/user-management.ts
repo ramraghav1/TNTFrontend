@@ -237,11 +237,19 @@ export class UserManagement implements OnInit {
         { label: 'Other', value: 'Other' }
     ];
     
-    // TODO: Get these from authentication context
-    currentTenantId = 1;
-    currentOrgId = 1;
-    currentBranchId = 1;
-    currentProductId = 1;
+    get currentTenantId(): number { return Number(localStorage.getItem('tenantId') ?? 0); }
+    get currentOrgId(): number {
+        const info = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        return Number(info?.organizationId ?? 0);
+    }
+    get currentBranchId(): number {
+        const info = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        return Number(info?.branchId ?? 0);
+    }
+    get currentProductId(): number {
+        const info = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        return Number(info?.productId ?? 1);
+    }
 
     @ViewChild('filterInput') filterInput!: ElementRef;
 
@@ -276,14 +284,21 @@ export class UserManagement implements OnInit {
     }
 
     loadRoles() {
-        this.userManagementService.getRolesByTenantAndProduct(this.currentTenantId, this.currentProductId).subscribe({
+        const tenantId = this.currentTenantId;
+        const productId = this.currentProductId;
+        this.userManagementService.getRolesByTenantAndProduct(tenantId, productId).subscribe({
             next: (response) => {
                 if (response.success && response.data) {
                     this.availableRoles = response.data.filter(r => r.isActive);
+                } else {
+                    this.availableRoles = [];
                 }
+                this.cdr.detectChanges();
             },
             error: (err) => {
                 console.error('Failed to load roles', err);
+                this.availableRoles = [];
+                this.cdr.detectChanges();
             }
         });
     }

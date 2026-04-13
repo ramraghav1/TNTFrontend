@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 
@@ -8,6 +8,8 @@ import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { MessageService } from 'primeng/api';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -25,6 +27,8 @@ import { BookingService, Itinerary } from '../booking.service';
         InputTextModule,
         TagModule,
         TooltipModule,
+        IconFieldModule,
+        InputIconModule,
         TranslateModule
     ],
     providers: [MessageService],
@@ -34,6 +38,8 @@ import { BookingService, Itinerary } from '../booking.service';
 export class BookingList implements OnInit {
     itineraries: Itinerary[] = [];
     loading = false;
+    @ViewChild('dt') dt: any;
+    @ViewChild('filterInput') filterInput!: ElementRef;
 
     constructor(
         private bookingService: BookingService,
@@ -73,6 +79,17 @@ export class BookingList implements OnInit {
             case 'moderate': return 'secondary';
             case 'hard': return 'danger';
             default: return 'info';
+        }
+    }
+
+    onGlobalFilter(table: any, event: Event) {
+        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    }
+
+    clear(table: any) {
+        table.clear();
+        if (this.filterInput) {
+            this.filterInput.nativeElement.value = '';
         }
     }
 }

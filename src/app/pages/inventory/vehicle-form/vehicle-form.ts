@@ -10,6 +10,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { DatePicker } from 'primeng/datepicker';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -28,6 +30,8 @@ import { InventoryService, Vehicle } from '../inventory.service';
         ToastModule,
         CardModule,
         DatePicker,
+        ProgressSpinnerModule,
+        TooltipModule,
         TranslateModule
     ],
     providers: [MessageService],
@@ -39,6 +43,7 @@ export class VehicleFormComponent implements OnInit {
     isEditMode = false;
     vehicleId: number | null = null;
     loading = false;
+    pageLoading = false;
     featuresText = '';
 
     constructor(
@@ -79,14 +84,16 @@ export class VehicleFormComponent implements OnInit {
         this.inventoryService.getVehicleById(this.vehicleId).subscribe({
             next: (data) => {
                 this.vehicle = data;
-                // Convert date strings to Date objects for calendar
+                // Populate features text for the comma-separated input
+                this.featuresText = data.features?.join(', ') || '';
+                // Convert date strings to Date objects for p-datePicker
                 if (data.insuranceExpiry) {
-                    this.vehicle.insuranceExpiry = data.insuranceExpiry;
+                    (this.vehicle as any).insuranceExpiry = new Date(data.insuranceExpiry as string);
                 }
                 if (data.permitExpiry) {
-                    this.vehicle.permitExpiry = data.permitExpiry;
+                    (this.vehicle as any).permitExpiry = new Date(data.permitExpiry as string);
                 }
-                this.loading = false;
+                this.pageLoading = false;
             },
             error: (err) => {
                 console.error(err);
@@ -100,18 +107,34 @@ export class VehicleFormComponent implements OnInit {
         });
     }
 
+    formatDate(date: any): string | undefined {
+        if (!date) return undefined;
+        if (date instanceof Date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+        return date as string;
+    }
+
     onSubmit() {
         if (!this.validate()) {
             return;
         }
 
-        // Parse comma-separated features
-        this.vehicle.features = this.featuresText ? this.featuresText.split(',').map(f => f.trim()).filter(f => f) : [];
+        // Build payload with properly formatted dates and features
+        const payload: any = {
+            ...this.vehicle,
+            features: this.featuresText ? this.featuresText.split(',').map((f: string) => f.trim()).filter((f: string) => f) : [],
+            insuranceExpiry: this.formatDate((this.vehicle as any).insuranceExpiry),
+            permitExpiry: this.formatDate((this.vehicle as any).permitExpiry)
+        };
 
         this.loading = true;
         const operation = this.isEditMode 
-            ? this.inventoryService.updateVehicle(this.vehicleId!, this.vehicle)
-            : this.inventoryService.createVehicle(this.vehicle);
+            ? this.inventoryService.updateVehicle(this.vehicleId!, payload)
+            : this.inventoryService.createVehicle(payload);
 
         operation.subscribe({
             next: () => {

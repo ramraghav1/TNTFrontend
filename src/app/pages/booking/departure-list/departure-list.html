@@ -4,8 +4,8 @@
 <div class="card mb-4">
     <div class="flex justify-between items-center flex-wrap gap-3">
         <div>
-            <h2 class="text-2xl font-bold m-0">Package Departures</h2>
-            <p class="text-gray-500 mt-1 mb-0">All scheduled departures with guide, vehicle and traveler details.</p>
+            <div class="font-semibold text-xl">{{ 'booking.packageDepartures' | translate }}</div>
+            <div class="text-surface-500 text-sm mt-1">{{ 'booking.packageDeparturesSubtitle' | translate }}</div>
         </div>
         <div class="flex gap-2 flex-wrap items-center">
             <!-- Status filter -->
@@ -24,7 +24,7 @@
             </p-iconfield>
 
             <p-button icon="pi pi-refresh" severity="secondary" [outlined]="true"
-                      (click)="load()" pTooltip="Refresh"></p-button>
+                      (click)="load()" [pTooltip]="'common.refresh' | translate"></p-button>
             <p-button icon="pi pi-calendar-plus" label="Manage Bookings"
                       (click)="goToManageBookings()"></p-button>
         </div>
@@ -228,7 +228,7 @@
 
         <!-- Guide -->
         <div class="flex items-start gap-3 mb-3">
-            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
                 <i class="pi pi-user text-blue-500 text-sm"></i>
             </div>
             <div>
@@ -240,7 +240,7 @@
 
         <!-- Vehicle -->
         <div class="flex items-start gap-3 mb-3">
-            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                 <i class="pi pi-car text-green-500 text-sm"></i>
             </div>
             <div>
@@ -253,13 +253,13 @@
 
         <!-- Travelers -->
         <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+            <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
                 <i class="pi pi-users text-purple-500 text-sm"></i>
             </div>
             <div class="flex-1">
                 <div class="text-gray-400 text-xs mb-1">Travelers ({{ selectedDeparture.travelerCount }})</div>
                 <div *ngIf="selectedDeparture.travelerNames" class="text-sm leading-6">
-                    <span *ngFor="let name of (selectedDeparture.travelerNames ?? '').split(', ')"
+                    <span *ngFor="let name of selectedDeparture.travelerNames.split(', ')"
                           class="inline-block bg-purple-50 text-purple-700 rounded-full px-2 py-0.5 text-xs mr-1 mb-1">
                         {{ name }}
                     </span>

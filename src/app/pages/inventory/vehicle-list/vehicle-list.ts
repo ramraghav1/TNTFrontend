@@ -12,7 +12,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { InventoryService, Vehicle } from '../inventory.service';
 
@@ -48,7 +48,8 @@ export class VehicleListComponent implements OnInit {
         private router: Router,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private translate: TranslateService
     ) {}
 
     ngOnInit(): void {
@@ -68,8 +69,8 @@ export class VehicleListComponent implements OnInit {
                 this.loading = false;
                 this.messageService.add({ 
                     severity: 'error', 
-                    summary: 'Error', 
-                    detail: 'inventory.failedToLoadVehicles' 
+                    summary: this.translate.instant('common.error'),
+                    detail: this.translate.instant('inventory.failedToLoadVehicles')
                 });
                 this.cdr.detectChanges();
             }
@@ -86,16 +87,17 @@ export class VehicleListComponent implements OnInit {
 
     deleteVehicle(vehicle: Vehicle) {
         this.confirmationService.confirm({
-            message: 'inventory.confirmDeleteVehicle',
-            header: 'Confirmation',
+            message: this.translate.instant('inventory.confirmDeleteVehicle'),
+            header: this.translate.instant('common.confirmation'),
+
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.inventoryService.deleteVehicle(vehicle.id!).subscribe({
                     next: () => {
                         this.messageService.add({ 
                             severity: 'success', 
-                            summary: 'Success', 
-                            detail: 'inventory.vehicleDeleted' 
+                            summary: this.translate.instant('common.success'),
+                            detail: this.translate.instant('inventory.vehicleDeleted')
                         });
                         this.loadVehicles();
                     },
@@ -103,8 +105,8 @@ export class VehicleListComponent implements OnInit {
                         console.error(err);
                         this.messageService.add({ 
                             severity: 'error', 
-                            summary: 'Error', 
-                            detail: 'inventory.failedToDeleteVehicle' 
+                            summary: this.translate.instant('common.error'),
+                            detail: this.translate.instant('inventory.failedToDeleteVehicle')
                         });
                     }
                 });
@@ -117,8 +119,8 @@ export class VehicleListComponent implements OnInit {
             next: () => {
                 this.messageService.add({ 
                     severity: 'success', 
-                    summary: 'Success', 
-                    detail: 'inventory.vehicleActivated' 
+                    summary: this.translate.instant('common.success'),
+                    detail: this.translate.instant('inventory.vehicleActivated')
                 });
                 this.loadVehicles();
             },
@@ -126,8 +128,8 @@ export class VehicleListComponent implements OnInit {
                 console.error(err);
                 this.messageService.add({ 
                     severity: 'error', 
-                    summary: 'Error', 
-                    detail: 'inventory.failedToActivateVehicle' 
+                    summary: this.translate.instant('common.error'),
+                    detail: this.translate.instant('inventory.failedToActivateVehicle')
                 });
             }
         });

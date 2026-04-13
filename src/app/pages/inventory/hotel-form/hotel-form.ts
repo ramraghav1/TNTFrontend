@@ -11,6 +11,8 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -30,6 +32,8 @@ import { InventoryService, Hotel, HotelRoom } from '../inventory.service';
         ToastModule,
         CardModule,
         DividerModule,
+        ProgressSpinnerModule,
+        TooltipModule,
         TranslateModule
     ],
     providers: [MessageService],
@@ -41,6 +45,7 @@ export class HotelFormComponent implements OnInit {
     isEditMode = false;
     hotelId: number | null = null;
     loading = false;
+    pageLoading = false;
     amenitiesText = '';
     collapsedRooms: boolean[] = [];
 
@@ -80,10 +85,10 @@ export class HotelFormComponent implements OnInit {
     loadHotel() {
         if (!this.hotelId) return;
         
-        this.loading = true;
+        this.pageLoading = true;
         this.inventoryService.getHotelById(this.hotelId).subscribe({
             next: (data) => {
-                this.hotel = data;
+                this.hotel = { ...data };
                 this.amenitiesText = data.amenities?.join(', ') || '';
                 // Populate featuresText for each room
                 this.hotel.rooms?.forEach((room: any) => {
@@ -91,11 +96,11 @@ export class HotelFormComponent implements OnInit {
                 });
                 // Initialize collapsed state for rooms
                 this.collapsedRooms = new Array(this.hotel.rooms?.length || 0).fill(false);
-                this.loading = false;
+                this.pageLoading = false;
             },
             error: (err) => {
                 console.error(err);
-                this.loading = false;
+                this.pageLoading = false;
                 this.messageService.add({ 
                     severity: 'error', 
                     summary: this.translate.instant('common.error') || 'Error', 

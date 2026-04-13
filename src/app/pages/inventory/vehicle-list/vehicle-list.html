@@ -20,7 +20,7 @@
     >
         <ng-template pTemplate="caption">
             <div class="flex justify-between items-center flex-column sm:flex-row">
-                <button pButton label="Clear" class="p-button-outlined mb-2" icon="pi pi-filter-slash" (click)="clear(dt)"></button>
+                <button pButton icon="pi pi-filter-slash" severity="secondary" [outlined]="true" (click)="clear(dt)" [label]="'common.clear' | translate"></button>
                 <p-iconfield iconPosition="left" class="ml-auto">
                     <p-inputicon>
                         <i class="pi pi-search"></i>

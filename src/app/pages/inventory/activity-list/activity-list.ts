@@ -12,7 +12,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { InventoryService, Activity } from '../inventory.service';
 
@@ -47,7 +47,9 @@ export class ActivityListComponent implements OnInit {
         private inventoryService: InventoryService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private router: Router
+        private router: Router,
+        private cdr: ChangeDetectorRef,
+        private translate: TranslateService
     ) {}
 
     ngOnInit(): void {
@@ -58,16 +60,19 @@ export class ActivityListComponent implements OnInit {
         this.loading = true;
         this.inventoryService.getActivities(this.includeInactive).subscribe({
             next: (data) => {
-                this.activities = data;
+                this.activities = data || [];
                 this.loading = false;
+                this.cdr.detectChanges();
             },
             error: (err) => {
                 console.error(err);
+                this.activities = [];
                 this.loading = false;
+                this.cdr.detectChanges();
                 this.messageService.add({ 
                     severity: 'error', 
-                    summary: 'Error', 
-                    detail: 'inventory.failedToLoadActivities' 
+                    summary: this.translate.instant('common.error'),
+                    detail: this.translate.instant('inventory.failedToLoadActivities')
                 });
             }
         });
@@ -83,16 +88,16 @@ export class ActivityListComponent implements OnInit {
 
     deleteActivity(activity: Activity) {
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete ${activity.name}?`,
-            header: 'Confirm Delete',
+            message: this.translate.instant('inventory.confirmDeleteActivity'),
+            header: this.translate.instant('common.confirmation'),
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.inventoryService.deleteActivity(activity.id!).subscribe({
                     next: () => {
                         this.messageService.add({ 
                             severity: 'success', 
-                            summary: 'Success', 
-                            detail: 'inventory.activityDeleted' 
+                            summary: this.translate.instant('common.success'),
+                            detail: this.translate.instant('inventory.activityDeleted')
                         });
                         this.loadActivities();
                     },
@@ -100,8 +105,8 @@ export class ActivityListComponent implements OnInit {
                         console.error(err);
                         this.messageService.add({ 
                             severity: 'error', 
-                            summary: 'Error', 
-                            detail: 'inventory.failedToDeleteActivity' 
+                            summary: this.translate.instant('common.error'),
+                            detail: this.translate.instant('inventory.failedToDeleteActivity')
                         });
                     }
                 });
@@ -114,8 +119,8 @@ export class ActivityListComponent implements OnInit {
             next: () => {
                 this.messageService.add({ 
                     severity: 'success', 
-                    summary: 'Success', 
-                    detail: 'inventory.activityActivated' 
+                    summary: this.translate.instant('common.success'),
+                    detail: this.translate.instant('inventory.activityActivated')
                 });
                 this.loadActivities();
             },
@@ -123,8 +128,8 @@ export class ActivityListComponent implements OnInit {
                 console.error(err);
                 this.messageService.add({ 
                     severity: 'error', 
-                    summary: 'Error', 
-                    detail: 'inventory.failedToActivateActivity' 
+                    summary: this.translate.instant('common.error'),
+                    detail: this.translate.instant('inventory.failedToActivateActivity')
                 });
             }
         });

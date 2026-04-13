@@ -17,6 +17,8 @@ import { MessageService } from 'primeng/api';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 import { DepartureManagementService, DepartureListItem } from '../departure-management.service';
 
 type Severity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
@@ -28,7 +30,8 @@ type Severity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast
         CommonModule, FormsModule,
         TableModule, ButtonModule, TagModule, ToastModule, TooltipModule,
         ProgressSpinnerModule, InputTextModule, DialogModule, DividerModule,
-        SelectModule, IconFieldModule, InputIconModule
+        SelectModule, IconFieldModule, InputIconModule,
+        TranslateModule
     ],
     providers: [MessageService],
     templateUrl: './departure-list.html'

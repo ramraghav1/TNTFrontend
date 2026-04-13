@@ -59,9 +59,8 @@ export class AppMenu {
             'Itinerary': {
                 label: 'Itinerary',
                 items: [
-                    { label: 'View Itinerary', icon: 'pi pi-fw pi-map', routerLink: ['/itinerary-list'] },
+                    { label: 'Manage Itinerary', icon: 'pi pi-fw pi-map', routerLink: ['/itinerary-list'] },
                     { label: 'Add Itinerary', icon: 'pi pi-fw pi-plus-circle', routerLink: ['/add-itinerary'] },
-                    { label: 'Manage Itinerary', icon: 'pi pi-fw pi-cog', routerLink: ['/transaction/send'] },
                 ]
             },
             'Booking': {
@@ -70,7 +69,6 @@ export class AppMenu {
                     { label: 'TNT Dashboard', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/tnt-dashboard'] },
                     { label: 'Book Itinerary', icon: 'pi pi-fw pi-bookmark', routerLink: ['/booking-list'] },
                     { label: 'My Bookings', icon: 'pi pi-fw pi-list', routerLink: ['/my-bookings'] },
-                    { label: 'Manage Bookings', icon: 'pi pi-fw pi-calendar-plus', routerLink: ['/manage-bookings'] },
                     { label: 'Departures', icon: 'pi pi-fw pi-map', routerLink: ['/departure-list'] },
                 ]
             },
@@ -87,7 +85,6 @@ export class AppMenu {
                 label: 'Availability',
                 items: [
                     { label: 'Calendar', icon: 'pi pi-fw pi-calendar', routerLink: ['/availability/calendar'] },
-                    { label: 'Package Departures', icon: 'pi pi-fw pi-directions', routerLink: ['/availability/departures'] },
                 ]
             },
             'Finance': {
@@ -145,19 +142,18 @@ export class AppMenu {
             },
         };
 
+        const tenantId = localStorage.getItem('tenantId');
         const orgType = (localStorage.getItem('organizationType') || '').toLowerCase();
         const allowedGroups = this.orgMenuMap[orgType];
 
-        if (allowedGroups) {
-            // If product is specified, exclude 'Home' and 'Tenant' menus
+        if (tenantId && allowedGroups) {
+            // Tenant-scoped user — show only menus for this org type (excluding Home and Tenant)
             const filteredGroups = allowedGroups.filter(key => key !== 'Home' && key !== 'Tenant');
-            
-            // Show only menus for this org type (without Home and Tenant)
             this.model = filteredGroups
                 .filter(key => this.allMenus[key])
                 .map(key => this.allMenus[key]);
         } else {
-            // No org type (admin/superuser) — show all menus
+            // No tenantId on token (admin/superuser) — show all menus
             this.model = Object.values(this.allMenus);
         }
     }

@@ -4,9 +4,17 @@
   <div class="flex flex-col gap-8">
     <div class="card flex flex-col gap-6">
       <!-- Title -->
-      <h2 class="text-2xl font-bold">{{ (isEditMode ? 'inventory.editGuide' : 'inventory.addGuide') | translate }}</h2>
+      <div class="flex items-center gap-3">
+        <button pButton type="button" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (click)="cancel()" [pTooltip]="'common.back' | translate" tooltipPosition="bottom"></button>
+        <h2 class="text-2xl font-bold">{{ (isEditMode ? 'inventory.editGuide' : 'inventory.addGuide') | translate }}</h2>
+      </div>
 
-      <form (ngSubmit)="onSubmit()" #guideForm="ngForm">
+      <!-- Page loading spinner -->
+      <div *ngIf="pageLoading" class="flex justify-center items-center py-16">
+        <p-progressSpinner strokeWidth="4" animationDuration=".8s" />
+      </div>
+
+      <form *ngIf="!pageLoading" (ngSubmit)="onSubmit()" #guideForm="ngForm">
         <!-- Basic Information Section -->
         <div>
           <div class="font-semibold text-xl mb-4">{{ 'inventory.basicInformation' | translate }}</div>

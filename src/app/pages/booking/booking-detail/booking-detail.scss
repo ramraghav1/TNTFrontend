@@ -1,8 +1,8 @@
 :host{display:block}
 .booking-page{width:100%;padding:1.5rem}
-.overview-card{background:linear-gradient(135deg,var(--p-primary-500),var(--p-primary-700));border-radius:16px;padding:2rem;color:#fff}
-.overview-title{font-size:2rem;font-weight:700;margin:0 0 .5rem}
-.overview-description{opacity:.9;margin:0 0 1rem;line-height:1.6}
+.overview-card{background:var(--p-surface-0);border:1px solid var(--p-surface-200);border-left:4px solid var(--p-primary-500);border-radius:14px;padding:1.5rem}
+.overview-title{font-size:1.5rem;font-weight:700;margin:0 0 .5rem;color:var(--p-surface-900)}
+.overview-description{margin:0 0 1rem;line-height:1.6;color:var(--p-surface-600)}
 .section-card{background:var(--p-surface-0);border:1px solid var(--p-surface-200);border-radius:14px;padding:1.5rem}
 .section-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
 .section-number,.day-number-badge,.traveler-avatar{display:inline-flex;align-items:center;justify-content:center;border-radius:50%}

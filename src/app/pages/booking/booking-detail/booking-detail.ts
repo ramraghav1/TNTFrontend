@@ -20,6 +20,9 @@ import { StepperModule } from 'primeng/stepper';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { TooltipModule } from 'primeng/tooltip';
+
+import { TranslateModule } from '@ngx-translate/core';
 
 import { NepaliDatepicker } from '../../../utility/nepali-datepicker';
 
@@ -79,7 +82,9 @@ interface EditableDay extends ItineraryDay {
         ProgressSpinnerModule,
         NepaliDatepicker,
         ConfirmDialog,
-        PaymentDialog
+        PaymentDialog,
+        TooltipModule,
+        TranslateModule
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './booking-detail.html',

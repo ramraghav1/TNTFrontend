@@ -2,32 +2,26 @@
 <p-confirmDialog></p-confirmDialog>
 
 <!-- Loading Spinner -->
-<div *ngIf="loading" class="flex justify-content-center align-items-center" style="min-height: 60vh">
-    <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+<div *ngIf="loading" class="flex justify-center items-center" style="min-height: 60vh">
+    <p-progressSpinner strokeWidth="4" animationDuration=".8s" />
 </div>
 
 <!-- Main Content -->
 <div *ngIf="!loading && itinerary" class="booking-page">
 
-    <!-- Back Button -->
-    <div class="mb-4">
-        <button pButton icon="pi pi-arrow-left" label="Back to List" class="p-button-text p-button-sm" (click)="goBack()"></button>
-    </div>
-
-    <!-- ============================= -->
-    <!-- SECTION 1: Itinerary Overview -->
-    <!-- ============================= -->
-    <div class="overview-card mb-4">
-        <div class="overview-header">
-            <div>
-                <h2 class="overview-title">{{ itinerary.title }}</h2>
-                <p class="overview-description">{{ itinerary.description }}</p>
-            </div>
-            <div class="flex gap-2 flex-wrap mt-2">
-                <p-tag icon="pi pi-calendar" [value]="itinerary.durationDays + ' Days'" severity="info"></p-tag>
-                <p-tag icon="pi pi-chart-line" [value]="itinerary.difficultyLevel"
-                       [severity]="getDifficultySeverity(itinerary.difficultyLevel)"></p-tag>
-            </div>
+    <!-- Header card: back button + overview -->
+    <div class="card mb-4">
+        <div class="flex items-center gap-3 mb-4">
+            <button pButton icon="pi pi-arrow-left" severity="secondary" [outlined]="true" size="small"
+                    [pTooltip]="'common.back' | translate" tooltipPosition="right"
+                    (click)="goBack()"></button>
+            <h2 class="text-2xl font-bold m-0">{{ itinerary.title }}</h2>
+        </div>
+        <p class="text-surface-500 mt-0 mb-4">{{ itinerary.description }}</p>
+        <div class="flex gap-2 flex-wrap">
+            <p-tag icon="pi pi-calendar" [value]="itinerary.durationDays + ' ' + ('booking.days' | translate)" severity="info"></p-tag>
+            <p-tag icon="pi pi-chart-line" [value]="itinerary.difficultyLevel"
+                   [severity]="getDifficultySeverity(itinerary.difficultyLevel)"></p-tag>
         </div>
     </div>
 

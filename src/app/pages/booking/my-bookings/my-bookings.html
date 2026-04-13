@@ -1,21 +1,17 @@
 <p-toast></p-toast>
 
-<div class="bookings-page">
+<div class="card">
     <!-- Header -->
-    <div class="page-header">
-        <div>
-            <h2 class="page-title">{{ 'booking.myBookings.title' | translate }}</h2>
-            <p class="page-subtitle">{{ 'booking.myBookings.subtitle' | translate }}</p>
-        </div>
-        <div class="header-actions">
-            <button pButton icon="pi pi-refresh" [label]="'booking.myBookings.refresh' | translate" class="p-button-outlined" (click)="loadBookings()"></button>
-            <button pButton icon="pi pi-plus" [label]="'booking.myBookings.newBooking' | translate" class="p-button-primary" routerLink="/booking-list"></button>
+    <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+        <div class="font-semibold text-xl">{{ 'booking.myBookings.title' | translate }}</div>
+        <div class="flex gap-2 items-center flex-wrap">
+            <button pButton icon="pi pi-refresh" severity="secondary" [outlined]="true" (click)="loadBookings()" [pTooltip]="'common.refresh' | translate"></button>
+            <button pButton icon="pi pi-plus" [label]="'booking.myBookings.newBooking' | translate" routerLink="/booking-list"></button>
         </div>
     </div>
 
     <!-- Bookings Table -->
-    <div class="table-card">
-        <p-table
+    <p-table
             #dt
             [value]="bookings"
             [paginator]="true"
@@ -30,9 +26,10 @@
             [sortOrder]="-1"
         >
             <ng-template pTemplate="caption">
-                <div class="table-toolbar">
-                    <p-iconfield>
-                        <p-inputicon styleClass="pi pi-search"></p-inputicon>
+                <div class="flex justify-between items-center flex-wrap gap-3">
+                    <button pButton icon="pi pi-filter-slash" severity="secondary" [outlined]="true" (click)="dt.clear()" [label]="'common.clear' | translate"></button>
+                    <p-iconfield iconPosition="left" class="ml-auto">
+                        <p-inputicon><i class="pi pi-search"></i></p-inputicon>
                         <input pInputText type="text" [placeholder]="'booking.myBookings.searchPlaceholder' | translate" (input)="onGlobalFilter($event)" />
                     </p-iconfield>
                 </div>
@@ -108,7 +105,6 @@
                 </tr>
             </ng-template>
         </p-table>
-    </div>
 </div>
 
 <!-- Payment Dialog -->

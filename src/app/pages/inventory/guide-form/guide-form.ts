@@ -10,8 +10,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { InventoryService, Guide } from '../inventory.service';
 
@@ -28,6 +30,8 @@ import { InventoryService, Guide } from '../inventory.service';
         TextareaModule,
         ToastModule,
         CardModule,
+        ProgressSpinnerModule,
+        TooltipModule,
         TranslateModule
     ],
     providers: [MessageService],
@@ -39,13 +43,15 @@ export class GuideFormComponent implements OnInit {
     isEditMode = false;
     guideId: number | null = null;
     loading = false;
+    pageLoading = false;
     languagesText = '';
 
     constructor(
         private inventoryService: InventoryService,
         private router: Router,
         private route: ActivatedRoute,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private translate: TranslateService
     ) {}
 
     ngOnInit(): void {
@@ -77,20 +83,20 @@ export class GuideFormComponent implements OnInit {
     loadGuide() {
         if (!this.guideId) return;
         
-        this.loading = true;
+        this.pageLoading = true;
         this.inventoryService.getGuideById(this.guideId).subscribe({
             next: (data) => {
-                this.guide = data;
+                this.guide = { ...data };
                 this.languagesText = data.languages?.join(', ') || '';
-                this.loading = false;
+                this.pageLoading = false;
             },
             error: (err) => {
                 console.error(err);
-                this.loading = false;
+                this.pageLoading = false;
                 this.messageService.add({ 
                     severity: 'error', 
-                    summary: 'Error', 
-                    detail: 'inventory.failedToLoadGuide' 
+                    summary: this.translate.instant('common.error'),
+                    detail: this.translate.instant('inventory.failedToLoadGuide')
                 });
             }
         });
@@ -113,19 +119,19 @@ export class GuideFormComponent implements OnInit {
             next: () => {
                 this.messageService.add({ 
                     severity: 'success', 
-                    summary: 'Success', 
-                    detail: this.isEditMode ? 'inventory.guideUpdated' : 'inventory.guideCreated' 
+                    summary: this.translate.instant('common.success'),
+                    detail: this.translate.instant(this.isEditMode ? 'inventory.guideUpdated' : 'inventory.guideCreated')
                 });
                 this.loading = false;
-                setTimeout(() => this.router.navigate(['/inventory/guides']), 1000);
+                this.router.navigate(['/inventory/guides']);
             },
             error: (err) => {
                 console.error(err);
                 this.loading = false;
                 this.messageService.add({ 
                     severity: 'error', 
-                    summary: 'Error', 
-                    detail: 'inventory.failedToSaveGuide' 
+                    summary: this.translate.instant('common.error'),
+                    detail: this.translate.instant('inventory.failedToSaveGuide')
                 });
             }
         });
@@ -135,8 +141,8 @@ export class GuideFormComponent implements OnInit {
         if (!this.guide.fullName) {
             this.messageService.add({ 
                 severity: 'warn', 
-                summary: 'Validation', 
-                detail: 'inventory.fillRequiredFields' 
+                summary: this.translate.instant('common.validation'),
+                detail: this.translate.instant('inventory.fillRequiredFields')
             });
             return false;
         }
@@ -144,8 +150,8 @@ export class GuideFormComponent implements OnInit {
         if (this.guide.pricePerDay <= 0) {
             this.messageService.add({ 
                 severity: 'warn', 
-                summary: 'Validation', 
-                detail: 'inventory.invalidGuideData' 
+                summary: this.translate.instant('common.validation'),
+                detail: this.translate.instant('inventory.invalidGuideData')
             });
             return false;
         }

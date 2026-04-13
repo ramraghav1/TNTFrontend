@@ -11,8 +11,10 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';  
 import { CardModule } from 'primeng/card';
 import { Select } from 'primeng/select';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { InventoryService, Activity } from '../inventory.service';
 
@@ -30,6 +32,8 @@ import { InventoryService, Activity } from '../inventory.service';
         ToastModule,
         CardModule,
         Select,
+        ProgressSpinnerModule,
+        TooltipModule,
         TranslateModule
     ],
     providers: [MessageService],
@@ -41,6 +45,7 @@ export class ActivityFormComponent implements OnInit {
     isEditMode = false;
     activityId: number | null = null;
     loading = false;
+    pageLoading = false;
     equipmentText = '';
     imagesText = '';
 
@@ -54,7 +59,8 @@ export class ActivityFormComponent implements OnInit {
         private inventoryService: InventoryService,
         private router: Router,
         private route: ActivatedRoute,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private translate: TranslateService
     ) {}
 
     ngOnInit(): void {
@@ -87,21 +93,21 @@ export class ActivityFormComponent implements OnInit {
     loadActivity() {
         if (!this.activityId) return;
         
-        this.loading = true;
+        this.pageLoading = true;
         this.inventoryService.getActivityById(this.activityId).subscribe({
             next: (data) => {
-                this.activity = data;
+                this.activity = { ...data };
                 this.equipmentText = data.equipment?.join(', ') || '';
                 this.imagesText = data.images?.join(', ') || '';
-                this.loading = false;
+                this.pageLoading = false;
             },
             error: (err) => {
                 console.error(err);
-                this.loading = false;
+                this.pageLoading = false;
                 this.messageService.add({ 
                     severity: 'error', 
-                    summary: 'Error', 
-                    detail: 'inventory.failedToLoadActivity' 
+                    summary: this.translate.instant('common.error'),
+                    detail: this.translate.instant('inventory.failedToLoadActivity')
                 });
             }
         });
@@ -125,19 +131,19 @@ export class ActivityFormComponent implements OnInit {
             next: () => {
                 this.messageService.add({ 
                     severity: 'success', 
-                    summary: 'Success', 
-                    detail: this.isEditMode ? 'inventory.activityUpdated' : 'inventory.activityCreated' 
+                    summary: this.translate.instant('common.success'),
+                    detail: this.translate.instant(this.isEditMode ? 'inventory.activityUpdated' : 'inventory.activityCreated')
                 });
                 this.loading = false;
-                setTimeout(() => this.router.navigate(['/inventory/activities']), 1000);
+                this.router.navigate(['/inventory/activities']);
             },
             error: (err) => {
                 console.error(err);
                 this.loading = false;
                 this.messageService.add({ 
                     severity: 'error', 
-                    summary: 'Error', 
-                    detail: 'inventory.failedToSaveActivity' 
+                    summary: this.translate.instant('common.error'),
+                    detail: this.translate.instant('inventory.failedToSaveActivity')
                 });
             }
         });
@@ -147,8 +153,8 @@ export class ActivityFormComponent implements OnInit {
         if (!this.activity.name || !this.activity.activityType || !this.activity.location) {
             this.messageService.add({ 
                 severity: 'warn', 
-                summary: 'Validation', 
-                detail: 'inventory.fillRequiredFields' 
+                summary: this.translate.instant('common.validation'),
+                detail: this.translate.instant('inventory.fillRequiredFields')
             });
             return false;
         }
@@ -156,8 +162,8 @@ export class ActivityFormComponent implements OnInit {
         if (this.activity.durationHours <= 0 || this.activity.pricePerPerson <= 0) {
             this.messageService.add({ 
                 severity: 'warn', 
-                summary: 'Validation', 
-                detail: 'inventory.invalidActivityData' 
+                summary: this.translate.instant('common.validation'),
+                detail: this.translate.instant('inventory.invalidActivityData')
             });
             return false;
         }
@@ -166,8 +172,8 @@ export class ActivityFormComponent implements OnInit {
             this.activity.minParticipants > this.activity.maxParticipants) {
             this.messageService.add({ 
                 severity: 'warn', 
-                summary: 'Validation', 
-                detail: 'inventory.invalidParticipantLimits' 
+                summary: this.translate.instant('common.validation'),
+                detail: this.translate.instant('inventory.invalidParticipantLimits')
             });
             return false;
         }
