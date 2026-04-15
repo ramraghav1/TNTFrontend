@@ -14,6 +14,7 @@ import { EditItinerary } from './app/pages/itinerary/edit-itinerary/edit-itinera
 import { BookingList } from './app/pages/booking/booking-list/booking-list';
 import { BookingDetail } from './app/pages/booking/booking-detail/booking-detail';
 import { MyBookings } from './app/pages/booking/my-bookings/my-bookings';
+import { BookingView } from './app/pages/booking/booking-view/booking-view';
 import { TntDashboard } from './app/pages/booking/tnt-dashboard/tnt-dashboard';
 import { ManageBookings } from './app/pages/booking/manage-bookings/manage-bookings';
 import { DepartureList } from './app/pages/booking/departure-list/departure-list';
@@ -80,6 +81,7 @@ export const appRoutes: Routes = [
             { path: 'booking-list', component: BookingList },
             { path: 'booking-detail/:id', component: BookingDetail },
             { path: 'my-bookings', component: MyBookings },
+            { path: 'booking-view/:ref', component: BookingView },
             { path: 'manage-bookings', component: ManageBookings },
             { path: 'departure-list', component: DepartureList },
             { path: 'tnt-dashboard', component: TntDashboard },

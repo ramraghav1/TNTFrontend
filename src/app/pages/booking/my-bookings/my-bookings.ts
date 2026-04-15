@@ -108,7 +108,7 @@ export class MyBookings implements OnInit {
     }
 
     viewBooking(booking: BookingListItem) {
-        this.messageService.add({ severity: 'info', summary: 'Info', detail: `Booking ${booking.bookingReference} selected` });
+        this.router.navigate(['/booking-view', booking.instanceId]);
     }
 
     payNow(booking: BookingListItem) {

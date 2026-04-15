@@ -147,6 +147,66 @@ export interface BookingListItem {
     totalAmount: number;
     paymentStatus: string;
     createdAt: string;
+    primaryTravelerName?: string;
+    primaryTravelerContact?: string;
+    primaryTravelerEmail?: string;
+}
+
+// Full booking detail (returned by GET /Bookings/{id})
+export interface BookingTravelerDetail {
+    id: number;
+    fullName: string;
+    contactNumber?: string;
+    email?: string;
+    nationality?: string;
+    adults: number;
+    children: number;
+    seniors: number;
+}
+
+export interface BookingPaymentDetail {
+    id: number;
+    amount: number;
+    currency: string;
+    paymentMethod: string;
+    transactionReference: string;
+    paidAt: string;
+}
+
+export interface BookingDayDetail {
+    id: number;
+    dayNumber: number;
+    date?: string;
+    title?: string;
+    location?: string;
+    accommodation?: string;
+    transport?: string;
+    breakfastIncluded: boolean;
+    lunchIncluded: boolean;
+    dinnerIncluded: boolean;
+    activities: string[];
+}
+
+export interface BookingDetail {
+    instanceId: number;
+    templateId: number;
+    bookingReference: string;
+    templateTitle: string;
+    status: string;
+    isCustomized: boolean;
+    totalAmount: number;
+    amountPaid: number;
+    balanceAmount: number;
+    paymentStatus: string;
+    travelerApproved: boolean;
+    adminApproved: boolean;
+    startDate: string;
+    endDate: string;
+    createdAt: string;
+    specialRequests?: string;
+    days: BookingDayDetail[];
+    travelers: BookingTravelerDetail[];
+    payments: BookingPaymentDetail[];
 }
 
 export interface DashboardStats {
@@ -259,6 +319,10 @@ export class BookingService {
 
     getBookings(): Observable<BookingListItem[]> {
         return this.http.get<BookingListItem[]>(`${this.baseUrl}/Bookings`);
+    }
+
+    getBookingDetail(instanceId: number): Observable<BookingDetail> {
+        return this.http.get<BookingDetail>(`${this.baseUrl}/Bookings/${instanceId}`);
     }
 
     addPayment(bookingId: number, request: { amount: number; currency: string; paymentMethod: string; transactionReference: string }): Observable<any> {

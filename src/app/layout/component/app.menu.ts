@@ -25,14 +25,20 @@ export class AppMenu {
 
     // Define which menu groups each org type can see
     private orgMenuMap: { [key: string]: string[] } = {
-        'tourandtravels': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'Finance', 'User Management', 'Tenant'],
-                    'tourandtravel': ['Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'Finance', 'User Management', 'Tenant'],
+        'tourandtravels': ['TNT Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'Finance', 'User Management', 'Tenant'],
+                    'tourandtravel': ['TNT Home', 'Itinerary', 'Booking', 'Inventory', 'Availability', 'Finance', 'User Management', 'Tenant'],
         'remittance': ['Home', 'Transaction', 'Reports', 'Remittance', 'User Management', 'Tenant'],
         'clinic': ['Home', 'Clinic', 'User Management', 'Tenant'],
     };
 
     ngOnInit() {
         this.allMenus = {
+            'TNT Home': {
+                label: 'Home',
+                items: [
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/tnt-dashboard'] },
+                ]
+            },
             'Home': {
                 label: 'Home',
                 items: [
@@ -66,7 +72,6 @@ export class AppMenu {
             'Booking': {
                 label: 'Booking',
                 items: [
-                    { label: 'TNT Dashboard', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/tnt-dashboard'] },
                     { label: 'Book Itinerary', icon: 'pi pi-fw pi-bookmark', routerLink: ['/booking-list'] },
                     { label: 'My Bookings', icon: 'pi pi-fw pi-list', routerLink: ['/my-bookings'] },
                     { label: 'Departures', icon: 'pi pi-fw pi-map', routerLink: ['/departure-list'] },
@@ -91,7 +96,7 @@ export class AppMenu {
                 label: 'Finance',
                 items: [
                     { label: 'Finance Summary', icon: 'pi pi-fw pi-chart-pie', routerLink: ['/finance/summary'] },
-                    { label: 'Invoices', icon: 'pi pi-fw pi-file-invoice', routerLink: ['/finance/invoices'] },
+                    { label: 'Invoices', icon: 'pi pi-fw pi-file', routerLink: ['/finance/invoices'] },
                     { label: 'Expenses', icon: 'pi pi-fw pi-money-bill', routerLink: ['/finance/expenses'] },
                     { label: 'Commissions', icon: 'pi pi-fw pi-percentage', routerLink: ['/finance/commissions'] },
                     { label: 'Refunds', icon: 'pi pi-fw pi-replay', routerLink: ['/finance/refunds'] },

@@ -24,8 +24,6 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { NepaliDatepicker } from '../../../utility/nepali-datepicker';
-
 import {
     BookingService,
     ItineraryDetail,
@@ -61,6 +59,12 @@ interface EditableDay extends ItineraryDay {
     newActivity: string;
 }
 
+interface TravelerFormRow extends TravelerRequest {
+    isAdult: boolean;
+    isChild: boolean;
+    isSenior: boolean;
+}
+
 @Component({
     selector: 'app-booking-detail',
     standalone: true,
@@ -80,7 +84,6 @@ interface EditableDay extends ItineraryDay {
         DividerModule,
         StepperModule,
         ProgressSpinnerModule,
-        NepaliDatepicker,
         ConfirmDialog,
         PaymentDialog,
         TooltipModule,
@@ -106,8 +109,24 @@ export class BookingDetail implements OnInit {
     minEndDate: Date = new Date();
     specialRequests = '';
 
+    // Booker fields
+    bookerName = '';
+    bookerPhone = '';
+    bookerEmail = '';
+    bookerAddress = '';
+    iAmTraveller = false;
+    bookingMode: 'single' | 'all' = 'single';
+
+    // Single-mode pax counts
+    singleAdults = 1;
+    singleChildren = 0;
+    singleSeniors = 0;
+
     // Travelers
-    travelers: TravelerRequest[] = [];
+    travelers: TravelerFormRow[] = [];
+
+    // Simple pricing (no cost config)
+    perPersonAmount = 0;
 
     // Pricing
     bookingDayCosts: BookingDayCosts[] = [];
@@ -224,6 +243,36 @@ export class BookingDetail implements OnInit {
 
     // ---- Traveler management ----
 
+    setBookingMode(mode: 'single' | 'all') {
+        this.bookingMode = mode;
+        if (mode === 'all' && this.travelers.length === 0) {
+            this.addTraveler();
+        }
+        this.cdr.detectChanges();
+    }
+
+    onIAmTravellerChange() {
+        if (this.iAmTraveller) {
+            if (this.travelers.length === 0) this.addTraveler();
+            this.travelers[0].fullName      = this.bookerName;
+            this.travelers[0].contactNumber = this.bookerPhone;
+            this.travelers[0].email         = this.bookerEmail;
+        }
+        this.cdr.detectChanges();
+    }
+
+    onTravelerTypeChange(traveler: TravelerFormRow, type: 'adult' | 'child' | 'senior', value: boolean) {
+        if (value) {
+            // mutually exclusive
+            if (type !== 'adult')  traveler.isAdult  = false;
+            if (type !== 'child')  traveler.isChild  = false;
+            if (type !== 'senior') traveler.isSenior = false;
+        }
+        traveler.adults   = traveler.isAdult  ? 1 : 0;
+        traveler.children = traveler.isChild  ? 1 : 0;
+        traveler.seniors  = traveler.isSenior ? 1 : 0;
+    }
+
     addTraveler() {
         this.travelers.push({
             fullName: '',
@@ -232,8 +281,13 @@ export class BookingDetail implements OnInit {
             nationality: '',
             adults: 1,
             children: 0,
-            seniors: 0
+            seniors: 0,
+            isAdult: true,
+            isChild: false,
+            isSenior: false
         });
+        const ti = this.travelers.length - 1;
+        this.collapsedTravelerMap[ti] = false;
     }
 
     removeTraveler(index: number) {
@@ -264,12 +318,37 @@ export class BookingDetail implements OnInit {
         }
     }
 
+    // ---- Traveller count helper ----
+
+    getTotalTravellers(): number {
+        if (this.bookingMode === 'single') {
+            return (this.singleAdults || 0) + (this.singleChildren || 0) + (this.singleSeniors || 0) || 1;
+        }
+        return this.travelers.length || 1;
+    }
+
+    // ---- Simple pricing helpers (no cost config) ----
+
+    getSimpleDiscountAmount(): number {
+        const subtotal = this.perPersonAmount * this.getTotalTravellers();
+        if (this.discountType === 'percent') return subtotal * (this.discountValue || 0) / 100;
+        return this.discountValue || 0;
+    }
+
+    getSimpleTotal(): number {
+        return Math.max(0, this.perPersonAmount * this.getTotalTravellers() - this.getSimpleDiscountAmount());
+    }
+
     // ---- Form validation ----
 
     isFormValid(): boolean {
         if (!this.startDate || !this.endDate) return false;
-        if (this.travelers.length === 0) return false;
-        return this.travelers.every((t) => t.fullName.trim().length > 0);
+        if (!this.bookerName.trim()) return false;
+        if (this.bookingMode === 'all') {
+            if (this.travelers.length === 0) return false;
+            return this.travelers.every((t) => t.fullName.trim().length > 0);
+        }
+        return true;
     }
 
     // ---- Submit booking ----
@@ -301,13 +380,28 @@ export class BookingDetail implements OnInit {
     private submitBooking() {
         this.submitting = true;
 
+        // Build the traveller list — in single mode use booker details
+        const travellerPayload: TravelerRequest[] = this.bookingMode === 'all'
+            ? this.travelers
+            : [{
+                fullName: this.bookerName,
+                contactNumber: this.bookerPhone,
+                email: this.bookerEmail,
+                nationality: '',
+                adults: this.singleAdults,
+                children: this.singleChildren,
+                seniors: this.singleSeniors
+            }];
+
+        const totalAmt = this.hasCosts() ? this.getGrandTotal() : this.getSimpleTotal();
+
         const request: CreateBookingRequest = {
             itineraryId: this.itinerary!.id,
             startDate: this.startDate!.toISOString(),
             endDate: this.endDate!.toISOString(),
-            travelers: this.travelers,
+            travelers: travellerPayload,
             specialRequests: this.specialRequests,
-            totalAmount: this.getGrandTotal()
+            totalAmount: totalAmt
         };
 
         this.bookingService.createBooking(request).subscribe({

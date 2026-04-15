@@ -1,13 +1,14 @@
 import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { StyleClassModule } from 'primeng/styleclass';
-import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '@/app/layout/service/layout.service';
 import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { NotificationService, Notification } from '@/app/layout/service/notification.service';
@@ -16,13 +17,13 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, BadgeModule, OverlayBadgeModule, PopoverModule, ButtonModule, LanguageSelectorComponent],
+    imports: [RouterModule, CommonModule, FormsModule, StyleClassModule, BadgeModule, OverlayBadgeModule, PopoverModule, ButtonModule, InputTextModule, LanguageSelectorComponent],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
                 <i class="pi pi-bars"></i>
             </button>
-            <a class="layout-topbar-logo" routerLink="/">
+            <a class="layout-topbar-logo" routerLink="/tnt-dashboard">
                 @if (tenantLogoUrl) {
                     <img [src]="tenantLogoUrl" [alt]="tenantName || 'Logo'" style="height: 56px; width: auto; margin-top: -2px; max-width: 180px; object-fit: contain;" />
                 } @else if (tenantName) {
@@ -33,28 +34,37 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
             </a>
         </div>
 
+        <!-- Booking Search -->
+        <div class="topbar-booking-search">
+            <div class="booking-search-wrap">
+                <i class="pi pi-search booking-search-icon"></i>
+                <input
+                    pInputText
+                    type="text"
+                    [(ngModel)]="bookingSearchRef"
+                    placeholder="Booking # ..."
+                    class="booking-search-input"
+                    (keyup.enter)="searchBooking()"
+                />
+                <button *ngIf="bookingSearchRef" type="button" class="booking-search-clear" (click)="bookingSearchRef = ''">
+                    <i class="pi pi-times"></i>
+                </button>
+            </div>
+        </div>
+
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
                 <!-- Language Selector -->
                 <app-language-selector></app-language-selector>
-                
+
+                <!-- Print Page -->
+                <button type="button" class="layout-topbar-action" (click)="printPage()" title="Print / Save as PDF">
+                    <i class="pi pi-print"></i>
+                </button>
+
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
-                <div class="relative">
-                    <button
-                        class="layout-topbar-action layout-topbar-action-highlight"
-                        pStyleClass="@next"
-                        enterFromClass="hidden"
-                        enterActiveClass="animate-scalein"
-                        leaveToClass="hidden"
-                        leaveActiveClass="animate-fadeout"
-                        [hideOnOutsideClick]="true"
-                    >
-                        <i class="pi pi-palette"></i>
-                    </button>
-                    <app-configurator />
-                </div>
             </div>
 
             <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
@@ -118,14 +128,6 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
                         </p-popover>
                     </div>
 
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-inbox"></i>
-                        <span>Messages</span>
-                    </button>
                     <button type="button" class="layout-topbar-action" (click)="profilePopover.toggle($event)">
                         <i class="pi pi-user"></i>
                         <span>{{ userFullName || 'Profile' }}</span>
@@ -182,6 +184,53 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
         </div>
     </div>`,
     styles: [`
+        .topbar-booking-search {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1rem;
+        }
+
+        .booking-search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            max-width: 220px;
+            width: 100%;
+        }
+
+        .booking-search-icon {
+            position: absolute;
+            left: 0.6rem;
+            color: var(--p-surface-400);
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+
+        .booking-search-input {
+            width: 100%;
+            padding: 0.4rem 2rem 0.4rem 1.8rem !important;
+            font-size: 0.82rem !important;
+            height: 2rem !important;
+            border-radius: 20px !important;
+        }
+
+        .booking-search-clear {
+            position: absolute;
+            right: 0.4rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--p-surface-400);
+            padding: 0.15rem;
+            display: flex;
+            align-items: center;
+            font-size: 0.72rem;
+        }
+
+        .booking-search-clear:hover { color: var(--p-surface-700); }
+
         :host ::ng-deep .notification-popover {
             .p-popover-content {
                 padding: 1.25rem;
@@ -414,6 +463,7 @@ export class AppTopbar {
     userEmail: string = '';
     tenantName: string = '';
     tenantLogoUrl: string = '';
+    bookingSearchRef: string = '';
     layoutService = inject(LayoutService);
     notificationService = inject(NotificationService);
     private router = inject(Router);
@@ -439,6 +489,17 @@ export class AppTopbar {
         event.stopPropagation();
         this.notificationService.loadNotifications();
         popover.toggle(event);
+    }
+
+    searchBooking() {
+        const ref = this.bookingSearchRef.trim();
+        if (!ref) return;
+        this.router.navigate(['/booking-view', ref]);
+        this.bookingSearchRef = '';
+    }
+
+    printPage() {
+        window.print();
     }
 
     onNotificationClick(notif: Notification) {

@@ -24,3 +24,7 @@
 .empty-state h3{margin:0 0 .5rem;color:var(--p-surface-700)}
 .empty-state p{margin:0 0 1.5rem}
 .action-btns{display:flex;align-items:center;gap:.35rem}
+.booker-cell{display:flex;flex-direction:column;gap:.15rem}
+.booker-name{font-weight:600;font-size:.88rem;color:var(--p-surface-900)}
+.booker-meta{font-size:.78rem;color:var(--p-surface-500);display:flex;align-items:center;gap:.3rem}
+.booker-meta i{font-size:.72rem}

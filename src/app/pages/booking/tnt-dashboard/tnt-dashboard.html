@@ -125,6 +125,82 @@
         </div>
     </div>
 
+    <!-- Departure Status Section -->
+    <div class="col-span-12 xl:col-span-4">
+        <div class="card mb-8!">
+            <div class="font-semibold text-xl mb-4">Departure Status</div>
+            <div *ngIf="departuresLoading">
+                <p-skeleton height="260px" borderRadius="8px"></p-skeleton>
+            </div>
+            <ng-container *ngIf="!departuresLoading">
+                <p-chart *ngIf="departures.length > 0"
+                    type="doughnut"
+                    [data]="departureStatusChartData"
+                    [options]="departureStatusChartOptions"
+                    class="h-64" />
+                <div *ngIf="departures.length === 0" class="flex flex-col items-center py-8 text-muted-color">
+                    <i class="pi pi-map text-4xl mb-2"></i>
+                    <p>No departures found</p>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+
+    <div class="col-span-12 xl:col-span-8">
+        <div class="card mb-8!">
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-semibold text-xl">Upcoming Departures</div>
+                <p-button label="View All" icon="pi pi-arrow-right" iconPos="right" [text]="true" size="small" routerLink="/departure-list" />
+            </div>
+            <div *ngIf="departuresLoading">
+                <p-skeleton height="200px" borderRadius="8px"></p-skeleton>
+            </div>
+            <div *ngIf="!departuresLoading" class="flex flex-col gap-3">
+                <ng-container *ngFor="let dep of departures | slice:0:6">
+                    <div class="flex items-center gap-3 p-3 rounded-lg border border-surface-200 dark:border-surface-700">
+                        <!-- Status indicator dot -->
+                        <div class="w-2 h-2 rounded-full shrink-0"
+                             [ngClass]="{
+                                'bg-blue-500':   dep.computedStatus === 'Upcoming',
+                                'bg-green-500':  dep.computedStatus === 'Ongoing',
+                                'bg-purple-500': dep.computedStatus === 'Completed',
+                                'bg-red-500':    dep.computedStatus === 'Cancelled'
+                             }">
+                        </div>
+                        <!-- Info -->
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium text-surface-900 dark:text-surface-0 truncate">{{ dep.itineraryTitle }}</div>
+                            <div class="text-muted-color text-xs mt-0.5">
+                                <i class="pi pi-calendar mr-1"></i>{{ formatDepartureDate(dep.departureDate) }}
+                                <span *ngIf="dep.guideName" class="ml-3"><i class="pi pi-user mr-1"></i>{{ dep.guideName }}</span>
+                            </div>
+                            <!-- Traveler fill bar -->
+                            <div class="flex items-center gap-2 mt-1.5">
+                                <div class="flex-1 h-1.5 rounded-full bg-surface-200 dark:bg-surface-600">
+                                    <div class="h-full rounded-full transition-all"
+                                         [style.width.%]="getDepartureFill(dep)"
+                                         [ngClass]="{
+                                            'bg-blue-500':   getDepartureFill(dep) < 50,
+                                            'bg-orange-400': getDepartureFill(dep) >= 50 && getDepartureFill(dep) < 80,
+                                            'bg-green-500':  getDepartureFill(dep) >= 80
+                                         }">
+                                    </div>
+                                </div>
+                                <span class="text-xs text-muted-color shrink-0">{{ dep.bookedCount }}/{{ dep.capacity }}</span>
+                            </div>
+                        </div>
+                        <!-- Status tag -->
+                        <p-tag [value]="dep.computedStatus" [severity]="getDepartureStatusSeverity(dep.computedStatus)" class="shrink-0" />
+                    </div>
+                </ng-container>
+                <div *ngIf="departures.length === 0" class="flex flex-col items-center py-8 text-muted-color">
+                    <i class="pi pi-map text-4xl mb-2"></i>
+                    <p>No departures found</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Recent Bookings Table -->
     <div class="col-span-12">
         <div class="card mb-8!">
