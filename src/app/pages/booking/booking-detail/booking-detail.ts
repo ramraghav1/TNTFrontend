@@ -128,6 +128,10 @@ export class BookingDetail implements OnInit {
     // Simple pricing (no cost config)
     perPersonAmount = 0;
 
+    // Overall/Daily pricing mode
+    itineraryPricingMode = 'DAILY_ACTIVITY';
+    overallPriceAmount = 0;
+
     // Pricing
     bookingDayCosts: BookingDayCosts[] = [];
     costEditMode = false;
@@ -168,6 +172,8 @@ export class BookingDetail implements OnInit {
         this.bookingService.getItineraryDetail(+id).subscribe({
             next: (res) => {
                 this.itinerary = res;
+                this.itineraryPricingMode = res.pricingMode || 'DAILY_ACTIVITY';
+                this.overallPriceAmount = res.overallPrice || 0;
                 this.editableDays = res.days.map((d) => ({
                     ...d,
                     activities: [...d.activities],
@@ -476,6 +482,31 @@ export class BookingDetail implements OnInit {
 
     buildCostData() {
         if (!this.itinerary) return;
+
+        if (this.itineraryPricingMode === 'OVERALL') {
+            // For overall pricing, set per-person amount directly
+            this.perPersonAmount = this.overallPriceAmount;
+            this.bookingDayCosts = [];
+            return;
+        }
+
+        if (this.itineraryPricingMode === 'DAILY') {
+            // For daily pricing, create one cost row per day with the daily total
+            this.bookingDayCosts = this.editableDays.map(day => ({
+                dayNumber: day.dayNumber,
+                dayId: day.id,
+                title: day.title,
+                costs: day.dailyCost > 0 ? [{
+                    name: `Day ${day.dayNumber} Cost`,
+                    category: 'Daily',
+                    price: day.dailyCost,
+                    enabled: true
+                }] : []
+            }));
+            return;
+        }
+
+        // DAILY_ACTIVITY mode — existing behavior
         this.bookingDayCosts = this.editableDays.map(day => ({
             dayNumber: day.dayNumber,
             dayId: day.id,
@@ -573,6 +604,8 @@ export class BookingDetail implements OnInit {
     }
 
     hasCosts(): boolean {
+        // OVERALL mode uses simple pricing section
+        if (this.itineraryPricingMode === 'OVERALL') return false;
         return this.bookingDayCosts.some(d => d.costs.length > 0);
     }
 

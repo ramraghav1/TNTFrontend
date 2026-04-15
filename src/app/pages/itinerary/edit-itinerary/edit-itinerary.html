@@ -51,6 +51,35 @@
         <!-- Divider -->
         <hr class="my-2">
 
+        <!-- Pricing Mode Selection -->
+        <div>
+          <div class="font-semibold text-xl mb-4">Pricing Type</div>
+          <div class="pricing-mode-selector">
+            @for (mode of pricingModeOptions; track mode.value) {
+              <div class="pricing-mode-card" [class.pricing-mode-active]="form.pricingMode === mode.value" (click)="form.pricingMode = mode.value">
+                <p-radioButton [value]="mode.value" [(ngModel)]="form.pricingMode" [inputId]="'mode_' + mode.value" name="pricingMode"></p-radioButton>
+                <div class="pricing-mode-info">
+                  <label [for]="'mode_' + mode.value" class="pricing-mode-label">{{ mode.label }}</label>
+                  <span class="pricing-mode-desc">{{ mode.description }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Overall Price Input (OVERALL mode) -->
+        @if (form.pricingMode === 'OVERALL') {
+          <div class="overall-price-section">
+            <div class="flex flex-col gap-2" style="max-width: 400px;">
+              <label class="font-semibold">Overall Itinerary Price (per person)</label>
+              <div class="flex items-center gap-2">
+                <span class="cost-currency">Rs.</span>
+                <input pInputText type="number" [(ngModel)]="form.overallPrice" placeholder="0" min="0" class="w-full" />
+              </div>
+            </div>
+          </div>
+        }
+
         <!-- Daily Itinerary Section -->
         <div>
           <div class="flex justify-between items-center mb-4">
@@ -136,6 +165,19 @@
                         </div>
                       </div>
 
+                      <!-- DAILY mode: simple per-day cost -->
+                      @if (form.pricingMode === 'DAILY') {
+                        <div class="daily-cost-section">
+                          <label class="font-semibold text-sm">Day {{ day.dayNumber }} Cost (per person)</label>
+                          <div class="flex items-center gap-2 mt-2" style="max-width: 250px;">
+                            <span class="cost-currency">Rs.</span>
+                            <input pInputText type="number" [(ngModel)]="day.dailyCost" placeholder="0" min="0" class="w-full" />
+                          </div>
+                        </div>
+                      }
+
+                      <!-- DAILY_ACTIVITY mode: existing per-activity pricing -->
+                      @if (form.pricingMode === 'DAILY_ACTIVITY') {
                       <!-- Pricing Toggle -->
                       <div class="flex items-center gap-3">
                         <p-button [label]="showPricing[i] ? 'Hide Pricing' : 'Set Price'"
@@ -177,6 +219,7 @@
                           </div>
                         </div>
                       }
+                      } <!-- end DAILY_ACTIVITY -->
                     </div>
                   </div>
                 }
@@ -188,7 +231,15 @@
         <!-- Grand Total -->
         @if (getGrandTotal() > 0) {
           <div class="grand-total-bar">
-            <span class="font-semibold">Estimated Total Cost (per person):</span>
+            <span class="font-semibold">
+              @if (form.pricingMode === 'OVERALL') {
+                Overall Itinerary Price (per person):
+              } @else if (form.pricingMode === 'DAILY') {
+                Estimated Total Cost (per person):
+              } @else {
+                Estimated Total Cost (per person):
+              }
+            </span>
             <span class="grand-total-amount">Rs. {{ getGrandTotal() }}</span>
           </div>
         }

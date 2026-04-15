@@ -24,6 +24,9 @@
       <div class="flex gap-3 flex-wrap">
         <p-tag icon="pi pi-calendar" [value]="itinerary.durationDays + ' Days'" severity="info"></p-tag>
         <p-tag icon="pi pi-chart-line" [value]="itinerary.difficultyLevel || 'Not Set'" [severity]="getDifficultySeverity(itinerary.difficultyLevel)"></p-tag>
+        @if (getPricingModeLabel()) {
+          <p-tag icon="pi pi-money-bill" [value]="getPricingModeLabel()" severity="secondary"></p-tag>
+        }
         @if (getGrandTotal() > 0) {
           <p-tag icon="pi pi-wallet" [value]="'Rs. ' + getGrandTotal() + ' / person'" severity="warn"></p-tag>
         }
@@ -57,8 +60,11 @@
                 </div>
               </div>
               <div class="flex items-center gap-3">
-                @if (getDayTotal(day) > 0) {
+                @if (getDayTotal(day) > 0 && itinerary.pricingMode === 'DAILY_ACTIVITY') {
                   <span class="day-cost-tag">Rs. {{ getDayTotal(day) }}</span>
+                }
+                @if (day.dailyCost > 0 && itinerary.pricingMode === 'DAILY') {
+                  <span class="day-cost-tag">Rs. {{ day.dailyCost }}</span>
                 }
                 <i class="pi" [class.pi-chevron-down]="collapsedDays[i]" [class.pi-chevron-up]="!collapsedDays[i]" style="color: var(--p-surface-500);"></i>
               </div>
@@ -110,7 +116,18 @@
                 }
 
                 <!-- Costs -->
-                @if (day.costs && day.costs.length > 0) {
+                @if (itinerary.pricingMode === 'DAILY' && day.dailyCost > 0) {
+                  <div class="section-block">
+                    <div class="section-label"><i class="pi pi-wallet"></i> Day Cost</div>
+                    <div class="cost-list">
+                      <div class="cost-line cost-total-line">
+                        <span class="font-semibold">Day Total</span>
+                        <span class="font-bold" style="color: var(--p-primary-600);">Rs. {{ day.dailyCost }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+                @if (itinerary.pricingMode === 'DAILY_ACTIVITY' && day.costs && day.costs.length > 0) {
                   <div class="section-block">
                     <div class="section-label"><i class="pi pi-wallet"></i> Cost Breakdown</div>
                     <div class="cost-list">
@@ -140,7 +157,13 @@
     <!-- Grand Total Card -->
     @if (getGrandTotal() > 0) {
       <div class="grand-total-card">
-        <span class="font-semibold">Estimated Total Cost (per person)</span>
+        <span class="font-semibold">
+          @if (itinerary.pricingMode === 'OVERALL') {
+            Overall Itinerary Price (per person)
+          } @else {
+            Estimated Total Cost (per person)
+          }
+        </span>
         <span class="grand-total-amount">Rs. {{ getGrandTotal() }}</span>
       </div>
     }

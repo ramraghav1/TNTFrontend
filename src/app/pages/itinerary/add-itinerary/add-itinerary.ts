@@ -7,6 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
 import { CommonModule } from '@angular/common';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -14,6 +15,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Toast } from 'primeng/toast';
 import { environment } from '../../../../environments/environment';
+
+type PricingMode = 'OVERALL' | 'DAILY' | 'DAILY_ACTIVITY';
 
 interface DayCostEntry {
   name: string;
@@ -32,6 +35,7 @@ interface CreateItineraryDayRequest {
   dinnerIncluded: boolean;
   activities: string[];
   costs: DayCostEntry[];
+  dailyCost: number; // used in DAILY pricing mode
 }
 
 interface CreateItineraryRequest {
@@ -39,6 +43,8 @@ interface CreateItineraryRequest {
   description: string;
   durationDays: number;
   difficultyLevel: string;
+  pricingMode: PricingMode;
+  overallPrice: number; // used in OVERALL pricing mode
   days: CreateItineraryDayRequest[];
 }
 
@@ -47,7 +53,7 @@ interface CreateItineraryRequest {
   standalone: true,
   imports: [
     FormsModule, FluidModule, InputTextModule, ButtonModule, SelectModule, TextareaModule,
-    MultiSelectModule, CheckboxModule, CommonModule, Toast, ConfirmDialog
+    MultiSelectModule, CheckboxModule, RadioButtonModule, CommonModule, Toast, ConfirmDialog
   ],
   providers: [MessageService, ConfirmationService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -60,8 +66,16 @@ export class AddItinerary {
     description: '',
     durationDays: 0,
     difficultyLevel: '',
+    pricingMode: 'OVERALL',
+    overallPrice: 0,
     days: []
   };
+
+  pricingModeOptions: { label: string; value: PricingMode; description: string }[] = [
+    { label: 'Overall Price', value: 'OVERALL', description: 'Single total price for the entire itinerary' },
+    { label: 'Daily Cost', value: 'DAILY', description: 'Set a total cost per day (no activity breakdown)' },
+    { label: 'Per Day & Activity', value: 'DAILY_ACTIVITY', description: 'Detailed cost per activity within each day' }
+  ];
 
   difficultyLevelOptions = [
     { label: 'Easy', value: 'Easy' },
@@ -112,7 +126,8 @@ export class AddItinerary {
       lunchIncluded: false,
       dinnerIncluded: false,
       activities: [],
-      costs: []
+      costs: [],
+      dailyCost: 0
     });
 
     // New day is expanded
@@ -179,8 +194,21 @@ export class AddItinerary {
     return this.form.days[dayIndex].costs.reduce((sum, c) => sum + (c.price || 0), 0);
   }
 
+  getDailyCostTotal(): number {
+    return this.form.days.reduce((sum, day) => sum + (day.dailyCost || 0), 0);
+  }
+
   getGrandTotal(): number {
-    return this.form.days.reduce((sum, day) => sum + day.costs.reduce((s, c) => s + (c.price || 0), 0), 0);
+    switch (this.form.pricingMode) {
+      case 'OVERALL':
+        return this.form.overallPrice || 0;
+      case 'DAILY':
+        return this.getDailyCostTotal();
+      case 'DAILY_ACTIVITY':
+        return this.form.days.reduce((sum, day) => sum + day.costs.reduce((s, c) => s + (c.price || 0), 0), 0);
+      default:
+        return 0;
+    }
   }
 
   confirmSave() {
@@ -202,12 +230,17 @@ export class AddItinerary {
   }
 
   submitItinerary() {
-    // Filter out costs with zero/empty price before sending
+    // Build payload based on pricing mode
     const payload = {
       ...this.form,
+      totalPrice: this.getGrandTotal(),
+      overallPrice: this.form.pricingMode === 'OVERALL' ? this.form.overallPrice : null,
       days: this.form.days.map(day => ({
         ...day,
-        costs: day.costs.filter(c => c.name && c.price > 0)
+        dailyCost: this.form.pricingMode === 'DAILY' ? day.dailyCost : null,
+        costs: this.form.pricingMode === 'DAILY_ACTIVITY'
+          ? day.costs.filter(c => c.name && c.price > 0)
+          : []
       }))
     };
     this.http.post(`${environment.apiBaseUrl}/Itineraries/create`, payload).subscribe(
@@ -242,6 +275,8 @@ export class AddItinerary {
       description: '',
       durationDays: 0,
       difficultyLevel: '',
+      pricingMode: 'OVERALL',
+      overallPrice: 0,
       days: []
     };
     this.collapsedDays = [];

@@ -13,6 +13,8 @@ export interface Itinerary {
     description: string;
     durationDays: number;
     difficultyLevel: string;
+    pricingMode: string;
+    overallPrice: number;
 }
 
 export interface DayCostEntry {
@@ -33,6 +35,7 @@ export interface ItineraryDay {
     dinnerIncluded: boolean;
     activities: string[];
     costs: DayCostEntry[];
+    dailyCost: number;
 }
 
 export interface ItineraryDetail {
@@ -41,6 +44,8 @@ export interface ItineraryDetail {
     description: string;
     durationDays: number;
     difficultyLevel: string;
+    pricingMode: string;
+    overallPrice: number;
     days: ItineraryDay[];
 }
 
@@ -77,6 +82,27 @@ export interface CustomizeDayRequest {
 
 export interface CustomizeBookingRequest {
     days: CustomizeDayRequest[];
+}
+
+export interface UpdateBookingDayRequest {
+    id: number;
+    title: string;
+    location: string;
+    accommodation: string;
+    transport: string;
+    breakfastIncluded: boolean;
+    lunchIncluded: boolean;
+    dinnerIncluded: boolean;
+    activities: string[];
+}
+
+export interface UpdateBookingRequest {
+    startDate: string;
+    endDate: string;
+    specialRequests: string;
+    totalAmount: number;
+    travelers: TravelerRequest[];
+    days: UpdateBookingDayRequest[];
 }
 
 // ===========================
@@ -335,6 +361,10 @@ export class BookingService {
 
     customizeBooking(bookingId: number, request: CustomizeBookingRequest): Observable<any> {
         return this.http.put(`${this.baseUrl}/Bookings/${bookingId}/customize`, request);
+    }
+
+    updateBooking(bookingId: number, request: UpdateBookingRequest): Observable<BookingDetail> {
+        return this.http.put<BookingDetail>(`${this.baseUrl}/Bookings/${bookingId}`, request);
     }
 
     // Cost Items

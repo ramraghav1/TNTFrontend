@@ -7,6 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -16,6 +17,8 @@ import { Toast } from 'primeng/toast';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { environment } from '../../../../environments/environment';
+
+type PricingMode = 'OVERALL' | 'DAILY' | 'DAILY_ACTIVITY';
 
 interface DayCostEntry {
   name: string;
@@ -34,6 +37,7 @@ interface ItineraryDayForm {
   dinnerIncluded: boolean;
   activities: string[];
   costs: DayCostEntry[];
+  dailyCost: number;
 }
 
 interface ItineraryForm {
@@ -41,6 +45,8 @@ interface ItineraryForm {
   description: string;
   durationDays: number;
   difficultyLevel: string;
+  pricingMode: PricingMode;
+  overallPrice: number;
   days: ItineraryDayForm[];
 }
 
@@ -49,7 +55,7 @@ interface ItineraryForm {
   standalone: true,
   imports: [
     FormsModule, FluidModule, InputTextModule, ButtonModule, SelectModule, TextareaModule,
-    MultiSelectModule, CheckboxModule, CommonModule, Toast, ConfirmDialog,
+    MultiSelectModule, CheckboxModule, RadioButtonModule, CommonModule, Toast, ConfirmDialog,
     ProgressSpinnerModule
   ],
   providers: [MessageService, ConfirmationService],
@@ -66,8 +72,16 @@ export class EditItinerary implements OnInit {
     description: '',
     durationDays: 0,
     difficultyLevel: '',
+    pricingMode: 'OVERALL',
+    overallPrice: 0,
     days: []
   };
+
+  pricingModeOptions: { label: string; value: PricingMode; description: string }[] = [
+    { label: 'Overall Price', value: 'OVERALL', description: 'Single total price for the entire itinerary' },
+    { label: 'Daily Cost', value: 'DAILY', description: 'Set a total cost per day (no activity breakdown)' },
+    { label: 'Per Day & Activity', value: 'DAILY_ACTIVITY', description: 'Detailed cost per activity within each day' }
+  ];
 
   difficultyLevelOptions = [
     { label: 'Easy', value: 'Easy' },
@@ -121,6 +135,8 @@ export class EditItinerary implements OnInit {
             description: data.description || '',
             durationDays: data.durationDays || 0,
             difficultyLevel: data.difficultyLevel || '',
+            pricingMode: data.pricingMode || 'DAILY_ACTIVITY',
+            overallPrice: data.overallPrice || 0,
             days: (data.days || []).map((d: any) => ({
               dayNumber: d.dayNumber,
               title: d.title || '',
@@ -135,7 +151,8 @@ export class EditItinerary implements OnInit {
                 name: c.name || '',
                 category: c.category || '',
                 price: c.price || 0
-              }))
+              })),
+              dailyCost: d.dailyCost || 0
             }))
           };
 
@@ -168,7 +185,8 @@ export class EditItinerary implements OnInit {
       lunchIncluded: false,
       dinnerIncluded: false,
       activities: [],
-      costs: []
+      costs: [],
+      dailyCost: 0
     });
 
     this.collapsedDays.push(false);
@@ -233,8 +251,21 @@ export class EditItinerary implements OnInit {
     return this.form.days[dayIndex].costs.reduce((sum, c) => sum + (c.price || 0), 0);
   }
 
+  getDailyCostTotal(): number {
+    return this.form.days.reduce((sum, day) => sum + (day.dailyCost || 0), 0);
+  }
+
   getGrandTotal(): number {
-    return this.form.days.reduce((sum, day) => sum + day.costs.reduce((s, c) => s + (c.price || 0), 0), 0);
+    switch (this.form.pricingMode) {
+      case 'OVERALL':
+        return this.form.overallPrice || 0;
+      case 'DAILY':
+        return this.getDailyCostTotal();
+      case 'DAILY_ACTIVITY':
+        return this.form.days.reduce((sum, day) => sum + day.costs.reduce((s, c) => s + (c.price || 0), 0), 0);
+      default:
+        return 0;
+    }
   }
 
   confirmSave() {
@@ -258,9 +289,14 @@ export class EditItinerary implements OnInit {
   submitUpdate() {
     const payload = {
       ...this.form,
+      totalPrice: this.getGrandTotal(),
+      overallPrice: this.form.pricingMode === 'OVERALL' ? this.form.overallPrice : null,
       days: this.form.days.map(day => ({
         ...day,
-        costs: day.costs.filter(c => c.name && c.price > 0)
+        dailyCost: this.form.pricingMode === 'DAILY' ? day.dailyCost : null,
+        costs: this.form.pricingMode === 'DAILY_ACTIVITY'
+          ? day.costs.filter(c => c.name && c.price > 0)
+          : []
       }))
     };
 

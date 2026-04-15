@@ -32,6 +32,13 @@ export interface BookingGroupByItinerary {
     bookings: UnassignedBookingItem[];
 }
 
+/** Sub-group within an itinerary, bookings sharing the same start date */
+export interface DateSubGroup {
+    startDate: string;          // ISO date string or 'unset'
+    bookings: UnassignedBookingItem[];
+    totalPersons: number;
+}
+
 export interface SuggestedDepartureItem {
     id: number;
     itineraryTitle: string;

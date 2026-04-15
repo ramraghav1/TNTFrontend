@@ -26,6 +26,7 @@ interface ItineraryDay {
   dinnerIncluded: boolean;
   activities: string[];
   costs: DayCost[];
+  dailyCost: number;
 }
 
 interface ItineraryDetail {
@@ -34,6 +35,8 @@ interface ItineraryDetail {
   description: string;
   durationDays: number;
   difficultyLevel: string;
+  pricingMode: string;
+  overallPrice: number;
   days: ItineraryDay[];
 }
 
@@ -107,7 +110,25 @@ export class ItineraryDetailsComponent implements OnInit {
 
   getGrandTotal(): number {
     if (!this.itinerary) return 0;
-    return this.itinerary.days.reduce((sum, day) => sum + this.getDayTotal(day), 0);
+    switch (this.itinerary.pricingMode) {
+      case 'OVERALL':
+        return this.itinerary.overallPrice || 0;
+      case 'DAILY':
+        return this.itinerary.days.reduce((sum, day) => sum + (day.dailyCost || 0), 0);
+      case 'DAILY_ACTIVITY':
+      default:
+        return this.itinerary.days.reduce((sum, day) => sum + this.getDayTotal(day), 0);
+    }
+  }
+
+  getPricingModeLabel(): string {
+    if (!this.itinerary) return '';
+    switch (this.itinerary.pricingMode) {
+      case 'OVERALL': return 'Overall Price';
+      case 'DAILY': return 'Daily Cost';
+      case 'DAILY_ACTIVITY': return 'Per Day & Activity';
+      default: return '';
+    }
   }
 
   getMeals(day: ItineraryDay): string[] {

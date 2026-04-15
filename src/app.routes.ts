@@ -17,6 +17,7 @@ import { MyBookings } from './app/pages/booking/my-bookings/my-bookings';
 import { BookingView } from './app/pages/booking/booking-view/booking-view';
 import { TntDashboard } from './app/pages/booking/tnt-dashboard/tnt-dashboard';
 import { ManageBookings } from './app/pages/booking/manage-bookings/manage-bookings';
+import { EditBooking } from './app/pages/booking/edit-booking/edit-booking';
 import { DepartureList } from './app/pages/booking/departure-list/departure-list';
 import { CountryList } from './app/pages/remittance/country-list/country-list';
 import { PaymentTypeList } from './app/pages/remittance/payment-type-list/payment-type-list';
@@ -83,6 +84,7 @@ export const appRoutes: Routes = [
             { path: 'my-bookings', component: MyBookings },
             { path: 'booking-view/:ref', component: BookingView },
             { path: 'manage-bookings', component: ManageBookings },
+            { path: 'edit-booking/:id', component: EditBooking },
             { path: 'departure-list', component: DepartureList },
             { path: 'tnt-dashboard', component: TntDashboard },
             { path: 'remittance/countries', component: CountryList },
