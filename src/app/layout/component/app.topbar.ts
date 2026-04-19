@@ -13,11 +13,13 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { NotificationService, Notification } from '@/app/layout/service/notification.service';
 import { LanguageSelectorComponent } from './language-selector/language-selector.component';
+import { CurrencySelectorComponent } from './currency-selector/currency-selector.component';
+import { CurrencyService } from '@/app/shared/services/currency.service';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, FormsModule, StyleClassModule, BadgeModule, OverlayBadgeModule, PopoverModule, ButtonModule, InputTextModule, LanguageSelectorComponent],
+    imports: [RouterModule, CommonModule, FormsModule, StyleClassModule, BadgeModule, OverlayBadgeModule, PopoverModule, ButtonModule, InputTextModule, LanguageSelectorComponent, CurrencySelectorComponent],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -54,6 +56,9 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
 
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
+                <!-- Currency Selector -->
+                <app-currency-selector></app-currency-selector>
+
                 <!-- Language Selector -->
                 <app-language-selector></app-language-selector>
 

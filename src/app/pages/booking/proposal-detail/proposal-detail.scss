@@ -1,0 +1,47 @@
+.proposal-detail-container {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.info-row {
+    padding: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-row .label {
+    font-weight: 600;
+    color: var(--text-color-secondary);
+    min-width: 80px;
+}
+
+.info-row .value {
+    color: var(--text-color);
+}
+
+.day-item {
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.day-item-header {
+    padding: 10px 16px;
+    background: var(--surface-ground);
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.day-item-body {
+    padding: 12px 16px;
+}
+
+.payment-item {
+    padding: 12px;
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+}
+
+.feedback-item {
+    /* styling via PrimeNG surface classes in template */
+}

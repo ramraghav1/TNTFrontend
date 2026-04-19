@@ -67,6 +67,7 @@ export class AppMenu {
                 items: [
                     { label: 'Manage Itinerary', icon: 'pi pi-fw pi-map', routerLink: ['/itinerary-list'] },
                     { label: 'Add Itinerary', icon: 'pi pi-fw pi-plus-circle', routerLink: ['/add-itinerary'] },
+                    { label: 'Customize Itinerary', icon: 'pi pi-fw pi-sliders-h', routerLink: ['/customize-itinerary-list'] },
                 ]
             },
             'Booking': {
@@ -74,6 +75,7 @@ export class AppMenu {
                 items: [
                     { label: 'Book Itinerary', icon: 'pi pi-fw pi-bookmark', routerLink: ['/booking-list'] },
                     { label: 'My Bookings', icon: 'pi pi-fw pi-list', routerLink: ['/my-bookings'] },
+                    { label: 'Proposals', icon: 'pi pi-fw pi-send', routerLink: ['/proposals'] },
                     { label: 'Departures', icon: 'pi pi-fw pi-map', routerLink: ['/departure-list'] },
                 ]
             },

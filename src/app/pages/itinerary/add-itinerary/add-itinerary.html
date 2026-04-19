@@ -1,10 +1,16 @@
-<p-toast></p-toast>
-<p-confirmDialog></p-confirmDialog>
-
 <p-fluid>
-  <div class="card flex flex-col gap-6">
-    <!-- Title -->
-    <h2 class="text-2xl font-bold">Create Itinerary</h2>
+  <div class="flex flex-col gap-8">
+    <div>
+      <p-toast></p-toast>
+      <p-confirmDialog></p-confirmDialog>
+    </div>
+
+    <div class="card flex flex-col gap-6">
+      <!-- Title -->
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold m-0">Create Itinerary</h2>
+        <p-button label="Back to List" (click)="router.navigate(['/itinerary-list'])" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" size="small"></p-button>
+      </div>
 
       <!-- Basic Information Section -->
       <div>
@@ -115,6 +121,12 @@
                         <label>Accommodation</label>
                         <input pInputText [(ngModel)]="day.accommodation" placeholder="Hotel/Resort name" class="w-full" />
                       </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="flex flex-col gap-2 w-full">
+                      <label>Description</label>
+                      <textarea pInputTextarea [(ngModel)]="day.description" placeholder="Describe the day's plan, highlights, and details..." rows="3" class="w-full"></textarea>
                     </div>
 
                     <!-- Second Row -->
@@ -234,8 +246,9 @@
 
       <!-- Action Buttons -->
       <div class="flex justify-end gap-3 mt-4">
-        <p-button label="Save Itinerary" (click)="confirmSave()" icon="pi pi-check"></p-button>
+        <p-button label="Save Itinerary" (click)="confirmSave()" icon="pi pi-check" severity="success"></p-button>
         <p-button label="Cancel" severity="secondary" (click)="confirmCancel()" icon="pi pi-times"></p-button>
       </div>
     </div>
+  </div>
 </p-fluid>

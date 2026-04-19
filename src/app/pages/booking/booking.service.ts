@@ -27,6 +27,7 @@ export interface ItineraryDay {
     id: number;
     dayNumber: number;
     title: string;
+    description: string;
     location: string;
     accommodation: string;
     transport: string;

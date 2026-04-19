@@ -18,6 +18,7 @@ interface ItineraryDay {
   id: number;
   dayNumber: number;
   title: string;
+  description: string;
   location: string;
   accommodation: string;
   transport: string;
@@ -146,6 +147,12 @@ export class ItineraryDetailsComponent implements OnInit {
   goEdit() {
     if (this.itinerary) {
       this.router.navigate(['/edit-itinerary', this.itinerary.id]);
+    }
+  }
+
+  goSendProposal() {
+    if (this.itinerary) {
+      this.router.navigate(['/proposal-customize', this.itinerary.id]);
     }
   }
 }

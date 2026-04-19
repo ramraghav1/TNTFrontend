@@ -29,6 +29,7 @@ interface DayCostEntry {
 interface ItineraryDayForm {
   dayNumber: number;
   title: string;
+  description: string;
   location: string;
   accommodation: string;
   transport: string;
@@ -140,6 +141,7 @@ export class EditItinerary implements OnInit {
             days: (data.days || []).map((d: any) => ({
               dayNumber: d.dayNumber,
               title: d.title || '',
+              description: d.description || '',
               location: d.location || '',
               accommodation: d.accommodation || '',
               transport: d.transport || '',
@@ -178,6 +180,7 @@ export class EditItinerary implements OnInit {
     this.form.days.push({
       dayNumber: dayNum,
       title: '',
+      description: '',
       location: '',
       accommodation: '',
       transport: '',

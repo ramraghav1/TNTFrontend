@@ -58,6 +58,11 @@ import { FinanceInvoiceList } from './app/pages/finance/invoice-list/invoice-lis
 import { ExpenseList } from './app/pages/finance/expense-list/expense-list';
 import { CommissionList } from './app/pages/finance/commission-list/commission-list';
 import { RefundList } from './app/pages/finance/refund-list/refund-list';
+import { ProposalList } from './app/pages/booking/proposal-list/proposal-list';
+import { ProposalCustomize } from './app/pages/booking/proposal-customize/proposal-customize';
+import { ProposalDetail } from './app/pages/booking/proposal-detail/proposal-detail';
+import { CustomizeItineraryList } from './app/pages/itinerary/customize-itinerary-list/customize-itinerary-list';
+import { CustomizeItinerary } from './app/pages/itinerary/customize-itinerary/customize-itinerary';
 import { authGuard } from './app/auth.guard';
 
 export const appRoutes: Routes = [
@@ -86,6 +91,11 @@ export const appRoutes: Routes = [
             { path: 'manage-bookings', component: ManageBookings },
             { path: 'edit-booking/:id', component: EditBooking },
             { path: 'departure-list', component: DepartureList },
+            { path: 'proposals', component: ProposalList },
+            { path: 'proposal-customize/:itineraryId', component: ProposalCustomize },
+            { path: 'proposal-detail/:id', component: ProposalDetail },
+            { path: 'customize-itinerary-list', component: CustomizeItineraryList },
+            { path: 'customize-itinerary/:id', component: CustomizeItinerary },
             { path: 'tnt-dashboard', component: TntDashboard },
             { path: 'remittance/countries', component: CountryList },
             { path: 'remittance/payment-types', component: PaymentTypeList },
@@ -143,6 +153,10 @@ export const appRoutes: Routes = [
     {
         path: 'tour',
         loadChildren: () => import('./app/pages/tour-website/tour.routes').then(m => m.tourRoutes)
+    },
+    {
+        path: 'proposal',
+        loadChildren: () => import('./app/pages/proposal-public/proposal-public.routes').then(m => m.proposalPublicRoutes)
     },
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./app/pages/auth/auth.routes') },

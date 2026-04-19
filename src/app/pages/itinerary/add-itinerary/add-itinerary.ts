@@ -14,6 +14,7 @@ import { HttpClient } from '@angular/common/http';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Toast } from 'primeng/toast';
+import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 
 type PricingMode = 'OVERALL' | 'DAILY' | 'DAILY_ACTIVITY';
@@ -27,6 +28,7 @@ interface DayCostEntry {
 interface CreateItineraryDayRequest {
   dayNumber: number;
   title: string;
+  description: string;
   location: string;
   accommodation: string;
   transport: string;
@@ -107,6 +109,7 @@ export class AddItinerary {
 
   constructor(
     private http: HttpClient,
+    public router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
@@ -119,6 +122,7 @@ export class AddItinerary {
     this.form.days.push({
       dayNumber: dayNum,
       title: '',
+      description: '',
       location: '',
       accommodation: '',
       transport: '',

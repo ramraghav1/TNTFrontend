@@ -88,6 +88,10 @@ export class ItineraryList implements OnInit {
     this.router.navigate(['edit-itinerary', itinerary.id]);
   }
 
+  sendProposal(itinerary: Itinerary) {
+    this.router.navigate(['proposal-customize', itinerary.id]);
+  }
+
   difficultyTag(level: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
     const l = (level ?? '').toLowerCase();
     if (l.includes('easy'))      return 'success';

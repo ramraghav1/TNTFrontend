@@ -1,9 +1,10 @@
-import { Component, OnInit, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect } from '@angular/core';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { filter } from 'rxjs/operators';
 import { LayoutService } from './app/layout/service/layout.service';
+import { CurrencyService } from './app/shared/services/currency.service';
 
 const DEFAULT_TITLE = 'Suryantra Technologies';
 
@@ -13,12 +14,13 @@ const DEFAULT_TITLE = 'Suryantra Technologies';
     imports: [RouterModule],
     template: `<router-outlet></router-outlet>`
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
     constructor(
         private translate: TranslateService,
         private titleService: Title,
         private router: Router,
-        private layoutService: LayoutService
+        private layoutService: LayoutService,
+        private currencyService: CurrencyService
     ) {
         // Re-generate favicon whenever theme primary color or dark mode changes
         effect(() => {
@@ -46,6 +48,13 @@ export class AppComponent implements OnInit {
         this.router.events.pipe(
             filter(event => event instanceof NavigationEnd)
         ).subscribe(() => this.updateTitleAndFavicon());
+
+        // Initialize multi-currency exchange rates
+        this.currencyService.initialize();
+    }
+
+    ngOnDestroy(): void {
+        this.currencyService.disconnect();
     }
 
     private updateTitleAndFavicon(): void {

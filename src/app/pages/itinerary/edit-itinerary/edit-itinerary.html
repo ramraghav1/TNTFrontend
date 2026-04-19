@@ -133,6 +133,12 @@
                         </div>
                       </div>
 
+                      <!-- Description -->
+                      <div class="flex flex-col gap-2 w-full">
+                        <label>Description</label>
+                        <textarea pInputTextarea [(ngModel)]="day.description" placeholder="Describe the day's plan, highlights, and details..." rows="3" class="w-full"></textarea>
+                      </div>
+
                       <!-- Second Row -->
                       <div class="flex flex-col md:flex-row gap-6">
                         <div class="flex flex-col gap-2 w-full">
