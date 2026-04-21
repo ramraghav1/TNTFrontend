@@ -8,57 +8,128 @@
 
     <div *ngIf="!loading && proposal">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <h2 class="m-0">Proposal Detail</h2>
-                <p class="text-gray-500 mt-1 mb-0">{{ proposal.itineraryTitle }}</p>
+        <div class="detail-header">
+            <div class="detail-header-left">
+                <h2 class="m-0">{{ proposal.itineraryTitle }}</h2>
+                <div class="detail-header-meta">
+                    <p-tag [value]="proposal.status" [severity]="getStatusSeverity(proposal.status)"></p-tag>
+                    <span class="text-color-secondary"><i class="pi pi-calendar mr-1"></i>{{ proposal.startDate | date:'MMM d' }} — {{ proposal.endDate | date:'MMM d, yyyy' }}</span>
+                    <span class="text-primary font-bold"><i class="pi pi-wallet mr-1"></i>NPR {{ proposal.totalAmount | number:'1.2-2' }}</span>
+                </div>
             </div>
-            <div class="flex gap-2">
+            <div class="detail-header-actions">
                 <button pButton icon="pi pi-refresh" label="Re-customize & Resend" class="p-button-outlined" (click)="resend()"></button>
                 <button pButton icon="pi pi-arrow-left" label="Back" class="p-button-text" (click)="goBack()"></button>
             </div>
         </div>
 
-        <!-- Status & Traveler Info -->
-        <div class="card mb-4">
-            <div class="grid">
-                <div class="col-12 md:col-6">
-                    <h3 class="mt-0 mb-3"><i class="pi pi-user mr-2"></i>Traveler</h3>
-                    <div class="info-row"><span class="label">Name:</span> <span class="value">{{ proposal.travelerName }}</span></div>
-                    <div class="info-row"><span class="label">Email:</span> <span class="value">{{ proposal.travelerEmail }}</span></div>
-                    <div class="info-row" *ngIf="proposal.travelerPhone"><span class="label">Phone:</span> <span class="value">{{ proposal.travelerPhone }}</span></div>
+        <!-- Traveler & Proposal Info -->
+        <div class="detail-info-grid">
+            <div class="card info-card">
+                <div class="info-card-header">
+                    <i class="pi pi-user"></i>
+                    <span>Traveler Information</span>
                 </div>
-                <div class="col-12 md:col-6">
-                    <h3 class="mt-0 mb-3"><i class="pi pi-info-circle mr-2"></i>Proposal Info</h3>
-                    <div class="info-row"><span class="label">Status:</span> <p-tag [value]="proposal.status" [severity]="getStatusSeverity(proposal.status)"></p-tag></div>
-                    <div class="info-row"><span class="label">Dates:</span> <span class="value">{{ proposal.startDate | date:'MMM d' }} — {{ proposal.endDate | date:'MMM d, yyyy' }}</span></div>
-                    <div class="info-row"><span class="label">Total:</span> <span class="value font-bold text-green-600">NPR {{ proposal.totalAmount | number:'1.2-2' }}</span></div>
-                    <div class="info-row"><span class="label">Sent:</span> <span class="value">{{ proposal.createdAt | date:'MMM d, yyyy HH:mm' }}</span></div>
-                    <div class="info-row"><span class="label">Expires:</span> <span class="value">{{ proposal.expiresAt | date:'MMM d, yyyy HH:mm' }}</span></div>
-                    <div class="info-row" *ngIf="proposal.notes"><span class="label">Notes:</span> <span class="value">{{ proposal.notes }}</span></div>
+                <div class="info-card-body">
+                    <div class="info-field">
+                        <span class="info-label">Name</span>
+                        <span class="info-value">{{ proposal.travelerName }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ proposal.travelerEmail }}</span>
+                    </div>
+                    <div class="info-field" *ngIf="proposal.travelerPhone">
+                        <span class="info-label">Phone</span>
+                        <span class="info-value">{{ proposal.travelerPhone }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card info-card">
+                <div class="info-card-header">
+                    <i class="pi pi-info-circle"></i>
+                    <span>Proposal Details</span>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-field">
+                        <span class="info-label">Sent</span>
+                        <span class="info-value">{{ proposal.createdAt | date:'MMM d, yyyy HH:mm' }}</span>
+                    </div>
+                    <div class="info-field">
+                        <span class="info-label">Expires</span>
+                        <span class="info-value">{{ proposal.expiresAt | date:'MMM d, yyyy HH:mm' }}</span>
+                    </div>
+                    <div class="info-field" *ngIf="proposal.notes">
+                        <span class="info-label">Notes</span>
+                        <span class="info-value">{{ proposal.notes }}</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Itinerary Days -->
+        <!-- Day-by-Day Itinerary -->
         <div class="card mb-4">
-            <h3 class="mt-0 mb-3"><i class="pi pi-list mr-2"></i>Itinerary ({{ proposal.days.length }} Days)</h3>
-            <div *ngFor="let day of proposal.days" class="day-item mb-3">
-                <div class="day-item-header">
-                    <span class="font-bold text-primary">Day {{ day.dayNumber }}</span>
-                    <span *ngIf="day.title" class="ml-2 font-semibold">— {{ day.title }}</span>
-                    <span class="float-right text-green-600 font-semibold">NPR {{ day.dailyCost | number:'1.0-0' }}</span>
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="pi pi-map"></i>
+                    <span>Day-by-Day Itinerary</span>
                 </div>
-                <div class="day-item-body">
-                    <div class="grid">
-                        <div class="col-6 md:col-3" *ngIf="day.location"><small class="text-gray-400">Location</small><br>{{ day.location }}</div>
-                        <div class="col-6 md:col-3" *ngIf="day.accommodation"><small class="text-gray-400">Stay</small><br>{{ day.accommodation }}</div>
-                        <div class="col-6 md:col-3" *ngIf="day.transport"><small class="text-gray-400">Transport</small><br>{{ day.transport }}</div>
-                        <div class="col-6 md:col-3"><small class="text-gray-400">Meals</small><br>{{ getMeals(day).join(', ') || 'None' }}</div>
+                <span class="section-badge">{{ proposal.days.length }} Days</span>
+            </div>
+
+            <div class="day-timeline">
+                <div *ngFor="let day of proposal.days; let last = last" class="day-card" [class.last]="last">
+                    <div class="day-marker">
+                        <div class="day-number">{{ day.dayNumber }}</div>
+                        <div class="day-line" *ngIf="!last"></div>
                     </div>
-                    <div *ngIf="day.activities.length" class="mt-2">
-                        <small class="text-gray-400">Activities:</small>
-                        <span *ngFor="let act of day.activities" class="ml-2 text-sm surface-100 px-2 py-1 border-round">{{ act }}</span>
+                    <div class="day-content">
+                        <div class="day-content-header">
+                            <div>
+                                <h4 class="m-0" *ngIf="day.title">{{ day.title }}</h4>
+                                <span class="text-color-secondary text-sm" *ngIf="day.description">{{ day.description }}</span>
+                            </div>
+                            <span class="day-cost">NPR {{ day.dailyCost | number:'1.0-0' }}</span>
+                        </div>
+
+                        <div class="day-details">
+                            <div class="day-detail-item" *ngIf="day.location">
+                                <i class="pi pi-map-marker"></i>
+                                <div>
+                                    <small class="detail-label">Location</small>
+                                    <span>{{ day.location }}</span>
+                                </div>
+                            </div>
+                            <div class="day-detail-item" *ngIf="day.accommodation">
+                                <i class="pi pi-building"></i>
+                                <div>
+                                    <small class="detail-label">Accommodation</small>
+                                    <span>{{ day.accommodation }}</span>
+                                </div>
+                            </div>
+                            <div class="day-detail-item" *ngIf="day.transport">
+                                <i class="pi pi-car"></i>
+                                <div>
+                                    <small class="detail-label">Transport</small>
+                                    <span>{{ day.transport }}</span>
+                                </div>
+                            </div>
+                            <div class="day-detail-item">
+                                <i class="pi pi-utensils" style="font-size: 0.85rem;"></i>
+                                <div>
+                                    <small class="detail-label">Meals</small>
+                                    <span>{{ getMeals(day).join(', ') || 'None included' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="day.activities.length" class="day-activities">
+                            <small class="detail-label"><i class="pi pi-flag mr-1"></i>Activities</small>
+                            <div class="activity-tags">
+                                <span *ngFor="let act of day.activities" class="activity-tag">{{ act }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -66,17 +137,24 @@
 
         <!-- Payments Section -->
         <div class="card mb-4">
-            <h3 class="mt-0 mb-3"><i class="pi pi-money-bill mr-2"></i>Payments ({{ payments.length }})</h3>
-            <div *ngFor="let pay of payments" class="payment-item mb-3">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <span class="font-semibold">NPR {{ pay.amount | number:'1.2-2' }}</span>
-                        <span class="ml-2 text-sm text-gray-400">({{ pay.paymentType }})</span>
-                        <p-tag class="ml-2" [value]="pay.status" [severity]="getStatusSeverity(pay.status)"></p-tag>
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="pi pi-money-bill"></i>
+                    <span>Payments</span>
+                </div>
+                <span class="section-badge">{{ payments.length }}</span>
+            </div>
+
+            <div *ngFor="let pay of payments" class="payment-card">
+                <div class="payment-card-top">
+                    <div class="payment-card-info">
+                        <span class="payment-amount">NPR {{ pay.amount | number:'1.2-2' }}</span>
+                        <span class="payment-type">{{ pay.paymentType }}</span>
+                        <p-tag [value]="pay.status" [severity]="getStatusSeverity(pay.status)"></p-tag>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-400">{{ pay.createdAt | date:'MMM d, yyyy HH:mm' }}</span>
-                        <div *ngIf="pay.status === 'Pending'" class="flex gap-1">
+                    <div class="payment-card-actions">
+                        <span class="text-sm text-color-secondary">{{ pay.createdAt | date:'MMM d, yyyy HH:mm' }}</span>
+                        <div *ngIf="pay.status === 'Pending'" class="flex gap-1 ml-2">
                             <button pButton icon="pi pi-check" class="p-button-success p-button-sm p-button-rounded"
                                 pTooltip="Verify" (click)="openVerifyDialog(pay.id, true)"></button>
                             <button pButton icon="pi pi-times" class="p-button-danger p-button-sm p-button-rounded"
@@ -84,33 +162,41 @@
                         </div>
                     </div>
                 </div>
-                <div *ngIf="pay.screenshotPath" class="mt-2">
-                    <small class="text-gray-400">Payment Screenshot:</small>
-                    <div class="mt-1">
-                        <p-image [src]="getScreenshotUrl(pay.screenshotPath)" alt="Payment Screenshot"
-                            width="200" [preview]="true"></p-image>
-                    </div>
+                <div *ngIf="pay.screenshotPath" class="payment-screenshot">
+                    <small class="detail-label">Payment Screenshot</small>
+                    <p-image [src]="getScreenshotUrl(pay.screenshotPath)" alt="Payment Screenshot"
+                        width="200" [preview]="true"></p-image>
                 </div>
-                <div *ngIf="pay.verifiedBy" class="mt-1 text-sm text-gray-400">
+                <div *ngIf="pay.verifiedBy" class="payment-verified">
+                    <i class="pi pi-check-circle mr-1"></i>
                     Verified by {{ pay.verifiedBy }} on {{ pay.verifiedAt | date:'MMM d, yyyy HH:mm' }}
                 </div>
             </div>
-            <div *ngIf="payments.length === 0" class="text-center py-4 text-gray-400">
-                <i class="pi pi-info-circle mr-1"></i> No payments submitted yet.
+
+            <div *ngIf="payments.length === 0" class="empty-section">
+                <i class="pi pi-wallet"></i>
+                <span>No payments submitted yet.</span>
             </div>
         </div>
 
         <!-- Feedback Section -->
         <div class="card mb-4">
-            <h3 class="mt-0 mb-3"><i class="pi pi-comment mr-2"></i>Traveler Feedback ({{ feedback.length }})</h3>
-            <div *ngFor="let fb of feedback" class="feedback-item mb-3">
-                <div class="p-3 surface-100 border-round">
-                    <p class="m-0">{{ fb.message }}</p>
-                    <small class="text-gray-400 mt-1 block">{{ fb.createdAt | date:'MMM d, yyyy HH:mm' }}</small>
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="pi pi-comment"></i>
+                    <span>Traveler Feedback</span>
                 </div>
+                <span class="section-badge">{{ feedback.length }}</span>
             </div>
-            <div *ngIf="feedback.length === 0" class="text-center py-4 text-gray-400">
-                <i class="pi pi-info-circle mr-1"></i> No feedback received yet.
+
+            <div *ngFor="let fb of feedback" class="feedback-bubble">
+                <p class="m-0">{{ fb.message }}</p>
+                <small class="text-color-secondary mt-2 block">{{ fb.createdAt | date:'MMM d, yyyy HH:mm' }}</small>
+            </div>
+
+            <div *ngIf="feedback.length === 0" class="empty-section">
+                <i class="pi pi-comments"></i>
+                <span>No feedback received yet.</span>
             </div>
         </div>
     </div>

@@ -2,6 +2,11 @@ import { Routes } from '@angular/router';
 
 export const tenantRoutes: Routes = [
     {
+        path: 'manage',
+        loadComponent: () => import('./manage-tenants/manage-tenants').then(m => m.ManageTenantsComponent),
+        data: { breadcrumb: 'Manage Tenants' }
+    },
+    {
         path: 'settings',
         loadComponent: () => import('./tenant-settings/tenant-settings').then(m => m.TenantSettingsComponent),
         data: { breadcrumb: 'Settings' }
@@ -18,7 +23,7 @@ export const tenantRoutes: Routes = [
     },
     {
         path: '',
-        redirectTo: 'settings',
+        redirectTo: 'manage',
         pathMatch: 'full'
     }
 ];

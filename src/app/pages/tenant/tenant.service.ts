@@ -19,6 +19,27 @@ export class TenantService {
     constructor(private http: HttpClient) { }
 
     /**
+     * ADMIN: Get all tenants
+     */
+    getAllTenants(): Observable<TenantResponse[]> {
+        return this.http.get<TenantResponse[]>(`${this.baseUrl}/all`);
+    }
+
+    /**
+     * ADMIN: Get tenant by ID
+     */
+    getTenantById(id: number): Observable<TenantResponse> {
+        return this.http.get<TenantResponse>(`${this.baseUrl}/${id}`);
+    }
+
+    /**
+     * ADMIN: Update tenant by ID
+     */
+    updateTenantById(id: number, request: UpdateTenantRequest): Observable<{ message: string }> {
+        return this.http.put<{ message: string }>(`${this.baseUrl}/${id}`, request);
+    }
+
+    /**
      * Get current user's tenant information
      */
     getCurrentTenant(): Observable<TenantResponse> {

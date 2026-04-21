@@ -135,6 +135,7 @@ export class AppMenu {
             'Tenant': {
                 label: 'Tenant Management',
                 items: [
+                    { label: 'Manage Tenants', icon: 'pi pi-fw pi-list', routerLink: ['/pages/tenant/manage'] },
                     { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/pages/tenant/settings'] },
                     { label: 'Products', icon: 'pi pi-fw pi-box', routerLink: ['/pages/tenant/products'] },
                     { label: 'Create Tenant', icon: 'pi pi-fw pi-plus-circle', routerLink: ['/pages/tenant/create'] },

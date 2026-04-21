@@ -56,8 +56,6 @@ import { CurrencyService } from '@/app/shared/services/currency.service';
 
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
-                <!-- Currency Selector -->
-                <app-currency-selector></app-currency-selector>
 
                 <!-- Language Selector -->
                 <app-language-selector></app-language-selector>
