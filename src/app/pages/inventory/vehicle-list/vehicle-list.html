@@ -51,7 +51,11 @@
                 </td>
                 <td>{{ vehicle.registrationNumber }}</td>
                 <td>{{ vehicle.capacity }} {{ 'inventory.seats' | translate }}</td>
-                <td>${{ vehicle.pricePerDay }}/{{ 'inventory.day' | translate }}</td>
+                <td>
+                    <div>NPR {{ vehicle.pricePerDay }}</div>
+                    <small class="text-gray-500" *ngIf="vehicle.pricePerDayUsd">USD {{ vehicle.pricePerDayUsd }}</small>
+                    <small class="text-gray-500 ml-2" *ngIf="vehicle.pricePerDayInr">INR {{ vehicle.pricePerDayInr }}</small>
+                </td>
                 <td>
                     <p-tag 
                         [value]="vehicle.isActive ? ('inventory.active' | translate) : ('inventory.inactive' | translate)" 

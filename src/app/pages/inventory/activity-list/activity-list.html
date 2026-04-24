@@ -78,7 +78,11 @@
                     ></p-tag>
                 </td>
                 <td>{{ activity.minParticipants }} - {{ activity.maxParticipants }}</td>
-                <td>${{ activity.pricePerPerson }}</td>
+                <td>
+                    <div>NPR {{ activity.pricePerPerson }}</div>
+                    <small class="text-gray-500" *ngIf="activity.pricePerPersonUsd">USD {{ activity.pricePerPersonUsd }}</small>
+                    <small class="text-gray-500 ml-2" *ngIf="activity.pricePerPersonInr">INR {{ activity.pricePerPersonInr }}</small>
+                </td>
                 <td>
                     <p-tag 
                         [value]="activity.isActive ? ('common.active' | translate) : ('common.inactive' | translate)" 

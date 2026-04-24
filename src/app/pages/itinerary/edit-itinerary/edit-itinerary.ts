@@ -17,6 +17,7 @@ import { Toast } from 'primeng/toast';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { environment } from '../../../../environments/environment';
+import { InventoryService, Hotel, Guide } from '../../inventory/inventory.service';
 
 type PricingMode = 'OVERALL' | 'DAILY' | 'DAILY_ACTIVITY';
 
@@ -39,6 +40,10 @@ interface ItineraryDayForm {
   activities: string[];
   costs: DayCostEntry[];
   dailyCost: number;
+  hotelId: number | null;
+  guideId: number | null;
+  guideNeeded: boolean;
+  hotelNeeded: boolean;
 }
 
 interface ItineraryForm {
@@ -101,6 +106,12 @@ export class EditItinerary implements OnInit {
   collapsedDays: boolean[] = [];
   showPricing: boolean[] = [];
 
+  // Inventory data for hotel/guide selection
+  hotels: Hotel[] = [];
+  guides: Guide[] = [];
+  hotelOptions: { label: string; value: number }[] = [];
+  guideOptions: { label: string; value: number }[] = [];
+
   predefinedCosts = [
     { name: 'Breakfast', category: 'Meal' },
     { name: 'Lunch', category: 'Meal' },
@@ -118,12 +129,37 @@ export class EditItinerary implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private inventoryService: InventoryService
   ) {}
 
   ngOnInit() {
     this.itineraryId = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadInventory();
     this.loadItinerary();
+  }
+
+  loadInventory() {
+    this.inventoryService.getHotels().subscribe({
+      next: (data) => {
+        this.hotels = data;
+        this.hotelOptions = data.map(h => ({ label: `${h.name} - ${h.location}`, value: h.id! }));
+      }
+    });
+    this.inventoryService.getGuides().subscribe({
+      next: (data) => {
+        this.guides = data;
+        this.guideOptions = data.map(g => ({ label: `${g.fullName} (${g.languages?.join(', ') || 'N/A'}) - Rs.${g.pricePerDay}/day`, value: g.id! }));
+      }
+    });
+  }
+
+  getSelectedHotel(hotelId: number | null): Hotel | undefined {
+    return this.hotels.find(h => h.id === hotelId);
+  }
+
+  getSelectedGuide(guideId: number | null): Guide | undefined {
+    return this.guides.find(g => g.id === guideId);
   }
 
   loadItinerary() {
@@ -154,7 +190,11 @@ export class EditItinerary implements OnInit {
                 category: c.category || '',
                 price: c.price || 0
               })),
-              dailyCost: d.dailyCost || 0
+              dailyCost: d.dailyCost || 0,
+              hotelId: d.hotelId || null,
+              guideId: d.guideId || null,
+              hotelNeeded: !!d.hotelId,
+              guideNeeded: !!d.guideId
             }))
           };
 
@@ -189,7 +229,11 @@ export class EditItinerary implements OnInit {
       dinnerIncluded: false,
       activities: [],
       costs: [],
-      dailyCost: 0
+      dailyCost: 0,
+      hotelId: null,
+      guideId: null,
+      guideNeeded: false,
+      hotelNeeded: false
     });
 
     this.collapsedDays.push(false);
@@ -271,6 +315,27 @@ export class EditItinerary implements OnInit {
     }
   }
 
+  getDayInventoryCost(day: ItineraryDayForm): number {
+    let cost = 0;
+    if (day.hotelNeeded && day.hotelId) {
+      const hotel = this.getSelectedHotel(day.hotelId);
+      if (hotel && hotel.rooms && hotel.rooms.length > 0) {
+        cost += hotel.rooms[0].pricePerNight || 0;
+      }
+    }
+    if (day.guideNeeded && day.guideId) {
+      const guide = this.getSelectedGuide(day.guideId);
+      if (guide) {
+        cost += guide.pricePerDay || 0;
+      }
+    }
+    return cost;
+  }
+
+  getTotalInventoryCost(): number {
+    return this.form.days.reduce((sum, day) => sum + this.getDayInventoryCost(day), 0);
+  }
+
   confirmSave() {
     if (!this.form.title || !this.form.durationDays || this.form.days.length === 0) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill all required fields' });
@@ -294,13 +359,18 @@ export class EditItinerary implements OnInit {
       ...this.form,
       totalPrice: this.getGrandTotal(),
       overallPrice: this.form.pricingMode === 'OVERALL' ? this.form.overallPrice : null,
-      days: this.form.days.map(day => ({
-        ...day,
-        dailyCost: this.form.pricingMode === 'DAILY' ? day.dailyCost : null,
-        costs: this.form.pricingMode === 'DAILY_ACTIVITY'
-          ? day.costs.filter(c => c.name && c.price > 0)
-          : []
-      }))
+      days: this.form.days.map(day => {
+        const { guideNeeded, hotelNeeded, ...dayData } = day;
+        return {
+          ...dayData,
+          hotelId: day.hotelNeeded ? day.hotelId : null,
+          guideId: day.guideNeeded ? day.guideId : null,
+          dailyCost: this.form.pricingMode === 'DAILY' ? day.dailyCost : null,
+          costs: this.form.pricingMode === 'DAILY_ACTIVITY'
+            ? day.costs.filter(c => c.name && c.price > 0)
+            : []
+        };
+      })
     };
 
     this.http.put(`${environment.apiBaseUrl}/Itineraries/update/${this.itineraryId}`, payload).subscribe({

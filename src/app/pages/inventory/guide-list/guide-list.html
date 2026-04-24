@@ -58,7 +58,11 @@
                 </td>
                 <td>{{ guide.experienceYears }} {{ 'inventory.years' | translate }}</td>
                 <td>{{ getRatingStars(guide.rating) }}</td>
-                <td>${{ guide.pricePerDay }}/{{ 'inventory.day' | translate }}</td>
+                <td>
+                    <div>NPR {{ guide.pricePerDay }}</div>
+                    <small class="text-gray-500" *ngIf="guide.pricePerDayUsd">USD {{ guide.pricePerDayUsd }}</small>
+                    <small class="text-gray-500 ml-2" *ngIf="guide.pricePerDayInr">INR {{ guide.pricePerDayInr }}</small>
+                </td>
                 <td>
                     <p-tag 
                         [value]="guide.isActive ? ('inventory.active' | translate) : ('inventory.inactive' | translate)" 

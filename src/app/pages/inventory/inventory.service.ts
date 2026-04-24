@@ -13,6 +13,8 @@ export interface HotelRoom {
     capacity: number;
     totalRooms: number;
     pricePerNight: number;
+    pricePerNightUsd?: number;
+    pricePerNightInr?: number;
     features: string[];
 }
 
@@ -44,6 +46,8 @@ export interface Vehicle {
     capacity: number;
     features: string[];
     pricePerDay: number;
+    pricePerDayUsd?: number;
+    pricePerDayInr?: number;
     driverName?: string;
     driverContact?: string;
     insuranceExpiry?: string;
@@ -66,6 +70,8 @@ export interface Guide {
     specialization?: string;
     certifications?: string;
     pricePerDay: number;
+    pricePerDayUsd?: number;
+    pricePerDayInr?: number;
     rating?: number;
     bio?: string;
     photo?: string;
@@ -88,6 +94,8 @@ export interface Activity {
     minParticipants?: number;
     equipment: string[];
     pricePerPerson: number;
+    pricePerPersonUsd?: number;
+    pricePerPersonInr?: number;
     description?: string;
     safetyInstructions?: string;
     images: string[];
